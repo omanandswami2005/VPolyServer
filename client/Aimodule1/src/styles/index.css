@@ -1,0 +1,21 @@
+
+*{
+    margin: 0%;
+    padding: 0%;
+    box-sizing: border-box;
+    
+}
+
+::selection{
+    background-color: rgb(0, 182, 254);
+}
+
+div{
+    /* padding: 5px; */
+    
+}
+
+body {
+     background: linear-gradient(45deg, rgb(253, 253, 253), rgb(255, 0, 0));
+}
+

@@ -1,0 +1,11 @@
+.accordion{
+    width: 40vw;
+}
+
+
+@media screen and (max-width:600px) {
+    .accordion{
+        width: 80vw;
+    }
+    
+}

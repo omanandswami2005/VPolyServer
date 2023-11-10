@@ -1,0 +1,31 @@
+.logo{
+    width: 13rem;
+    height:auto;
+    /* margin:auto; */
+    border-radius:5%;   
+    
+    max-width: 100%; /* Ensure the image doesn't exceed the container width */
+    max-height: 100%;
+    margin-bottom: 2rem;
+    margin-top: 1rem;
+    /* display: block;  */
+    /* margin: 0 auto; */
+}
+.img{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 98vw;
+}
+
+@media screen and (min-width: 600px) {
+    .logo{
+        width: 15rem;
+    }
+}
+@media screen and (max-width: 400px) {
+    .logo{
+        width: 10rem;
+    }
+    
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../ml1/index.css">
+    <link rel="stylesheet" href="./">
+
+    <title>AI Attendance System</title>
+</head>
+
+<body onload="stop()">
+    <h2>VAPM AI Attendance System </h2>
+    <button id="startButton" type="button" onclick="init()">Start</button>
+    <div id="webcam-container"></div>
+    <div id="label-container"></div>
+    <div id="present"></div>
+    <button id="refreshButton" >Stop (Refresh Page)</button>
+    <button onclick="viewAttendanceData()">viewAttendanceData</button>
+
+
+</body>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script> -->
+
+<!-- <script src="../ml1/index.js"></script> -->
+<script src="../ml1/cdnTFMin.js"></script>
+<script src="../ml1/tmmodel.js"></script>
+
+
+</html>

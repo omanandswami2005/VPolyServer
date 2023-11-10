@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 
-const ProtectedRoute = ({ component: Component,path }) => {
+const ProtectedRoute = ({ component: Component,path ,props }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null); 
   const [data,setData]=useState(null);// Initially, unknown
 
@@ -28,11 +28,11 @@ const ProtectedRoute = ({ component: Component,path }) => {
 
     checkAuthentication();
   }, [path]);
-console.log(data)
+// console.log(data)
   return (
     <div className='App'>
       {isAuthenticated === true ? (
-        <Component userData={data} />
+        <Component userData={data} props={props} />
       ) : isAuthenticated === false ? (
         <Navigate to="/login" />
       ) : (

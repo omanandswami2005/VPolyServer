@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Container, Form, FormGroup, Label, Input, Button } from 'reactstrap';
+import {  Form, FormGroup, Label, Input, Button } from 'reactstrap';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import '../styles/Login.css';
 
 
 function Login() {
@@ -33,10 +34,13 @@ function Login() {
       });
 
       // Check the response status
+      // console.log(response);
       if (response.ok) {
         // Authentication successful, you can redirect or perform other actions here
+        console.log(response.json());
        
         // toast.success("Login Successful");
+        toast(`Welcome ${facultyId} !!!`)
         navigate('/dashboard');
 
 
@@ -52,7 +56,7 @@ function Login() {
 
   return (
     
-    <Container className='w-75 m-auto border p-3 my-5'>
+    <div className='login'>
       <h2>Faculty Login</h2>
       <Form onSubmit={handleSubmit} >
         <FormGroup>
@@ -60,9 +64,10 @@ function Login() {
           <Input
             type="text"
             id="facultyId"
-            placeholder="Enter your faculty ID"
+            placeholder="Enter Your Faculty ID"
             value={facultyId}
             onChange={(e) => setFacultyId(e.target.value)}
+            required
           />
         </FormGroup>
         <FormGroup>
@@ -70,16 +75,17 @@ function Login() {
           <Input
             type="password"
             id="password"
-            placeholder="Enter your password"
+            placeholder="Enter Your Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </FormGroup>
         <Button color="primary" block type="submit">
           Login
         </Button>
       </Form>
-    </Container>
+    </div>
   );
 }
 

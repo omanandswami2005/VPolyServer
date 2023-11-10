@@ -1,0 +1,27 @@
+.login{
+    width: 40vw;
+    
+
+    border: 5px double rgb(0, 0, 0);
+    padding: 3px;
+    margin: 10rem 0;
+    padding: 1rem;
+   
+
+}
+
+body{
+    display: flex;
+    justify-content: center;
+    
+}
+
+@media screen and (max-width: 600px) {
+    .login{
+        width: 75vw;
+        padding: 1rem;
+        /* margin-top: ; */
+
+    }
+}
+    
