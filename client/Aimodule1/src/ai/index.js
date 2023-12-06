@@ -107,6 +107,7 @@ async function loop() {
 }
 
 // run the webcam image through the image model
+
 let bool = "";
 async function predict() {
     const currentDate = getCurrentDate(); // Get the current date
@@ -127,6 +128,7 @@ async function predict() {
 
                 // Check if the enrollment number exists in the student data
                 const student = studentsData.find(
+                    // eslint-disable-next-line
                     (student) => student.name === bool
                 );
 

@@ -33,25 +33,25 @@ const App = ()=> {
 
       
 
-        <Route path="/dashboard/ai" element={<ProtectedRoute component={AiAttendace} path="/dashboard" />} />
+        <Route path="/dashboard/ai" element={<ProtectedRoute component={AiAttendace} path="/auth/loggedIn" />} />
 
-        <Route path="/dashboard/startmanualattendance" element={<ProtectedRoute component={ManualAttendance} path="/dashboard" />} />
+        <Route path="/dashboard/startmanualattendance" element={<ProtectedRoute component={ManualAttendance} path="/auth/loggedIn" />} />
 
-        <Route path="/dashboard/viewattendance" element={<ProtectedRoute component={ViewAttendanceView} path="/dashboard"  />} />
+        <Route path="/dashboard/viewattendance" element={<ProtectedRoute component={ViewAttendanceView} path="/auth/loggedIn"  />} />
         
-        <Route path="/dashboard/todayattendance" element={<ProtectedRoute component={FillAttendanceForToday} path="/dashboard" />} />
+        <Route path="/dashboard/todayattendance" element={<ProtectedRoute component={FillAttendanceForToday} path="/auth/loggedIn" />} />
 
-        <Route path="/dashboard/classstudentmgmt" element={<ProtectedRoute component={ClassStudentMgmtView} path="/dashboard" />} />
+        <Route path="/dashboard/classstudentmgmt" element={<ProtectedRoute component={ClassStudentMgmtView} path="/auth/loggedIn" />} />
 
-        <Route path="/dashboard/addclass" element={<ProtectedRoute component={ClassManagement} path="/dashboard" props="addclass" />} />
+        <Route path="/dashboard/addclass" element={<ProtectedRoute component={ClassManagement} path="/auth/loggedIn" props="addclass" />} />
 
-        <Route path="/dashboard/showclasses" element={<ProtectedRoute component={ClassManagement} path="/dashboard" props="showclass" />} />
+        <Route path="/dashboard/showclasses" element={<ProtectedRoute component={ClassManagement} path="/auth/loggedIn" props="showclass" />} />
 
-        <Route path="/dashboard/addstudent" element={<ProtectedRoute component={StudentManagement} path="/dashboard" props="addstudent" />} />
+        <Route path="/dashboard/addstudent" element={<ProtectedRoute component={StudentManagement} path="/auth/loggedIn" props="addstudent" />} />
 
-        <Route path="/dashboard/showstudents" element={<ProtectedRoute component={StudentManagement} path="/dashboard" props="showstudent" />} />
+        <Route path="/dashboard/showstudents" element={<ProtectedRoute component={StudentManagement} path="/auth/loggedIn" props="showstudent" />} />
 
-        <Route path="/dashboard/faculty" element={<ProtectedRoute component={Faculty1} path="/dashboard" props="showstudent" />} />
+        <Route path="/dashboard/faculty" element={<ProtectedRoute component={Faculty1} path="/auth/loggedIn" props="showstudent" />} />
 
 
      

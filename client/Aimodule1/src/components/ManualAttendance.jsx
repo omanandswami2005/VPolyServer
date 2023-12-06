@@ -29,7 +29,7 @@ function ManualAttendance(props) {
         })
         .catch((error) => {
           console.error("Error fetching assigned classes:", error);
-          navigate("/login");
+          // navigate("/login");
           toast.error("Session Expired :/ Please Login Again");
         });
     }
@@ -38,7 +38,7 @@ function ManualAttendance(props) {
     if (selectedDate && selectedTimeSlot && selectedClass) {
       try {
         axios
-          .post(`/manualattendance`, { selectedDate, selectedTimeSlot ,className: selectedClass,})
+          .post(`/attendance/manualattendance`, { selectedDate, selectedTimeSlot ,className: selectedClass,})
           .then((response) => {
             console.log(response.data.studentAttendance);
             // setStudents([]);
@@ -48,7 +48,7 @@ function ManualAttendance(props) {
           })
           .catch((error) => {
             console.error("Error fetching or creatingAttendance data:", error);
-            navigate("/login");
+            // navigate("/login");
             toast.error("Session Expired :/ Please Login Again");
           });
       } catch (error) {
@@ -65,7 +65,7 @@ function ManualAttendance(props) {
   const toggleAttendance = (studentEnrollmentNo) => {
     try {
       axios
-        .put(`/students/update/${studentEnrollmentNo}`, { selectedDate, selectedTimeSlot })
+        .put(`/attendance/update/${studentEnrollmentNo}`, { selectedDate, selectedTimeSlot })
         .then((response) => {
           const updatedTempRecord = response.data.mainRecord;
           const updatedStudents = [...students];
@@ -140,24 +140,25 @@ function ManualAttendance(props) {
         </Button>
       </div>
       <div className="manualAttendance">
-        <table className="tb">
-          <thead>
-            <tr className="tr">
-              <th className="th">Roll No.</th>
-              {showEnrollmentNo && <th className="th">Enrollment No.</th>}{" "}
-              {/* Conditionally show Enrollment No. column */}
-              <th className="th">Name</th>
-              <th className="th">Present</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((student) => (
-              <tr key={student.studentId}>
+      <table className="tb">
+        <thead>
+          <tr className="tr">
+            <th className="th">Roll No.</th>
+            {showEnrollmentNo && <th className="th">Enrollment No.</th>}
+            <th className="th">Name</th>
+            <th className="th">Present</th>
+          </tr>
+        </thead>
+        <tbody>
+          {students
+            .slice() // Create a shallow copy of the array to avoid mutating the original array
+            .sort((a, b) => parseInt(a.studentRollNo, 10) - parseInt(b.studentRollNo, 10)) // Convert to numbers and sort
+            .map((student) => (
+              <tr key={student.studentRollNo}>
                 <td className="td">{student.studentRollNo}</td>
                 {showEnrollmentNo && (
                   <td className="td">{student.studentEnrollmentNo}</td>
-                )}{" "}
-                {/* Conditionally show Enrollment No. */}
+                )}
                 <td className="td">{student.studentName}</td>
                 <td className="td">
                   <Switch
@@ -168,9 +169,9 @@ function ManualAttendance(props) {
                 </td>
               </tr>
             ))}
-          </tbody>
-        </table>
-      </div>
+        </tbody>
+      </table>
+    </div>
       <div className="summary">
         <p>Total Students: {totalStudents}</p>
         <p>Present Students: {presentStudents}</p>

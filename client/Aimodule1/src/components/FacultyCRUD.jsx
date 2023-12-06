@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 function FacultyManagement() {
   const [facultyList, setFacultyList] = useState([]);
@@ -20,7 +21,7 @@ function FacultyManagement() {
       setFacultyList(response.data);
     });
 
-    axios.get('/getclasses').then((response) => {
+    axios.get('/class').then((response) => {
       setAvailableClasses(response.data);
     });
   }, []);
@@ -41,9 +42,11 @@ function FacultyManagement() {
         // console.log('Faculty member created successfully:', response.data);
 
         // Add the newly created faculty member to the list
-        console.log(facultyList);
+        // console.log(facultyList);
+        toast.success("Faculty Added Successfuly !")
         
         setFacultyList([...facultyList, response.data]);
+
 
         // Reset only the name, id, and password fields
         setNewFaculty({
@@ -91,6 +94,7 @@ function FacultyManagement() {
       .put(`/faculty/${editFaculty._id}`, updatedFaculty)
       .then((response) => {
         console.log('Faculty member updated successfully:', response.data);
+        toast.success("Faculty Updated Successfuly !")
         setEditFaculty(null);
         axios.get('/faculty').then((response) => {
           setFacultyList(response.data);
@@ -109,6 +113,7 @@ function FacultyManagement() {
     const confirmDelete = window.confirm('Are you sure you want to delete this faculty member?');
     if (confirmDelete) {
       axios.delete(`/faculty/${facultyId}`).then(() => {
+        toast.success("Faculty Deleted Successfuly!")
         setFacultyList(facultyList.filter((faculty) => faculty._id !== facultyId));
       });
     }

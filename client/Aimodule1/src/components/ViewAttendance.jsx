@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Button } from "reactstrap";
+// import { Button } from "reactstrap";
 import { useNavigate } from "react-router-dom";
 
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 import Accordion from 'react-bootstrap/Accordion';
-import Card from 'react-bootstrap/Card';
-import Form from 'react-bootstrap/Form';
+// import Card from 'react-bootstrap/Card';
+// import Form from 'react-bootstrap/Form';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../styles/ViewAttendance.css';
@@ -28,6 +28,7 @@ function ViewAttendance(props) {
   const [chartData, setChartData] = useState(null); // State for the chart data
 
   const [selectedDate, setSelectedDate] = useState(null);
+  // eslint-disable-next-line
   const [selectedMonth, setSelectedMonth] = useState(null);
 
   const handleChange = (date, student,studentIndex) => {
@@ -63,7 +64,7 @@ function ViewAttendance(props) {
     if (selectedClass) {
       console.log(selectedClass);
       axios
-        .get(`/getstudentsbyclass/${selectedClass}`)
+        .get(`/student/getstudentsbyclass/${selectedClass}`)
         .then((response) => {
           const fetchedStudents = response.data;
           console.log(fetchedStudents)
@@ -94,7 +95,7 @@ function ViewAttendance(props) {
     console.log("in fetching")
     // Fetch attendance data based on selected student and date
     axios
-      .get(`/api/studentAttendance/${studentEnrollmentNo}`, {
+      .get(`/attendance/${studentEnrollmentNo}`, {
         params: {
           selectedMonth: selectedMonth,
         },

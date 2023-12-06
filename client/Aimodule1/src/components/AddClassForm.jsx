@@ -57,7 +57,7 @@ function AddClassForm() {
     e.preventDefault();
 
     // Define the API endpoint where you want to send the data.
-    const apiUrl = '/addClasses'; // Replace with your actual API endpoint.
+    const apiUrl = '/class'; // Replace with your actual API endpoint.
 
     try {
       // Make a POST request to add the classes using Axios.

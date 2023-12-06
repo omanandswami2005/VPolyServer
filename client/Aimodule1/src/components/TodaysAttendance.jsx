@@ -46,7 +46,7 @@ function FillAttendanceForToday(props) {
     if (selectedTimeSlot && selectedClass) {
       try {
         axios
-          .post('/manualAttendanceForToday', { selectedTimeSlot ,className: selectedClass, })
+          .post('/attendance/manualAttendanceForToday', { selectedTimeSlot ,className: selectedClass, })
           .then((response) => {
             setAttendanceData(response.data.studentAttendance || response.data);
 
@@ -82,7 +82,7 @@ function FillAttendanceForToday(props) {
     }
 
     try {
-      await axios.put(`/students/update/${studentEnrollmentNo}`, { selectedDate, selectedTimeSlot })
+      await axios.put(`/attendance/update/${studentEnrollmentNo}`, { selectedDate, selectedTimeSlot })
         .then((response) => {
           const updatedTempRecord = response.data.mainRecord;
           const updatedStudents = [...attendanceData];
@@ -144,7 +144,7 @@ function FillAttendanceForToday(props) {
           </thead>
           <tbody>
             {attendanceData.map((student) => (
-              <tr key={student.studentId}>
+              <tr key={student.studentRollNo}>
                 <td className='td'>{student.studentRollNo}</td>
                 {showEnrollment && <td className='td'>{student.studentEnrollmentNo}</td>}
                 <td className='td'>{student.studentName}</td>

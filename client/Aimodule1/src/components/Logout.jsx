@@ -21,7 +21,7 @@ const Logoutbutton = () => {
     const navigate = useNavigate();
 const logout = async () => {
     // Make a POST request to the `/logout` endpoint
-    await axios.get('/logout');
+    await axios.get('/auth/logout');
 
     // Redirect the user to the login page
     // window.location.href = '/logout';

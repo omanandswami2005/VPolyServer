@@ -1,60 +1,39 @@
 const router = require('express').Router();
-const Faculty = require('../models/Faculty');
 
+const facultyController = require('../controllers/facultyControllers');
 
+router.get('/', facultyController.getAllFaculties);
+
+// router.get('/:id', (req, res) => {
+//   // Retrieve a specific faculty member by ID
+//   const facultyId = req.params.id;
+
+//   Faculty.findById(facultyId, (err, facultyMember) => {
+//     if (err) {
+//       console.error('Error retrieving faculty member:', err);
+//       return res.status(500).json({ error: 'Could not retrieve faculty member' });
+//     }
+
+//     if (!facultyMember) {
+//       return res.status(404).json({ message: 'Faculty member not found' });
+//     }
+
+//     // Send a successful response with the faculty member details
+//     res.status(200).json(facultyMember);
+//   });
+// });
 
 // Create a route to add new faculty members
-router.post('/faculty', async (req, res) => {
-    try {
-      const { name, classesTeaching } = req.body;
-      const faculty = new Faculty({ name, classesTeaching });
-      await faculty.save();
-      res.status(201).json(faculty);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to add a new faculty member' });
-    }
-  });
+
+
+router.post('/', facultyController.createNewFaculty);
   
+router.get('/classes/:name', facultyController.getFacultyClassses);
+
+  router.put('/:id', facultyController.updateFaculty);
 
 
-  router.put('/faculty/:facultyId', async (req, res) => {
-    try {
-      const { name, classesTeaching } = req.body;
-      const facultyId = req.params.facultyId;
-      
-      const updatedFaculty = await Faculty.findByIdAndUpdate(facultyId, { name, classesTeaching }, { new: true });
-      
-      if (!updatedFaculty) {
-        return res.status(404).json({ error: 'Faculty member not found' });
-      }
-      
-      res.status(200).json(updatedFaculty);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to update the faculty member' });
-    }
-  });
-
-
-
-  router.delete('/faculty/:facultyId', async (req, res) => {
-    try {
-      const facultyId = req.params.facultyId;
-      
-      const deletedFaculty = await Faculty.findByIdAndDelete(facultyId);
-      
-      if (!deletedFaculty) {
-        return res.status(404).json({ error: 'Faculty member not found' });
-      }
-      
-      res.status(204).send(); // Send a 204 No Content status upon successful deletion
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to delete the faculty member' });
-    }
-  });
+router.delete('/:id', facultyController.deleteFaculty);
   
-  
-
-
-
 
   module.exports = router;

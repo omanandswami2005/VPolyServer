@@ -16,7 +16,7 @@ function AddStudentForm() {
 
   // Fetch class options from the server
   useEffect(() => {
-    axios.get('/getclasses').then((response) => {
+    axios.get('/class').then((response) => {
       setClassOptions(response.data);
     });
   }, []);
@@ -37,7 +37,7 @@ function AddStudentForm() {
       // Submit each student's data to the server with the selected class
       const responses = await Promise.all(
         studentData.map(async (student) => {
-          const response = await axios.post('/addstudents', {
+          const response = await axios.post('/student', {
             name: student.name,
             rollNo: student.rollNo,
             enrollmentNo: student.enrollmentNo,

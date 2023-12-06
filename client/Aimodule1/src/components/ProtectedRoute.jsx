@@ -14,7 +14,7 @@ const ProtectedRoute = ({ component: Component,path ,props }) => {
       });
 
       try {
-        const res = await API.post(path); // Check authentication
+        const res = await API.post('/auth/loggedIn'); // Check authentication
         if (res.data.data) {
           setIsAuthenticated(true); // User is authenticated
           setData(res.data.userData)
@@ -32,8 +32,10 @@ const ProtectedRoute = ({ component: Component,path ,props }) => {
   return (
     <div className='App'>
       {isAuthenticated === true ? (
+        console.log("true"),
         <Component userData={data} props={props} />
       ) : isAuthenticated === false ? (
+        console.log("false"),
         <Navigate to="/login" />
       ) : (
         <p>Loading...</p>

@@ -15,7 +15,7 @@ function DisplayClasses() {
   }, []);
 
   const fetchClassOptions = () => {
-    axios.get('/getclasses').then((response) => {
+    axios.get('/class').then((response) => {
       setClassOptions(response.data);
     });
   };
@@ -32,7 +32,7 @@ function DisplayClasses() {
   const handleUpdateClass = () => {
     // Send a PUT request to update the class with the new data.
     const { id, name } = updateClassData;
-    axios.put(`/updateclass/${id}`, { name })
+    axios.put(`/class/${id}`, { name })
       .then((response) => {
         // Handle the success case.
         console.log(`Class with ID ${id} updated successfully.`);
@@ -56,7 +56,7 @@ function DisplayClasses() {
     const confirmDelete = window.confirm('Are you sure you want to delete this class?');
 if (confirmDelete) {
     // Send a DELETE request to delete the class.
-    axios.delete(`/deleteclass/${classId}`)
+    axios.delete(`/class/${classId}`)
       .then((response) => {
         // Handle the success case.
         console.log(`Class with ID ${classId} deleted successfully.`);

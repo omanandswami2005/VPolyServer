@@ -20,13 +20,13 @@ const [classOptions, setClassOptions] = useState([]);
 
   useEffect(() => {
     // Fetch student data from the server
-    axios.get('/getstudents').then((response) => {
+    axios.get('/student').then((response) => {
       setStudents(response.data);
     });
     fetchClassOptions();
   }, [setStudents]);
   const fetchClassOptions = () => {
-    axios.get('/getclasses').then((response) => {
+    axios.get('/class').then((response) => {
       setClassOptions(response.data);
     //   console.log(response.data);
     });
@@ -81,7 +81,7 @@ const [classOptions, setClassOptions] = useState([]);
         };
       
         try {
-          const response = await axios.put(`/updatestudent/${_id}`, dataToUpdate);
+          const response = await axios.put(`/student/${_id}`, dataToUpdate);
           console.log(`Student with ID ${_id} updated successfully.`);
           toast.success('Updated Successfully');
       
@@ -123,7 +123,7 @@ const [classOptions, setClassOptions] = useState([]);
           
       
         axios
-          .delete(`/deletestudent/${studentId}`)
+          .delete(`/student/${studentId}`)
           .then((response) => {
             // Handle the success case.
             console.log(`Student with ID ${studentId} deleted successfully.`);

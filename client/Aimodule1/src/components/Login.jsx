@@ -25,7 +25,7 @@ function Login() {
 
     try {
       // Send a POST request to the backend endpoint for authentication
-      const response = await fetch('/login', {
+      const response = await fetch('/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,10 +37,18 @@ function Login() {
       // console.log(response);
       if (response.ok) {
         // Authentication successful, you can redirect or perform other actions here
-        console.log(response.json());
+    
+     // Authentication successful, extract data from the response
+     const responseData = await response.json();
+    
+     // Now you can access properties from responseData
+     const name = responseData.name;
+    //  const role = responseData.role;
+ 
+        // console.log(name);
        
         // toast.success("Login Successful");
-        toast(`Welcome ${facultyId} !!!`)
+        toast(`Welcome ${name} !!!`)
         navigate('/dashboard');
 
 
