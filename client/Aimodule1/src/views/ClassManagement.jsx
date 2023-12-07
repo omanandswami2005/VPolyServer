@@ -8,7 +8,9 @@ function ClassManagement(props) {
   return (
     <div>
       <h2>Class Management</h2>
-{props.props === "addclass" ? <AddClassForm /> : <DisplayClasses />}
+ <AddClassForm /> 
+ 
+  <DisplayClasses />
 
      
       {/* Display class information here */}

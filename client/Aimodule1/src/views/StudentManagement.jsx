@@ -7,8 +7,8 @@ function StudentManagement(props) {
   return (
     <div>
       <h2>Student Management</h2>
-      {/* <AddStudentsForm /> */}
-      {props.props === "addstudent" ? <AddStudentsForm /> : <DisplayAllStudents /> }
+      <AddStudentsForm />
+      <DisplayAllStudents /> 
       {/* Display class information here */}
     </div>
   );

@@ -10,22 +10,18 @@ function ClassStudentMgmt() {
       <div className='std-mgmt'>
         <h2 className='mgmt-subtitle'>Students Management</h2>
        
-        <Link to="/dashboard/addstudent">
-          <Button className='add-button bg-dark'>Add Students</Button>
+        <Link to="/dashboard/studentManagement">
+          <Button className='add-button bg-dark'>Student Management</Button>
         </Link>
-        <Link to="/dashboard/showstudents">
-          <Button className='view-button bg-success'>View & Update Students</Button>
-        </Link>
+       
       </div>
       <div className='cls-mgmt'>
         <h2 className='mgmt-subtitle'>Classes Management</h2>
         
-        <Link to="/dashboard/addclass">
-          <Button className='add-button bg-primary'>Add Class</Button>
+        <Link to="/dashboard/classManagement">
+          <Button className='add-button bg-primary'> Class Management</Button>
         </Link>
-        <Link to="/dashboard/showclasses">
-          <Button className='view-button bg-danger'>View & Update Classes</Button>
-        </Link>
+        
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ const connectToMongoDB = require('./mongoConnection');
 const classRoutes = require('./routes/classRoutes'); // Import the router module for classes
 const facultyRoutes = require('./routes/facultyRoutes');
 const studentRoutes = require('./routes/studentRoutes'); // Import the router module for students
+const timeSlotRoutes = require('./routes/timeSlotRoutes');
 
 const authRoutes = require('./routes/authRoutes'); // Adjust the path based on your project structure
 
@@ -34,11 +35,13 @@ app.use(bodyParser.json());
 app.use('/class', classRoutes);
 app.use('/student', studentRoutes);
 app.use('/faculty', facultyRoutes);
+app.use('/timeSlot', timeSlotRoutes);
 
 app.use('/attendance', attendaceRoutes);
 
 
 app.use('/auth', authRoutes);
+
 
 
 

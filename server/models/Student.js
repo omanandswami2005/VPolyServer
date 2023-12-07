@@ -1,65 +1,38 @@
-// const mongoose = require('mongoose');
-
-// // Define the student schema
-// const studentSchema = new mongoose.Schema({
-//   name: String,
-//   rollNo: String,
-//   enrollmentNo: String,
-//   // Other fields you want to include
-// });
-
-// // Create the Student model
-// const Student = mongoose.model('Student', studentSchema);
-
-// async function connectAndSaveStudent() {
-//   try {
-//     // Connect to MongoDB
-//     await mongoose.connect('mongodb://localhost/attendaceRecordDb', {
-//       useNewUrlParser: true,
-//       useUnifiedTopology: true,
-//     });
-
-//     console.log('Connected to MongoDB');
-
-//     const newStudent = new Student({
-//       name: 'Omanand Prashant Swami',
-//       rollNo: '03',
-//       enrollmentNo: '2110950050',
-//       // Other fields as needed
-//     });
-
-//     const savedStudent = await newStudent.save();
-//     console.log('Student saved:', savedStudent);
-
-//     // Close the connection after saving
-//     await mongoose.connection.close();
-//   } catch (error) {
-//     console.error('Error saving student:', error);
-//   }
-// }
-
-// connectAndSaveStudent();
-
-
-
 const mongoose = require('mongoose');
 
-  const studentSchema = new mongoose.Schema({
-    name: String,
-    rollNo:  String,
-    enrollmentNo: {
-      type: String,
-      unique: true,
+const studentSchema = new mongoose.Schema({
+  name: String,
+  rollNo: {
+    type: Number,
+    required: true,
+  },
+  enrollmentNo: {
+    type: Number,
+    validate: {
+      validator: function (value) {
+        // Skip uniqueness check for null values
+        if (value === null) {
+          return true;
+        }
+        
+        // Custom validation to check uniqueness only for non-null values
+        return mongoose.models.Student.findOne({ enrollmentNo: value, _id: { $ne: this._id } })
+          .then((existingStudent) => !existingStudent);
+      },
+      message: 'Enrollment number must be unique.',
     },
-    class: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Class',
-      // Reference to the Class model
-    },
-    // Other fields you want to include
-  });
+  },
+  class: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'Class',
+  },
+  // Other fields you want to include
+});
+
+// Ensure that the combination of class and rollNo is unique
+studentSchema.index({ class: 1, rollNo: 1 }, { unique: true });
 
 const Student = mongoose.model('Student', studentSchema);
 
 module.exports = Student;
-

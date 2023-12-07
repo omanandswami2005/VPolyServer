@@ -1,51 +1,3 @@
-// import React, { useState } from 'react';
-// import axios from 'axios';
-
-// function AddClassForm() {
-//   const [className, setClassName] = useState('');
-
-//   const handleClassSubmit = async (e) => {
-//     e.preventDefault(); // Prevent the default form submission behavior.
-
-//     // Define the API endpoint where you want to send the data.
-//     const apiUrl = '/addClasses'; // Replace with your actual API endpoint.
-
-//     try {
-//       // Make a POST request to add the class using Axios.
-//       const response = await axios.post(apiUrl, { className });
-
-//       // Handle the response as needed (e.g., show a success message).
-//       console.log('Class added successfully', response.data);
-
-//       // Optionally, you can reset the form after a successful submission.
-//       setClassName('');
-//     } catch (error) {
-//       // Handle any errors that occurred during the API request (e.g., show an error message).
-//       console.error('Error adding class', error);
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <form onSubmit={handleClassSubmit}>
-//         <input
-//           type="text"
-//           placeholder="Class Name"
-//           value={className}
-//           onChange={(e) => setClassName(e.target.value)}
-//         />
-//         <button type="submit">Add Class</button>
-//       </form>
-//     </div>
-//   );
-// }
-
-// export default AddClassForm;
-
-
-
-
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -61,32 +13,33 @@ function AddClassForm() {
 
     try {
       // Make a POST request to add the classes using Axios.
-      const response = await axios.post(apiUrl, { classNames }).then((response) => {
-        toast.success('Added Successfully');
-        return response.data;
+      const response = await axios.post(apiUrl, { classNames });
 
-        
-      }).catch((error) => {
-        // Handle any errors that occurred during the API request (e.g., show an error message).
-        // console.log('Already added', error);
-        toast.error('Already Present In DB');
-      });
-if (response.data.data){
-  toast.success('Added Successfully');
-}
       // Handle the response as needed (e.g., show a success message).
       console.log('Classes added successfully', response.data);
+      toast.success('Added Successfully');
 
       // Optionally, you can reset the form after a successful submission.
       setClassNames(['']);
     } catch (error) {
       // Handle any errors that occurred during the API request (e.g., show an error message).
       console.error('Error adding classes', error);
+      toast.error('Already Present In DB');
     }
   };
 
   const handleAddClassField = () => {
     setClassNames([...classNames, '']); // Add a new empty class name field.
+  };
+
+  const handleCancelClassField = (index) => {
+    if (classNames.length > 1) {
+      const updatedClassNames = [...classNames];
+      updatedClassNames.splice(index, 1);
+      setClassNames(updatedClassNames);
+    } else {
+      toast.error('At least one class is required.');
+    }
   };
 
   const handleClassChange = (index, value) => {
@@ -97,15 +50,25 @@ if (response.data.data){
 
   return (
     <div>
+      <h2>Add Classes</h2>
       <form onSubmit={handleClassSubmit}>
         {classNames.map((className, index) => (
-          <input
-            key={index}
-            type="text"
-            placeholder="Class Name"
-            value={className}
-            onChange={(e) => handleClassChange(index, e.target.value)}
-          />
+          <div key={index}>
+            <input
+              type="text"
+              required
+              placeholder="Enter Class Name"
+              value={className}
+              onChange={(e) => handleClassChange(index, e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => handleCancelClassField(index)}
+              disabled={classNames.length === 1}
+            >
+              Cancel
+            </button>
+          </div>
         ))}
         <button type="button" onClick={handleAddClassField}>
           Add More Class

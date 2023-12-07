@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 // import { Button } from "reactstrap";
 import { useNavigate } from "react-router-dom";
+import Table from 'react-bootstrap/Table';
+
 
 // import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -23,6 +25,15 @@ function ViewAttendance(props) {
   const [selectedClass, setSelectedClass] = useState("");
   const [classList, setClassList] = useState([]);
   const [studentAttendanceData, setStudentAttendanceData] = useState([]);
+  const [allStudentAttendanceData, setAllStudentAttendanceData] = useState([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+  const [timeSlots, setTimeSlots] = useState([]);
+const [enrollArray1, setEnrollArray] = useState([]);
+
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [selectedFilterOption, setSelectedFilterOption] = useState("whole-month");
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
 
   const [chartData, setChartData] = useState(null); // State for the chart data
@@ -31,17 +42,19 @@ function ViewAttendance(props) {
   // eslint-disable-next-line
   const [selectedMonth, setSelectedMonth] = useState(null);
 
-  const handleChange = (date, student,studentIndex) => {
+  const handleChange =  (date, student, studentIndex) => {
     setSelectedDate(date);
-    
+
     const month = date.getMonth();
     setSelectedMonth(month);
-  
+
     // Call the fetchAttendanceData function here
-    fetchAttendanceData(student.enrollmentNo, month,studentIndex);
+    // console.log( month, selectedTimeSlot, enrollArray1);
+   fetchAttendanceDataByClass(enrollArray1, month, selectedTimeSlot);
+    fetchAttendanceData(student.enrollmentNo, month, studentIndex);
   };
-  
-  console.log(selectedDate) 
+
+  // console.log(selectedDate)
 
 
   useEffect(() => {
@@ -52,6 +65,7 @@ function ViewAttendance(props) {
         .then((response) => {
           const assignedClasses = response.data;
           // Store the assigned classes in the classList state
+
           setClassList(assignedClasses);
         })
         .catch((error) => {
@@ -62,14 +76,22 @@ function ViewAttendance(props) {
     }
 
     if (selectedClass) {
-      console.log(selectedClass);
+      // console.log(selectedClass);
       axios
         .get(`/student/getstudentsbyclass/${selectedClass}`)
         .then((response) => {
           const fetchedStudents = response.data;
-          console.log(fetchedStudents)
+          // console.log(fetchedStudents)
           // Store the assigned classes in the classList state
-          setStudents(fetchedStudents);
+          // Sort the students array based on roll number
+          const sortedStudents = fetchedStudents.sort((a, b) => {
+            return parseInt(a.rollNo, 10) - parseInt(b.rollNo, 10);
+          });
+
+const enrollArray = sortedStudents.map((student) => student.enrollmentNo);
+setEnrollArray(enrollArray);
+// console.log(enrollArray);
+          setStudents(sortedStudents);
         })
         .catch((error) => {
           console.error("Error fetching assigned classes:", error);
@@ -78,7 +100,27 @@ function ViewAttendance(props) {
         });
     }
     // Fetch student data from the backend when selectedDate or selectedTimeSlot change
-  }, [navigate, props.props.name,selectedClass]);
+  }, [navigate, props.props.name, selectedClass]);
+
+
+  useEffect(() => {
+    if (selectedClass) {
+      // Fetch time slots based on the selected class
+      axios
+        .get(`/timeSlot/time-slots`)
+        .then((response) => {
+          const availableTimeSlots = response.data.timeSlots;
+          // Store the time slots in state
+          // You may need to modify the format based on your API response
+          setTimeSlots(availableTimeSlots);
+        })
+        .catch((error) => {
+          console.error("Error fetching time slots:", error);
+          toast.error("Error fetching time slots");
+        });
+    }
+  }, [selectedClass]);
+
 
   // Handle the class selection change
   const handleClassChange = (e) => {
@@ -87,31 +129,38 @@ function ViewAttendance(props) {
 
 
   // Calculate the total, present, and absent students
-  
 
 
 
-  const fetchAttendanceData = (studentEnrollmentNo, selectedMonth,studentIndex) => {
-    console.log("in fetching")
+
+  const fetchAttendanceData = (studentEnrollmentNo, selectedMonth, studentIndex) => {
+    // console.log("in fetching")
     // Fetch attendance data based on selected student and date
+    const params = {
+      selectedMonth: selectedMonth,
+      selectedTimeSlot: selectedTimeSlot,
+    };
+
+    if (selectedFilterOption === "date-range") {
+      params.startDate = startDate;
+      params.endDate = endDate;
+    }
     axios
       .get(`/attendance/${studentEnrollmentNo}`, {
-        params: {
-          selectedMonth: selectedMonth,
-        },
+        params: params,
       })
       .then((response) => {
         // Calculate pie chart data based on attendance
         const totalAttendance = response.data.length;
         const presentAttendance = response.data.filter((item) => item.present).length;
         const absentAttendance = totalAttendance - presentAttendance;
-  
+
         const data1 = {
           totalAttendance,
           presentAttendance,
           absentAttendance,
         };
-  
+
         // Update the studentAttendanceData state for the specific student
         const updatedStudentAttendanceData = [...studentAttendanceData];
         updatedStudentAttendanceData[studentIndex] = data1;
@@ -127,9 +176,9 @@ function ViewAttendance(props) {
           ],
         };
 
-         // Update chartData and log it
-      setChartData(data);
-      console.log(data);// Update the chart data state
+        // Update chartData and log it
+        setChartData(data);
+        // console.log(data);// Update the chart data state
       })
       .catch((error) => {
         console.error('Error fetching attendance data:', error);
@@ -137,6 +186,87 @@ function ViewAttendance(props) {
         return null;
       });
   };
+
+  const fetchAttendanceDataByClass = async(enrollArray, selectedMonth, selectedTimeSlot) => {
+    console.log("in fetching");
+    console.log(enrollArray, selectedMonth, selectedTimeSlot);
+  
+    // Returning the Axios promise for further handling in the calling code
+    await axios.get(`/attendance`, {
+      params: {
+        enrollArray: enrollArray,
+        selectedMonth: selectedMonth,
+        selectedTimeSlot: selectedTimeSlot,
+      },
+    })
+    .then((response) => {
+      console.log(response.data);
+      // You might want to do something with the response here
+      const rawData= response.data; // Return the data if needed
+      // Convert the raw data into the desired format
+// Keep track of unique student IDs
+const uniqueStudentIds = new Set();
+
+// Convert the raw data into the desired format
+const sampleData = rawData.reduce((acc, dataItem) => {
+  const studentId = dataItem.studentId;
+
+  // Check if the student ID is already processed
+  if (!uniqueStudentIds.has(studentId)) {
+    uniqueStudentIds.add(studentId);
+
+    const rollNo = dataItem.studentRollNo; // Use the actual roll number from backend
+    const name = dataItem.studentName;
+    const attendance = rawData
+  .filter((item) => item.studentId === studentId)
+  .reduce((attendanceAcc, item) => {
+    const dateObject = new Date(item.date);
+    const dateString = dateObject.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    });
+
+    // Sort the dates in ascending order before adding to attendanceAcc
+    attendanceAcc[dateString] = item.present ? 'P' : 'A';
+    attendanceAcc = Object.fromEntries(
+      Object.entries(attendanceAcc).sort((a, b) => new Date(a[0]) - new Date(b[0]))
+    );
+
+    return attendanceAcc;
+  }, {});
+
+
+    acc.push({ rollNo, name, attendance });
+  }
+
+  return acc;
+}, []);
+
+console.log(sampleData);
+setAllStudentAttendanceData(sampleData);
+return sampleData;
+    })
+    .catch((error) => {
+      console.error('Error fetching attendance data:', error);
+      toast.error('Error fetching attendance data');
+      throw error; // Rethrow the error to be caught by the caller
+    })
+    .finally(() => {
+      console.log("Always executed, regardless of success or failure");
+    });
+  };
+  
+  
+  const handleAccordionOpen = (student, studentIndex) => {
+    // Check if the accordion is opened (isOpen === true)
+    if (selectedDate) {
+      fetchAttendanceData(student.enrollmentNo, selectedMonth, studentIndex);
+    }
+  };
+  const dates = allStudentAttendanceData.length > 0 ? Object.keys(allStudentAttendanceData[0].attendance) : [];
+
+
   return (
     <>
       <div className="attendance-controls">
@@ -150,52 +280,127 @@ function ViewAttendance(props) {
               {assignedClass}
             </option>
           ))}
-        </select> <br /><br />
+        </select>
+        <select
+          value={selectedTimeSlot}
+          onChange={(e) => setSelectedTimeSlot(e.target.value)}
+        >
+          <option value="timeSlotDefault">Select Time Slot</option>
+          {timeSlots.map((timeSlot) => (
+            <option key={timeSlot._id} value={`${timeSlot.startTime} -> ${timeSlot.endTime}`}>
+              {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
+            </option>
+          ))}
+        </select><br /><br />
       </div>
-     
-
-      <Accordion defaultActiveKey="0" className="accordion">
-      {students.map((student, index) => (
-        <Accordion.Item key={index} eventKey={index.toString()}>
-          <Accordion.Header>{student.name}</Accordion.Header>
-          <Accordion.Body>
-            <h6>Filter By Month:</h6>
-          <DatePicker 
-          selected={selectedDate}
-          onChange={(date) => handleChange(date, student, index)}    
-          dateFormat="MMMM yyyy"
-          showMonthYearPicker
-          placeholderText="Select Month Here"
-/> 
-
-<h6>Filter By Date Range:</h6>
-          <select
-            value={selectedDateRange}
-            onChange={(e) => setSelectedDateRange(e.target.value)}
-          >
-            <option value="">No Filter</option>
-            <option value="10-days">Past 10 Days</option>
-            <option value="15-days">Past 15 Days</option>
-            <option value="1-month">Past 1 Month</option>
-          </select>
-            <p>Name: {student.name}</p>
-            <p>Roll No: {student.rollNo}</p>
-            <p>Enrollment No: {student.enrollmentNo}</p> <br />
-            <p>Total Working Days: {studentAttendanceData[index]?.totalAttendance}</p>
-      <p>Present Days: {studentAttendanceData[index]?.presentAttendance}</p>
-      <p>Absent Days: {studentAttendanceData[index]?.absentAttendance}</p>
-
-   
-
-            <div className="chart-container">
-  {chartData ? <Pie data={chartData} /> : null}
+      {/* <h6>Filter By:</h6>
+<div>
+  <label>
+    <input
+      type="radio"
+      value="whole-month"
+      checked={selectedFilterOption === "whole-month"}
+      onChange={() => setSelectedFilterOption("whole-month")}
+    />
+    Whole Month
+  </label>
 </div>
 
-            {/* Add other student information as needed */}
-          </Accordion.Body>
-        </Accordion.Item>
+<div>
+  <label>
+    <input
+      type="radio"
+      value="date-range"
+      checked={selectedFilterOption === "date-range"}
+      onChange={() => setSelectedFilterOption("date-range")}
+    />
+    Date Range
+  </label>
+</div> */}
+
+
+
+
+
+      <Accordion defaultActiveKey="0" className="accordion">
+        {students.map((student, index) => (
+          <Accordion.Item key={index} eventKey={index.toString()}>
+            <Accordion.Header >{student.name} &nbsp;  <br /><span>Roll No: {student.rollNo}</span></Accordion.Header>
+            <Accordion.Body onEnter={() => handleAccordionOpen(student, index)}>
+
+
+              <h6>Filter By Month:</h6>
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date) => handleChange(date, student, index)}
+                // onClick={(date) => handleChange(date, student, index)}    
+                dateFormat="MMMM yyyy"
+                showMonthYearPicker
+                placeholderText="Select Month Here"
+              />
+
+              <h6>Filter By Date Range:</h6>
+              <select
+                value={selectedDateRange}
+                onChange={(e) => setSelectedDateRange(e.target.value)}
+              >
+                <option value="">No Filter</option>
+                <option value="10-days">Past 10 Days</option>
+                <option value="15-days">Past 15 Days</option>
+                <option value="1-month">Past 1 Month</option>
+              </select> <br />
+              <span>Name: {student.name}</span>
+
+              <span>Enrollment No: {student.enrollmentNo}</span> <br />
+              <span>Total Working Days: {studentAttendanceData[index]?.totalAttendance}</span>
+              <span>Present Days: {studentAttendanceData[index]?.presentAttendance}</span>
+              <span>Absent Days: {studentAttendanceData[index]?.absentAttendance}</span>
+
+
+
+              <div className="chart-container">
+                {chartData ? <Pie data={chartData} /> :
+                  <p>Loading chart data...</p>
+                }
+              </div>
+
+            </Accordion.Body>
+          </Accordion.Item>
+        ))}
+      </Accordion>
+
+
+
+
+      <div style={{ overflowX: 'auto', width: '95vw', margin: 'auto',textAlign:'center' ,height:'50vh'}}>
+      <Table responsive='sm' striped bordered hover>
+        <thead>
+          <tr>
+            <th>Roll No</th>
+            <th>Name</th>
+            {dates.map(date => (
+              <th key={date}>{date}</th>
+            ))}
+            <th>Total Present</th>
+            <th>Total Absent</th>
+          </tr>
+        </thead>
+        <tbody>
+  {allStudentAttendanceData.map((student, index) => (
+    <tr key={index}>
+      <td>{student.rollNo}</td>
+      <td>{student.name}</td>
+      {dates.map(date => (
+        <td key={date}>{student.attendance[date] || '-'}</td>
       ))}
-    </Accordion>
+      <td>{Object.values(student.attendance).filter(status => status === 'P').length}</td>
+      <td>{Object.values(student.attendance).filter(status => status === 'A').length}</td>
+    </tr>
+  ))}
+</tbody>
+
+      </Table>
+    </div>
     </>
   );
 }

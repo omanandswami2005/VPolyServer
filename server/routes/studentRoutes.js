@@ -10,7 +10,7 @@ router.post('/', studentController.addStudents);
 
 router.get('/getstudentsbyclass/:class', studentController.getStudentsByClass);
 
-  router.delete('/:id', studentController.deleteStudent);
+  router.delete('/:studentId', studentController.deleteStudent);
 
 
   module.exports = router;

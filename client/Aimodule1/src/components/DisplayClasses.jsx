@@ -19,9 +19,13 @@ function DisplayClasses() {
       setClassOptions(response.data);
     });
   };
-
+  const handleRefresh = () => {
+    axios.get('/class').then((response) => {
+      setClassOptions(response.data);
+    });
+  };
   const openUpdateForm = (classId, className) => {
-    setUpdateClassData({ id: classId, name: className });
+    setUpdateClassData((prevData) => ({ ...prevData, id: classId, name: className }));
     setUpdateFormVisible(true);
   };
 
@@ -50,28 +54,27 @@ function DisplayClasses() {
   };
 
   const handleDeleteClass = (classId) => {
-    // Handle the delete action (e.g., show a confirmation dialog).
-    // Implement the delete functionality according to your requirements.
-    // After confirming, you can call an API to delete the class.
     const confirmDelete = window.confirm('Are you sure you want to delete this class?');
-if (confirmDelete) {
-    // Send a DELETE request to delete the class.
-    axios.delete(`/class/${classId}`)
-      .then((response) => {
-        // Handle the success case.
-        console.log(`Class with ID ${classId} deleted successfully.`);
-        // Refresh the class list after deletion.
-        fetchClassOptions();
-      })
-      .catch((error) => {
-        // Handle any errors.
-        console.error(`Error deleting class with ID ${classId}: ${error}`);
-      });}
+    if (confirmDelete) {
+      // Send a DELETE request to delete the class.
+      axios.delete(`/class/${classId}`)
+        .then((response) => {
+          // Handle the success case.
+          console.log(`Class with ID ${classId} deleted successfully.`);
+          // Refresh the class list after deletion.
+          fetchClassOptions();
+          // handleRefresh();
+        })
+        .catch((error) => {
+          // Handle any errors.
+          console.error(`Error deleting class with ID ${classId}: ${error}`);
+        });
+    }
   };
 
   return (
     <div>
-      <h2>Display Classes</h2>
+      <h2>Modify Classes</h2> <button onClick={handleRefresh}>Refresh</button>
       <ul>
         {classOptions.map((option) => (
           <li key={option._id}>
@@ -80,7 +83,7 @@ if (confirmDelete) {
             <button onClick={() => handleDeleteClass(option._id)}>Delete</button>
           </li>
         ))}
-      </ul> 
+      </ul>
 
       {isUpdateFormVisible && (
         <div>
@@ -88,7 +91,7 @@ if (confirmDelete) {
           <input
             type="text"
             value={updateClassData.name}
-            onChange={(e) => setUpdateClassData({ ...updateClassData, name: e.target.value })}
+            onChange={(e) => setUpdateClassData((prevData) => ({ ...prevData, name: e.target.value }))}
           />
           <button onClick={handleUpdateClass}>Save</button>
           <button onClick={closeUpdateForm}>Cancel</button>

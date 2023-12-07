@@ -39,6 +39,13 @@ export default function StdFacCls() {
               </h4>
             </Button>
             </Link>
+             <Link to='/dashboard/scheduleSetup'>
+              <Button className='bg-primary'>
+              <h4 >
+              Schedule <br /> Management !
+              </h4>
+            </Button>
+            </Link>
             </CardBody>
           </Card>
         </div>

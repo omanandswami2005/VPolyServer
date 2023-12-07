@@ -3,7 +3,6 @@ import Switch from "react-switch";
 import { Button } from "reactstrap";
 import { useNavigate } from "react-router-dom";
 import "../styles/ManualAttendance.css";
-import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 
@@ -56,11 +55,29 @@ function ManualAttendance(props) {
       }
     }
   }, [selectedDate, selectedTimeSlot, navigate, props.userData.name,selectedClass]);
+  
+  const [timeSlots, setTimeSlots] = useState([]);
+
+  useEffect(() => {
+    // Fetch time slots from the server
+    axios.get('/timeSlot/time-slots').then((response) => {
+      setTimeSlots(response.data.timeSlots);
+    }).catch((error) => {
+      console.error('Error fetching time slots:', error);
+    });
+  }, []);
 
   // Handle the class selection change
   const handleClassChange = (e) => {
     setSelectedClass(e.target.value);
   };
+  const setTodaysDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    setSelectedDate(`${year}-${month}-${day}`);
+  }
 
   const toggleAttendance = (studentEnrollmentNo) => {
     try {
@@ -109,24 +126,26 @@ function ManualAttendance(props) {
       <div className="attendance-controls">
         <h3>Select Date And Time Slot OR Go to Today's Attendance </h3>
         <hr />
-        <Link to="/dashboard/todayattendance">
-          <Button color="primary">Fill Today's Attendance</Button>
-        </Link>
+        
+          <Button color="primary" onClick={setTodaysDate}>Fill Today's Attendance</Button>
+       
         <hr />
         <input
           type="date"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
         />
-        <select
-          value={selectedTimeSlot}
-          onChange={(e) => setSelectedTimeSlot(e.target.value)}
-        >
-          <option value="timeSlotDefault">Select Time Slot</option>
-          <option value="10:30->12:30">10:30-&gt;12:30</option>
-          <option value="01:00->03:00">01:00-&gt;03:00</option>
-          <option value="03:30->05:30">03:00-&gt;05:30</option>
-        </select>
+         <select
+        value={selectedTimeSlot}
+        onChange={(e) => setSelectedTimeSlot(e.target.value)}
+      >
+        <option value="timeSlotDefault">Select Time Slot</option>
+        {timeSlots.map((timeSlot) => (
+          <option key={timeSlot._id} value={`${timeSlot.startTime} -> ${timeSlot.endTime}`}>
+            {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
+          </option>
+        ))}
+      </select>
         <select value={selectedClass} onChange={handleClassChange}>
           <option value="classDefault">Select Class</option>
           {classList.map((assignedClass) => (

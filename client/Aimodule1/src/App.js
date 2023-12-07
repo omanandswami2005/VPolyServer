@@ -9,15 +9,18 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { Logoutpage} from './components/Logout';
 import ManualAttendance from './components/ManualAttendance';
 import FillAttendanceForToday from './components/TodaysAttendance';
+
+import StudentAttendanceTable from './components/StudentAttendanceTable';
 import ClassManagement from './views/ClassManagement';
 
 import StudentManagement from './views/StudentManagement';
 import ClassStudentMgmtView from './views/ClassStudentMgmtView'
 import Faculty1 from './views/FacultyView';
 import ViewAttendanceView from './views/ViewAttendanceView';
+import ScheduleManagementView from './views/ScheduleManagementView';
 
 
-// import './styles/welToastStyle.css'; // Import your global CSS file
+
 
 
 const App = ()=> {
@@ -27,8 +30,11 @@ const App = ()=> {
       <Route path="/logout" element={<Logoutpage />} />
       
         <Route path="/" element={<Home />} />
+
         <Route path="/login" element={<Login />} />
-      
+
+      <Route path = '/dashboard/sheet' element={<StudentAttendanceTable />} />
+
         <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} path="/dashboard" />} />
 
       
@@ -43,29 +49,24 @@ const App = ()=> {
 
         <Route path="/dashboard/classstudentmgmt" element={<ProtectedRoute component={ClassStudentMgmtView} path="/auth/loggedIn" />} />
 
-        <Route path="/dashboard/addclass" element={<ProtectedRoute component={ClassManagement} path="/auth/loggedIn" props="addclass" />} />
+        <Route path="/dashboard/classManagement" element={<ProtectedRoute component={ClassManagement} path="/auth/loggedIn" />} />
 
-        <Route path="/dashboard/showclasses" element={<ProtectedRoute component={ClassManagement} path="/auth/loggedIn" props="showclass" />} />
+        
 
-        <Route path="/dashboard/addstudent" element={<ProtectedRoute component={StudentManagement} path="/auth/loggedIn" props="addstudent" />} />
+        <Route path="/dashboard/studentManagement" element={<ProtectedRoute component={StudentManagement} path="/auth/loggedIn" />} />
 
-        <Route path="/dashboard/showstudents" element={<ProtectedRoute component={StudentManagement} path="/auth/loggedIn" props="showstudent" />} />
+      
 
-        <Route path="/dashboard/faculty" element={<ProtectedRoute component={Faculty1} path="/auth/loggedIn" props="showstudent" />} />
+        <Route path="/dashboard/faculty" element={<ProtectedRoute component={Faculty1} path="/auth/loggedIn" />} />
+
+        <Route path="/dashboard/scheduleSetup" element={<ProtectedRoute component={ScheduleManagementView} path="/auth/loggedIn" />} />
 
 
      
 
 
 
-        {/* <Route path="/addstudent" element={<StudentManagement props="addstudent" />} />
-
-        <Route path="/showstudents" element={<StudentManagement props="showstudent" />} /> */}
-
-        {/* <Route path="/student" component={StudentManagement} />
-        <Route path="/faculty" component={FacultyManagement} />
-        <Route path="/edit/:id" component={EditView} />
-        <Route path="/delete/:id" component={DeleteView} /> */}
+        
         
       </Routes>
       <Toaster position="top-right"    toastOptions={{duration: 3000 ,  style: {

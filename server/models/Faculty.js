@@ -18,11 +18,13 @@ const facultySchema = new mongoose.Schema({
   assignedClasses: [
     {
       type: String,
+      unique: true,
      // Reference to the Class model
     },
   ],
   password: {
     type: String,
+    
   }
   // Other faculty attributes
 });

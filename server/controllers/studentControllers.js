@@ -1,47 +1,48 @@
 const Student = require('../models/Student');
 const Class = require('../models/Class');
 
+const mongoose = require('mongoose');
 
 
 const studentController = {
 
-addStudents:async (req, res) => {
+  addStudents: async (req, res) => {
     try {
       const { name, rollNo, enrollmentNo, class: classId } = req.body;
-  
+
       // Create a new student and save it to the database
       const newStudent = new Student({ name, rollNo, enrollmentNo, class: classId });
       const student = await newStudent.save();
-  
+
       // Add the student to the corresponding class's students array
       const classs = await Class.findById(classId);
       classs.students.push(student);
       await classs.save();
-  
+
       res.status(201).json({ message: 'Student added successfully', data: student })
-    
+
     } catch (error) {
       console.error('Error adding students', error);
       res.status(500).json({ error: 'Error adding students' });
     }
   },
-getAllStudents:async (req, res) => {
+  getAllStudents: async (req, res) => {
     try {
       const students = await Student.find().populate('class');
       res.status(200).json(students);
-      console.log(students);
+      // console.log(students);
     } catch (error) {
       console.error('Error fetching students', error);
       res.status(500).json({ error: 'Error fetching students' });
     }
   },
-  
-  getStudentsByClass:async (req, res) => {
+
+  getStudentsByClass: async (req, res) => {
     try {
       const class1 = req.params.class;
       console.log(class1);
-      const students = await Class.find({name:class1}).populate('students');
-      const studentsArray =students[0].students;
+      const students = await Class.find({ name: class1 }).populate('students');
+      const studentsArray = students[0].students;
       console.log(studentsArray);
       const studentInfoArray = studentsArray.map(student => ({
         name: student.name,
@@ -52,42 +53,109 @@ getAllStudents:async (req, res) => {
     } catch (error) {
       console.error('Error fetching students', error);
       res.status(500).json({ error: 'Error fetching students' });
-  
-  
+
+
     }
   },
-  updateStudent:async (req, res) => {
+  updateStudent: async (req, res) => {
     const { id } = req.params;
-  const { name, rollNo, enrollmentNo,selectedClassId } = req.body;
-console.log(selectedClassId);
-  try {
-    const updatedStudent = await Student.findByIdAndUpdate(id, { name, rollNo, enrollmentNo, class:  selectedClassId }, { new: true });
-
-    if (!updatedStudent) {
-      return res.status(404).json({ message: 'Class not found' });
-    }
-
-    return res.json(updatedStudent);
-  } catch (error) {
-    console.error('Error updating class:', error);
-    return res.status(500).json({ message: 'Error updating class' });
-  }
-  },
-  deleteStudent:async (req, res) => {
-    const { id } = req.params;
+    const { name, rollNo, enrollmentNo, selectedClassId } = req.body;
+    // console.log(selectedClassId);
     try {
-      const deletedStudent = await Student.findByIdAndDelete(id);
-  
-      if (!deletedStudent) {
+      const updatedStudent = await Student.findByIdAndUpdate(id, { name, rollNo, enrollmentNo }, { new: true });
+      console.log("dfdfv",selectedClassId)
+      updateClassForStudent(id, selectedClassId);
+      if (!updatedStudent) {
         return res.status(404).json({ message: 'Class not found' });
       }
-  
-      return res.json({ message: 'Class deleted successfully' });
+
+      return res.json(updatedStudent);
     } catch (error) {
-      console.error('Error deleting class:', error);
-      return res.status(500).json({ message: 'Error deleting class' });
+      console.error('Error updating class:', error);
+      return res.status(500).json({ message: 'Error updating class' });
+    }
+  },
+  deleteStudent: async (req, res) => {
+    try {
+      const studentId = req.params.studentId;
+
+      // Fetch the student to get the associated class ID before deletion
+      const student = await Student.findById(studentId).populate('class');
+
+      if (!student) {
+        return res.status(404).json({ message: 'Student not found' });
+      }
+
+      const classId = student.class?student.class._id:null;
+
+      // Delete the student
+      await Student.findByIdAndDelete(studentId);
+if (classId) {
+      // Update the Class model to remove the student reference
+      await Class.findByIdAndUpdate(classId, { $pull: { students: studentId } });
+}
+      // Respond with the classId
+      res.json({ classId });
+    } catch (error) {
+      console.error(`Error deleting student with ID  ${error}`);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
   },
 }
 
-module.exports=studentController;
+const updateClassForStudent = async (studentId, newClassId) => {
+  try {
+    // console.log(studentId, "newClassId:", newClassId);
+    // Fetch the student to get the associated class ID before updating
+    const student = await Student.findById(studentId).populate('class');
+
+    if (!student) {
+      throw new Error('Student not found');
+    }
+
+    const currentClassId = student.class ? student.class._id : null;
+// console.log(currentClassId, newClassId, studentId);
+    // If currentClassId is not N/A, update the Class model to remove the student reference from the current class
+    if (currentClassId) {
+      await Class.findByIdAndUpdate(currentClassId, { $pull: { students: studentId } });
+    }
+    // console.log('newClassId:', newClassId);
+    // console.log('isValid:', mongoose.Types.ObjectId.isValid(newClassId));
+    
+    if (!newClassId || !mongoose.Types.ObjectId.isValid(newClassId)) {
+      throw new Error('Invalid new class ID');
+    }
+    const existingStudentInNewClass = await Student.findOne({
+      _id: { $ne: studentId },
+      class: newClassId,
+      rollNo: student.rollNo,
+    });
+
+    if (existingStudentInNewClass) {
+      // Throw an error if a student with the same roll number already exists in the new class
+      throw new Error('Every class must have a unique roll number');
+    }
+    // Update the student with the new class ID
+    await Student.findByIdAndUpdate(studentId, { $set: { class: newClassId } }, { new: true });
+
+    // Update the Class model to add the student reference to the new class
+    await Class.findByIdAndUpdate(newClassId, { $addToSet: { students: studentId } });
+
+    return newClassId;
+  } catch (error) {
+    if (error.message === 'Every class must have a unique roll number') {
+      // Send a specific error message in the response
+      return res.status(400).json({ message: 'Every class must have a unique roll number' });
+    } else if (error.code === 11000) {
+      // Duplicate key error (E11000)
+      return res.status(400).json({ message: 'Every class must have a unique roll number' });
+    } else {
+      // Other errors
+      console.error(`Error updating class for student with ID ${studentId}: ${error}`);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+  }
+};
+
+
+module.exports = studentController;

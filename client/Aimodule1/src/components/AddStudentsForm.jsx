@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+
 function AddStudentForm() {
   const [studentData, setStudentData] = useState([
     {
@@ -20,6 +21,12 @@ function AddStudentForm() {
       setClassOptions(response.data);
     });
   }, []);
+
+  const handleCancelStudent = (index) => {
+    const updatedStudentData = [...studentData];
+    updatedStudentData.splice(index, 1);
+    setStudentData(updatedStudentData);
+  };
 
   const handleClassChange = (e) => {
     const selectedClass = e.target.value;
@@ -65,6 +72,7 @@ function AddStudentForm() {
   };
 
   const handleStudentChange = (index, field, value) => {
+
     const updatedStudentData = [...studentData];
     updatedStudentData[index][field] = value;
     setStudentData(updatedStudentData);
@@ -90,21 +98,27 @@ function AddStudentForm() {
             <input
               type="text"
               placeholder="Name"
+              required  
               value={student.name}
               onChange={(e) => handleStudentChange(index, 'name', e.target.value)}
             />
             <input
-              type="text"
+              type="number"
               placeholder="Roll No"
               value={student.rollNo}
               onChange={(e) => handleStudentChange(index, 'rollNo', e.target.value)}
             />
             <input
-              type="text"
+              type="number"
               placeholder="Enrollment No"
               value={student.enrollmentNo}
               onChange={(e) => handleStudentChange(index, 'enrollmentNo', e.target.value)}
             />
+              {studentData.length > 1 && (
+              <button type="button" onClick={() => handleCancelStudent(index)}>
+                Cancel
+              </button>
+            )}
           </div>
         ))}
         <button type="button" onClick={handleAddStudent}>

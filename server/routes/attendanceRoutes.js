@@ -8,6 +8,8 @@ const attendanceControllers =require("../controllers/attendanceControllers");
 
 router.get('/:studentEnrollmentNo', attendanceControllers.getAttendanceByStudentEnroll);
 
+router.get('/', attendanceControllers.getAllAttendance);
+
  router.post('/manualattendance', attendanceControllers.getAllStudentForMalualAttendace);
   
   router.post('/manualAttendanceForToday',authenticateJWT,attendanceControllers.getAllStudentForMalualAttendaceToday );

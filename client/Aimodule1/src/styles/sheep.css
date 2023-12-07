@@ -1,0 +1,7 @@
+tr:hover{
+    background-color: aqua;
+}
+
+.tableRow:hover{
+    background-color: greenyellow;
+}

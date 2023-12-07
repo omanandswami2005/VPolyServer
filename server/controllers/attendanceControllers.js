@@ -8,7 +8,9 @@ const attendanceControllers = {
     getAttendanceByStudentEnroll:
         async (req, res) => {
             const studentEnrollmentNo = req.params.studentEnrollmentNo;
-            const { startDate, endDate, selectedMonth } = req.query;
+             
+            const { startDate, endDate, selectedMonth,selectedTimeSlot } = req.query;
+            // console.log( startDate, endDate, selectedMonth,selectedTimeSlot);
 
             try {
                 const year = new Date().getFullYear();
@@ -25,7 +27,8 @@ const attendanceControllers = {
 
                 const attendanceData = await StudentAttendance.find({
                     studentEnrollmentNo,
-                    date: { $gte: startDateTime, $lte: endDateTime },
+                    date: { $gte: startDate?startDate:startDateTime, $lte: endDate?endDate:endDateTime },
+                    timeSlot: selectedTimeSlot
                 });
 
                 res.json(attendanceData);
@@ -35,6 +38,38 @@ const attendanceControllers = {
             }
         }
       ,
+      getAllAttendance: async(req,res)=>{
+        const enrollArray = req.query.enrollArray;
+        const selectedMonth = req.query.selectedMonth;
+        const selectedTimeSlot = req.query.selectedTimeSlot;
+        const { startDate, endDate } = req.query;
+        console.log(selectedMonth ?"yes":"",selectedTimeSlot?"yes":"");
+
+        try {
+            const year = new Date().getFullYear();
+            let startDateTime, endDateTime;
+
+            if (selectedMonth !== undefined) {
+                const month = Number(selectedMonth);
+                startDateTime = new Date(year, month, 2);
+                endDateTime = new Date(year, month + 1, 1);
+            } else {
+                startDateTime = startDate ? new Date(startDate) : new Date(0);
+                endDateTime = endDate ? new Date(endDate) : new Date();
+            }
+
+            const attendanceData = await StudentAttendance.find({
+              studentEnrollmentNo: { $in: enrollArray },
+                date: { $gte: startDate?startDate:startDateTime, $lte: endDate?endDate:endDateTime },
+                timeSlot: selectedTimeSlot
+            });
+        console.log(attendanceData);
+            res.json(attendanceData);
+        } catch (error) {
+            console.error('Error fetching attendance data:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+      } ,
       getAllStudentForMalualAttendace:async (req, res) => {
         const { selectedDate, selectedTimeSlot, className } = req.body;
         console.log(selectedDate, selectedTimeSlot, className);
@@ -78,7 +113,7 @@ const attendanceControllers = {
           // Insert new student attendance records if there are any
           if (studentsToAdd.length > 0) {
             await StudentAttendance.insertMany(studentsToAdd);
-            console.log('Added new attendance records for missing students.');
+            // console.log('Added new attendance records for missing students.');
           }
       
           // Now, send all the student attendance data as a response, including both existing and newly added records
@@ -92,8 +127,8 @@ const attendanceControllers = {
             },
           });
           const filteredStudentAttendance = allStudentAttendance.filter((attendance) => {
-            return attendance.studentId.class.name === className;
-          });
+            return attendance.studentId?.class?.name === className;
+                    });
           console.log(filteredStudentAttendance);
       
           res.json({ data: true, studentAttendance: filteredStudentAttendance });
@@ -120,8 +155,8 @@ const attendanceControllers = {
                 return res.status(404).json({ message: `Class '${className}' not found.` });
             }
 
-            console.log(`Class: ${classData.name}`);
-            console.log('Students:');
+            // console.log(`Class: ${classData.name}`);
+            // console.log('Students:');
 
             // Clear the studentsToAdd array before processing students for the new class
             const studentsToAdd = [];
@@ -168,7 +203,7 @@ const attendanceControllers = {
             const filteredStudentAttendance = allStudentAttendance.filter((attendance) => {
                 return attendance.studentId.class.name === className;
             });
-            console.log(filteredStudentAttendance);
+            // console.log(filteredStudentAttendance);
 
             res.json({ data: true, studentAttendance: filteredStudentAttendance });
         } catch (error) {
@@ -180,7 +215,7 @@ const attendanceControllers = {
 
         const studentEnrollmentNo = req.params.id;
         const { selectedDate, selectedTimeSlot } = req.body;
-        console.log(studentEnrollmentNo, selectedDate, selectedTimeSlot);
+        // console.log(studentEnrollmentNo, selectedDate, selectedTimeSlot);
         try {
 
             // Also update the corresponding record in the main database

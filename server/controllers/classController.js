@@ -1,6 +1,7 @@
 
 const mongoose = require('mongoose');
 const Class = mongoose.model('Class');
+const Faculty = require('../models/Faculty');
 
 const classController = {
 
@@ -65,16 +66,24 @@ const classController = {
       deleteClass:async (req, res) => {
         const classId = req.params.id;
         try {
+          // Find the class by ID and delete it
           const deletedClass = await Class.findByIdAndDelete(classId);
       
-          if (!deletedClass) {
-            return res.status(404).json({ message: 'Class not found' });
-          }
+          // If the class was deleted, update faculty members
+          if (deletedClass) {
+            // Update faculty members with the deleted class in their assignedClasses array
+            await Faculty.updateMany(
+              { assignedClasses: deletedClass.name },
+              { $pull: { assignedClasses: deletedClass.name } }
+            );
       
-          return res.json({ message: 'Class deleted successfully' });
+            res.json({ message: `Class with ID ${classId} deleted successfully.` });
+          } else {
+            res.status(404).json({ message: 'Class not found.' });
+          }
         } catch (error) {
-          console.error('Error deleting class:', error);
-          return res.status(500).json({ message: 'Error deleting class' });
+          console.error(`Error deleting class with ID ${classId}: ${error}`);
+          res.status(500).json({ message: 'Internal Server Error' });
         }
       }
 }
