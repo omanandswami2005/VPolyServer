@@ -23,6 +23,17 @@ createTimeSlot:async (req, res) => {
     }
   },
 
+  deleteTimeSlot:async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deletedTimeSlot = await TimeSlot.findByIdAndDelete(id);
+      res.json({ deletedTimeSlot });
+    } catch (error) {
+      console.error('Error deleting time slot:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+
 
 }
 module.exports = timeSlotControllers;

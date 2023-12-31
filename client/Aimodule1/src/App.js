@@ -8,8 +8,6 @@ import  { Toaster } from 'react-hot-toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Logoutpage} from './components/Logout';
 import ManualAttendance from './components/ManualAttendance';
-import FillAttendanceForToday from './components/TodaysAttendance';
-
 import StudentAttendanceTable from './components/StudentAttendanceTable';
 import ClassManagement from './views/ClassManagement';
 
@@ -44,8 +42,7 @@ const App = ()=> {
         <Route path="/dashboard/startmanualattendance" element={<ProtectedRoute component={ManualAttendance} path="/auth/loggedIn" />} />
 
         <Route path="/dashboard/viewattendance" element={<ProtectedRoute component={ViewAttendanceView} path="/auth/loggedIn"  />} />
-        
-        <Route path="/dashboard/todayattendance" element={<ProtectedRoute component={FillAttendanceForToday} path="/auth/loggedIn" />} />
+    
 
         <Route path="/dashboard/classstudentmgmt" element={<ProtectedRoute component={ClassStudentMgmtView} path="/auth/loggedIn" />} />
 

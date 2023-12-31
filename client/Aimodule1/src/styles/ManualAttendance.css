@@ -45,17 +45,20 @@
     text-align: center;
 }
 
-select
+/* select
  {
     padding: .3rem;
     font-size: 3rem;
     color: rgb(255, 196, 0);
     background-color: rgb(40, 41, 35);
     width: 150px;
-}
+} */
+
+
+
 
 .tb {
-    width: 80.5vw;
+   min-width: 95vw;
     /* border-collapse: collapse; */
     color: rgb(255, 255, 255);
     margin-bottom: 1rem;
@@ -71,13 +74,8 @@ select
     margin-bottom: 1rem;
 }
 
-.h1manualattendance {
-    color: rgb(246, 255, 0);
-    margin-bottom: 1rem;
-    width: 99vw;
-    background-color: brown;
-    border-radius: 2rem;
-}
+
+
 
 .th,
 .td {
@@ -108,7 +106,7 @@ select
 
 @media screen and (max-width: 600px) {
     .tb {
-        width: 98vw;
+        max-width: 99vw;
     }
 
     .manualAttendance {

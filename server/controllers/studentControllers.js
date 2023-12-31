@@ -57,18 +57,51 @@ const studentController = {
 
     }
   },
-  updateStudent: async (req, res) => {
+  updateStudent:  async (req, res) => {
     const { id } = req.params;
     const { name, rollNo, enrollmentNo, selectedClassId } = req.body;
-    // console.log(selectedClassId);
+  
     try {
       const updatedStudent = await Student.findByIdAndUpdate(id, { name, rollNo, enrollmentNo }, { new: true });
-      console.log("dfdfv",selectedClassId)
-      updateClassForStudent(id, selectedClassId);
+  
       if (!updatedStudent) {
         return res.status(404).json({ message: 'Class not found' });
       }
-
+  
+      // Fetch the student to get the associated class ID before updating
+      const student = await Student.findById(id).populate('class');
+  
+      if (!student) {
+        throw new Error('Student not found');
+      }
+  
+      const currentClassId = student.class ? student.class._id : null;
+  
+      // If currentClassId is not N/A, update the Class model to remove the student reference from the current class
+      if (currentClassId) {
+        await Class.findByIdAndUpdate(currentClassId, { $pull: { students: id } });
+      }
+  
+      if (selectedClassId) {
+        // Fetch the existing student in the new class with the same roll number
+        const existingStudentInNewClass = await Student.findOne({
+          _id: { $ne: id },
+          class: selectedClassId,
+          rollNo,
+        });
+  
+        if (existingStudentInNewClass) {
+          // Throw an error if a student with the same roll number already exists in the new class
+          return res.status(400).json({ message: 'Every class must have a unique roll number' });
+        }
+  
+        // Update the student with the new class ID
+        await Student.findByIdAndUpdate(id, { $set: { class: selectedClassId } }, { new: true });
+  
+        // Update the Class model to add the student reference to the new class
+        await Class.findByIdAndUpdate(selectedClassId, { $addToSet: { students: id } });
+      }
+  
       return res.json(updatedStudent);
     } catch (error) {
       console.error('Error updating class:', error);
@@ -103,7 +136,7 @@ if (classId) {
   },
 }
 
-const updateClassForStudent = async (studentId, newClassId) => {
+const updateClassForStudent = async (res,studentId, newClassId) => {
   try {
     // console.log(studentId, "newClassId:", newClassId);
     // Fetch the student to get the associated class ID before updating
@@ -143,16 +176,13 @@ const updateClassForStudent = async (studentId, newClassId) => {
 
     return newClassId;
   } catch (error) {
-    if (error.message === 'Every class must have a unique roll number') {
+    if (error.message === 'Every class must have a unique roll number' || error.code === 11000) {
       // Send a specific error message in the response
-      return res.status(400).json({ message: 'Every class must have a unique roll number' });
-    } else if (error.code === 11000) {
-      // Duplicate key error (E11000)
-      return res.status(400).json({ message: 'Every class must have a unique roll number' });
+      res.status(400).json({ message: 'Every class must have a unique roll number' });
     } else {
       // Other errors
       console.error(`Error updating class for student with ID ${studentId}: ${error}`);
-      return res.status(500).json({ message: 'Internal Server Error' });
+      res.status(500).json({ message: 'Internal Server Error' });
     }
   }
 };

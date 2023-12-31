@@ -24,7 +24,7 @@ async (req, res) => {
                 };
 // console.log(payload);
                 // Generate a JWT token and send it to the client
-                const token = jwt.sign(payload, secretKey, { expiresIn: '10m' });
+                const token = jwt.sign(payload, secretKey, { expiresIn: '1000m' });
                 console.log('Generated Token:', token);
 
                 // Set the JWT token as a cookie

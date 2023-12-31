@@ -13,7 +13,7 @@ const timeSlotRoutes = require('./routes/timeSlotRoutes');
 
 const authRoutes = require('./routes/authRoutes'); // Adjust the path based on your project structure
 
-const attendaceRoutes = require('./routes/attendanceRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
 
 
 const app = express();
@@ -37,7 +37,7 @@ app.use('/student', studentRoutes);
 app.use('/faculty', facultyRoutes);
 app.use('/timeSlot', timeSlotRoutes);
 
-app.use('/attendance', attendaceRoutes);
+app.use('/attendance', attendanceRoutes);
 
 
 app.use('/auth', authRoutes);

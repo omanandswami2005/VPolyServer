@@ -4,17 +4,32 @@ import { Button } from "reactstrap";
 import { useNavigate } from "react-router-dom";
 import "../styles/ManualAttendance.css";
 import toast from "react-hot-toast";
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import axios from "axios";
 
 function ManualAttendance(props) {
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('timeSlotDefault');
   const [showEnrollmentNo, setShowEnrollmentNo] = useState(false); // New state for showing/hiding Enrollment No.
-  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedClass, setSelectedClass] = useState('classDefault');
   const [classList, setClassList] = useState([]);
+  const [allPresent, setAllPresent] = useState(false);
+
   // console.log(props);
+
+  const [timeSlotDropdownOpen, setTimeSlotDropdownOpen] = useState(false);
+  const [classDropdownOpen, setClassDropdownOpen] = useState(false);
+
+  // const toggleTimeSlotDropdown = () => setTimeSlotDropdownOpen(prevState => !prevState);
+  // const toggleClassDropdown = () => setClassDropdownOpen(prevState => !prevState);
+
+  const toggleTimeSlot = () => setTimeSlotDropdownOpen((prevState) => !prevState);
+  const toggleClass = () => setClassDropdownOpen((prevState) => !prevState);
+
+
+ 
 
   useEffect(() => {
     console.log(selectedClass);
@@ -34,7 +49,7 @@ function ManualAttendance(props) {
     }
 
     // Fetch student data from the backend when selectedDate or selectedTimeSlot change
-    if (selectedDate && selectedTimeSlot && selectedClass) {
+    if (selectedDate && (selectedTimeSlot !== 'timeSlotDefault') && (selectedClass !== 'classDefault')) {
       try {
         axios
           .post(`/attendance/manualattendance`, { selectedDate, selectedTimeSlot ,className: selectedClass,})
@@ -79,11 +94,33 @@ function ManualAttendance(props) {
     setSelectedDate(`${year}-${month}-${day}`);
   }
 
+  const toggleAllStudents = async () => {
+    const updatedStudents = students.map((student) => ({
+      ...student,
+      present: !allPresent,
+    }));
+    setStudents(updatedStudents);
+    setAllPresent(!allPresent);
+
+    // Update the database for all students
+    try {
+      await axios.put(`/attendance/updateAll/${selectedDate}/${selectedTimeSlot}`, {
+        present: !allPresent,
+        className: selectedClass,
+      });
+    } catch (error) {
+      console.error("Error updating all students:", error);
+      toast.error("Failed to update all students");
+    }
+  };
+
+
   const toggleAttendance = (studentEnrollmentNo) => {
     try {
       axios
         .put(`/attendance/update/${studentEnrollmentNo}`, { selectedDate, selectedTimeSlot })
         .then((response) => {
+          
           const updatedTempRecord = response.data.mainRecord;
           const updatedStudents = [...students];
           const studentIndex = updatedStudents.findIndex(
@@ -119,45 +156,79 @@ function ManualAttendance(props) {
   // console.log(classList);
 
   return (
-    <>
+    < >
       <h1 className="fw-bold fs-10 text-center h1manualattendance">
         Manual Attendance
       </h1>
       <div className="attendance-controls">
-        <h3>Select Date And Time Slot OR Go to Today's Attendance </h3>
+        <h3>Select Date, Time-Slot And Class to Fill Attendance</h3>
         <hr />
         
           <Button color="primary" onClick={setTodaysDate}>Fill Today's Attendance</Button>
-       
-        <hr />
+       <h5>OR</h5>
+
+      
         <input
           type="date"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
+          className="border-dark rounded-2 my-2"
+          placeholder="Select Date"
         />
-         <select
-        value={selectedTimeSlot}
-        onChange={(e) => setSelectedTimeSlot(e.target.value)}
-      >
-        <option value="timeSlotDefault">Select Time Slot</option>
-        {timeSlots.map((timeSlot) => (
-          <option key={timeSlot._id} value={`${timeSlot.startTime} -> ${timeSlot.endTime}`}>
-            {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
-          </option>
-        ))}
-      </select>
-        <select value={selectedClass} onChange={handleClassChange}>
-          <option value="classDefault">Select Class</option>
-          {classList.map((assignedClass) => (
-            <option key={assignedClass} value={assignedClass}>
-              {assignedClass}
-            </option>
+       
+<hr />
+<hr />
+<div className="d-flex justify-content-center align-items-center  p-2">
+<Dropdown isOpen={timeSlotDropdownOpen} toggle={toggleTimeSlot} className="me-3">
+        <DropdownToggle caret  color="light" className="border-dark rounded-5 my-2" data-attr="dropdown-toggle">
+          {selectedTimeSlot === 'timeSlotDefault' ? 'Select Time Slot' : selectedTimeSlot}
+        </DropdownToggle>
+        <DropdownMenu>
+          <DropdownItem header>Select Below &#8609;</DropdownItem>
+          {timeSlots.map((timeSlot) => (
+            <DropdownItem
+              key={timeSlot._id}
+              onClick={() => {
+                setSelectedTimeSlot(`${timeSlot.startTime} -> ${timeSlot.endTime}`);
+              }}
+            >
+              {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
+            </DropdownItem>
           ))}
-        </select>
-        <Button color="primary" onClick={toggleEnrollmentNo}>
+        </DropdownMenu>
+      </Dropdown>
+
+      <Dropdown isOpen={classDropdownOpen} toggle={toggleClass}>
+        <DropdownToggle caret color="light" className="border-dark rounded-5 my-2">
+          {selectedClass === 'classDefault' ? 'Select Class' : selectedClass}
+        </DropdownToggle>
+        <DropdownMenu>
+          <DropdownItem header>Select Below &#8609;	</DropdownItem>
+          {classList.map((assignedClass) => (
+            <DropdownItem
+              key={assignedClass}
+              onClick={() => {
+                setSelectedClass(assignedClass);
+              }}
+            >
+              {assignedClass}
+            </DropdownItem>
+          ))}
+        </DropdownMenu>
+      </Dropdown>
+      </div>
+      <hr />
+        <Button color="primary" onClick={toggleEnrollmentNo} className="mx-2">
           Toggle Enrollment No
         </Button>
+        <Button color="success" onClick={toggleAllStudents} className="mx-2"
+        disabled={!students.length} // Disable if students are not fetched
+                  >
+          {allPresent ? "Mark All Absent" : "Mark All Present"}
+        </Button>
+        
       </div>
+      <hr />
       <div className="manualAttendance">
       <table className="tb">
         <thead>

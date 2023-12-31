@@ -16,6 +16,9 @@ router.get('/', attendanceControllers.getAllAttendance);
 
   router.put('/update/:id', authenticateJWT,attendanceControllers.updateAttendance );
   
+  router.put('/updateAll/:date/:timeSlot', attendanceControllers.updateAllAttendance);
+
+  
 
 
 

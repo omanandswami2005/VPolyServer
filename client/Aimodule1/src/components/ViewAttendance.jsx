@@ -322,7 +322,7 @@ return sampleData;
 
 
 
-      <Accordion defaultActiveKey="0" className="accordion">
+      <Accordion className="accordion">
         {students.map((student, index) => (
           <Accordion.Item key={index} eventKey={index.toString()}>
             <Accordion.Header >{student.name} &nbsp;  <br /><span>Roll No: {student.rollNo}</span></Accordion.Header>
