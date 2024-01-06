@@ -1,20 +1,13 @@
 import React, { useEffect, useState } from "react";
-// import { Button } from "reactstrap";
 import { useNavigate } from "react-router-dom";
-import Table from 'react-bootstrap/Table';
-
-
-// import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
-import axios from "axios";
-import Accordion from 'react-bootstrap/Accordion';
-// import Card from 'react-bootstrap/Card';
-// import Form from 'react-bootstrap/Form';
+import { Table, Accordion, Button } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import '../styles/ViewAttendance.css';
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
+import toast from "react-hot-toast";
+import axios from "axios";
+import '../styles/ViewAttendance.css';
 
 
 function ViewAttendance(props) {
@@ -269,6 +262,7 @@ return sampleData;
 
   return (
     <>
+     <div className="attendance-controls">
       <div className="attendance-controls">
         <h3>Select Class </h3>
         <hr />
@@ -318,7 +312,7 @@ return sampleData;
   </label>
 </div> */}
 
-
+</div>
 
 
 

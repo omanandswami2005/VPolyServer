@@ -18,6 +18,9 @@ function ManualAttendance(props) {
   const [allPresent, setAllPresent] = useState(false);
 
   // console.log(props);
+  const [filteredStudents, setFilteredStudents] = useState([]); // State to store filtered students
+  const [searchTerm, setSearchTerm] = useState(""); // State to store search term
+  
 
   const [timeSlotDropdownOpen, setTimeSlotDropdownOpen] = useState(false);
   const [classDropdownOpen, setClassDropdownOpen] = useState(false);
@@ -25,10 +28,28 @@ function ManualAttendance(props) {
   // const toggleTimeSlotDropdown = () => setTimeSlotDropdownOpen(prevState => !prevState);
   // const toggleClassDropdown = () => setClassDropdownOpen(prevState => !prevState);
 
-  const toggleTimeSlot = () => setTimeSlotDropdownOpen((prevState) => !prevState);
-  const toggleClass = () => setClassDropdownOpen((prevState) => !prevState);
+  const toggleTimeSlot = () => {
+    setClassDropdownOpen(false); // Close the class dropdown
+    setTimeSlotDropdownOpen((prevState) => !prevState);
+  };
+  
+  const toggleClass = () => {
+    setTimeSlotDropdownOpen(false); // Close the time slot dropdown
+    setClassDropdownOpen((prevState) => !prevState);
+  };
+  
+
+const to =()=>{}
 
 
+  useEffect(() => {
+    // Filter students based on the search term
+    const filtered = students.filter(student =>
+      student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.studentEnrollmentNo.includes(searchTerm)
+    );
+    setFilteredStudents(filtered);
+  }, [searchTerm, students]);
  
 
   useEffect(() => {
@@ -106,8 +127,11 @@ function ManualAttendance(props) {
     try {
       await axios.put(`/attendance/updateAll/${selectedDate}/${selectedTimeSlot}`, {
         present: !allPresent,
-        className: selectedClass,
-      });
+        studentList: updatedStudents.map((student) => student.studentEnrollmentNo),
+      }).then((response) => {
+        console.log(response.data);
+        toast.success("Updated all students");
+      })
     } catch (error) {
       console.error("Error updating all students:", error);
       toast.error("Failed to update all students");
@@ -179,11 +203,11 @@ function ManualAttendance(props) {
 <hr />
 <hr />
 <div className="d-flex justify-content-center align-items-center  p-2">
-<Dropdown isOpen={timeSlotDropdownOpen} toggle={toggleTimeSlot} className="me-3">
-        <DropdownToggle caret  color="light" className="border-dark rounded-5 my-2" data-attr="dropdown-toggle">
+<Dropdown  isOpen={timeSlotDropdownOpen} toggle={toggleTimeSlot} className="me-3" onMouseLeave={toggleTimeSlot}>
+        <DropdownToggle onMouseOver={timeSlotDropdownOpen?to:toggleTimeSlot }    caret  color="light" className="border-dark rounded-2 my-2" data-attr="dropdown-toggle" onClick={toggleTimeSlot}>
           {selectedTimeSlot === 'timeSlotDefault' ? 'Select Time Slot' : selectedTimeSlot}
         </DropdownToggle>
-        <DropdownMenu>
+        <DropdownMenu   >
           <DropdownItem header>Select Below &#8609;</DropdownItem>
           {timeSlots.map((timeSlot) => (
             <DropdownItem
@@ -198,14 +222,15 @@ function ManualAttendance(props) {
         </DropdownMenu>
       </Dropdown>
 
-      <Dropdown isOpen={classDropdownOpen} toggle={toggleClass}>
-        <DropdownToggle caret color="light" className="border-dark rounded-5 my-2">
+      <Dropdown isOpen={classDropdownOpen} onMouseLeave={toggleClass}  toggle={toggleClass}>
+        <DropdownToggle onMouseOver={ classDropdownOpen?to:toggleClass}  caret color="light" className="border-dark rounded-2 my-2" onClick={toggleClass}>
           {selectedClass === 'classDefault' ? 'Select Class' : selectedClass}
         </DropdownToggle>
-        <DropdownMenu>
+        <DropdownMenu >
           <DropdownItem header>Select Below &#8609;	</DropdownItem>
           {classList.map((assignedClass) => (
             <DropdownItem
+            
               key={assignedClass}
               onClick={() => {
                 setSelectedClass(assignedClass);
@@ -229,6 +254,18 @@ function ManualAttendance(props) {
         
       </div>
       <hr />
+      <div className="search-bar-container my-3  mx-auto text-center" >
+  <input
+    type="text"
+    placeholder="Search by Name or enrollment No."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="search-bar w-75 "
+    
+    
+  />
+</div>
+
       <div className="manualAttendance">
       <table className="tb">
         <thead>
@@ -240,26 +277,37 @@ function ManualAttendance(props) {
           </tr>
         </thead>
         <tbody>
-          {students
-            .slice() // Create a shallow copy of the array to avoid mutating the original array
-            .sort((a, b) => parseInt(a.studentRollNo, 10) - parseInt(b.studentRollNo, 10)) // Convert to numbers and sort
-            .map((student) => (
-              <tr key={student.studentRollNo}>
-                <td className="td">{student.studentRollNo}</td>
-                {showEnrollmentNo && (
-                  <td className="td">{student.studentEnrollmentNo}</td>
-                )}
-                <td className="td">{student.studentName}</td>
-                <td className="td">
-                  <Switch
-                    onChange={() => toggleAttendance(student.studentEnrollmentNo)}
-                    checked={student.present}
-                  />
-                  <p>{student.present ? "Present" : "Absent"}</p>
-                </td>
-              </tr>
-            ))}
-        </tbody>
+            {students
+              .slice()
+              .sort((a, b) => parseInt(a.studentEnrollmentNo, 10) - parseInt(b.studentEnrollmentNo, 10))
+              .map((student, index) => {
+                // Check if the student matches the search term
+                const matchesSearch = (
+                  student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  student.studentEnrollmentNo.includes(searchTerm)
+                );
+
+                // If there's a search term and the student doesn't match, skip rendering
+                if (searchTerm && !matchesSearch) {
+                  return null;
+                }
+
+                return (
+                  <tr key={student.studentEnrollmentNo}>
+                    <td className="td">{index + 1}</td>
+                    {showEnrollmentNo && <td className="td">{student.studentEnrollmentNo}</td>}
+                    <td className="td">{student.studentName}</td>
+                    <td className="td">
+                      <Switch
+                        onChange={() => toggleAttendance(student.studentEnrollmentNo)}
+                        checked={student.present}
+                      />
+                      <p>{student.present ? "Present" : "Absent"}</p>
+                    </td>
+                  </tr>
+                );
+              })}
+          </tbody>
       </table>
     </div>
       <div className="summary">

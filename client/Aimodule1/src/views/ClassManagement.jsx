@@ -7,7 +7,8 @@ function ClassManagement(props) {
   // console.log(props)
   return (
     <div>
-      <h2>Class Management</h2>
+      
+      <h2 className='mgmt-title text-center bg-info rounded text-white border w-100 mx-auto mt-2'>Class Management</h2>
  <AddClassForm /> 
  
   <DisplayClasses />

@@ -24,13 +24,13 @@ async (req, res) => {
                 };
 // console.log(payload);
                 // Generate a JWT token and send it to the client
-                const token = jwt.sign(payload, secretKey, { expiresIn: '1000m' });
+                const token = jwt.sign(payload, secretKey, { expiresIn: '100m' });
                 console.log('Generated Token:', token);
 
                 // Set the JWT token as a cookie
                 res.setHeader('Set-Cookie', cookie.serialize('token', token, {
                     httpOnly: true,
-                    maxAge: 60 * 10, // 10 minutes
+                    maxAge: 60 * 100, // 10 minutes
                     sameSite: 'strict', // Adjust this based on your security requirements
                     path: '/', // Specify the path where the cookie is accessible
                 }));
@@ -50,13 +50,13 @@ async (req, res) => {
             };
 
             // Generate a JWT token and send it to the client
-            const token = jwt.sign(payload, secretKey, { expiresIn: '10m' });
+            const token = jwt.sign(payload, secretKey, { expiresIn: '100m' });
             console.log('Generated Token:', token);
 
             // Set the JWT token as a cookie
             res.setHeader('Set-Cookie', cookie.serialize('token', token, {
                 httpOnly: true,
-                maxAge: 60 * 10, // 10 minutes
+                maxAge: 60 * 100, // 100 minutes
                 sameSite: 'strict', // Adjust this based on your security requirements
                 path: '/', // Specify the path where the cookie is accessible
             }));

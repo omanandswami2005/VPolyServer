@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Button, Form, FormGroup, Label, Input, Col } from 'reactstrap';
 import toast from 'react-hot-toast';
 
 function AddClassForm() {
@@ -50,31 +51,46 @@ function AddClassForm() {
 
   return (
     <div>
-      <h2>Add Classes</h2>
-      <form onSubmit={handleClassSubmit}>
+      <hr />
+       <h2 className="text-center my-3 d-block bg-dark text-white w-75 mx-auto border">Add Class/es</h2>
+      <Form onSubmit={handleClassSubmit}>
         {classNames.map((className, index) => (
-          <div key={index}>
-            <input
-              type="text"
-              required
-              placeholder="Enter Class Name"
-              value={className}
-              onChange={(e) => handleClassChange(index, e.target.value)}
-            />
-            <button
-              type="button"
-              onClick={() => handleCancelClassField(index)}
-              disabled={classNames.length === 1}
-            >
-              Cancel
-            </button>
-          </div>
+          <FormGroup row key={index}>
+            <Label sm={6} for={`className${index + 1}`}>Class Name {index + 1} :</Label>
+            <Col sm={9} className="d-flex align-items-center w-100 mx-auto">
+              <Input
+                type="text"
+                required
+                placeholder={`Enter Class Name ${index + 1}`}
+                value={className}
+                onChange={(e) => handleClassChange(index, e.target.value)}
+                className="mx-1 w-75"
+              />
+              <Button
+                type="button"
+                color="danger"
+                onClick={() => handleCancelClassField(index)}
+                disabled={classNames.length === 1}
+                className="ml-2"
+              >
+                Cancel
+              </Button>
+            </Col>
+          </FormGroup>
         ))}
-        <button type="button" onClick={handleAddClassField}>
-          Add More Class
-        </button>
-        <button type="submit">Add Classes</button>
-      </form>
+        
+        <FormGroup row className=' w-100 mx-auto'>
+          <Col sm={{ size: 10, offset: 2 }}  >
+            <Button type="submit" color="success" className='mx-2'>
+              Add Classes
+            </Button>
+         
+            <Button type="button" onClick={handleAddClassField} color="primary">
+              Add More Class
+            </Button>
+          </Col>
+        </FormGroup>
+      </Form>
     </div>
   );
 }

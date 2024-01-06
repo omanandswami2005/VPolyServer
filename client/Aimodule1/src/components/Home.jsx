@@ -48,7 +48,7 @@ function Home() {
 
 
                         </Card>
-                        <Card  className='homecard'>
+                        {/* <Card  className='homecard'>
                             <h5 className="display-4 font-italic text-center">Welcome to MicroBuilder</h5>
                             <p className="lead">Your MicroBuilder Helper Is Here !!!</p>
                             <hr className="my-2" />
@@ -61,7 +61,7 @@ function Home() {
                                 Go to MicroBuilder</Button>
                             </Link>
 
-                        </Card>
+                        </Card> */}
                     </Col>
                 </Row>
 

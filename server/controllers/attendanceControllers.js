@@ -245,15 +245,18 @@ const attendanceControllers = {
   },
   updateAllAttendance: async (req, res) => {
     const { date, timeSlot } = req.params;
-    const { present, className } = req.body;
+    const { present, studentList } = req.body;
+
+    console.log(date, timeSlot, present, studentList);
   
     try {
       // Find all students for the given date, time slot, and class
       const students = await StudentAttendance.find({
         date,
         timeSlot,
-        'class.name': className,
+        studentEnrollmentNo: { $in: studentList },
       });
+      console.log(students);
   
       // Update the present status for all students
       await Promise.all(

@@ -1,5 +1,6 @@
 const Student = require('../models/Student');
 const Class = require('../models/Class');
+const Attendance = require('../models/studentAttendance')
 
 const mongoose = require('mongoose');
 
@@ -111,29 +112,37 @@ const studentController = {
   deleteStudent: async (req, res) => {
     try {
       const studentId = req.params.studentId;
-
+  
       // Fetch the student to get the associated class ID before deletion
       const student = await Student.findById(studentId).populate('class');
-
+  
       if (!student) {
         return res.status(404).json({ message: 'Student not found' });
       }
-
-      const classId = student.class?student.class._id:null;
-
+  
+      const classId = student.class ? student.class._id : null;
+  
+      // Fetch and delete attendance records associated with the student
+      const attendanceRecords = await Attendance.find({ studentId: studentId });
+      await Attendance.deleteMany({ studentId: studentId });
+      console.log(attendanceRecords);
+  
+      if (classId) {
+        // Update the Class model to remove the student reference
+        await Class.findByIdAndUpdate(classId, { $pull: { students: studentId } });
+      }
+  
       // Delete the student
       await Student.findByIdAndDelete(studentId);
-if (classId) {
-      // Update the Class model to remove the student reference
-      await Class.findByIdAndUpdate(classId, { $pull: { students: studentId } });
-}
-      // Respond with the classId
-      res.json({ classId });
+  
+      // Respond with the classId and deleted attendance records
+      res.json({ classId, deletedAttendanceRecords: attendanceRecords });
     } catch (error) {
-      console.error(`Error deleting student with ID  ${error}`);
+      console.error(`Error deleting student with ID ${error}`);
       res.status(500).json({ message: 'Internal Server Error' });
     }
   },
+  
 }
 
 const updateClassForStudent = async (res,studentId, newClassId) => {

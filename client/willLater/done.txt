@@ -1,0 +1,8 @@
+DONE :
+{
+total present and absent 
+show enrollment number
+}
+
+
+promise.all(group present all route)

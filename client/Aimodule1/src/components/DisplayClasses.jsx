@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { Button, Input, ListGroup, ListGroupItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 function DisplayClasses() {
   const [classOptions, setClassOptions] = useState([]);
@@ -8,7 +9,7 @@ function DisplayClasses() {
     id: '',
     name: '',
   });
-  const [isUpdateFormVisible, setUpdateFormVisible] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     fetchClassOptions();
@@ -19,36 +20,28 @@ function DisplayClasses() {
       setClassOptions(response.data);
     });
   };
-  const handleRefresh = () => {
-    axios.get('/class').then((response) => {
-      setClassOptions(response.data);
-    });
-  };
+
   const openUpdateForm = (classId, className) => {
-    setUpdateClassData((prevData) => ({ ...prevData, id: classId, name: className }));
-    setUpdateFormVisible(true);
+    setUpdateClassData({ id: classId, name: className });
+    setModalOpen(true);
   };
 
   const closeUpdateForm = () => {
-    setUpdateFormVisible(false);
+    setModalOpen(false);
   };
 
   const handleUpdateClass = () => {
-    // Send a PUT request to update the class with the new data.
     const { id, name } = updateClassData;
-    axios.put(`/class/${id}`, { name })
+    axios
+      .put(`/class/${id}`, { name })
       .then((response) => {
-        // Handle the success case.
         console.log(`Class with ID ${id} updated successfully.`);
         toast.success('Updated Successfully');
-        // Close the update form and refresh the class list after the update.
         closeUpdateForm();
         fetchClassOptions();
       })
       .catch((error) => {
-        // Handle any errors.
         toast.error('Failed to Update');
-
         console.error(`Error updating class with ID ${id}: ${error}`);
       });
   };
@@ -56,17 +49,14 @@ function DisplayClasses() {
   const handleDeleteClass = (classId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this class?');
     if (confirmDelete) {
-      // Send a DELETE request to delete the class.
-      axios.delete(`/class/${classId}`)
-        .then((response) => {
-          // Handle the success case.
+      axios
+        .delete(`/class/${classId}`)
+        .then(() => {
           console.log(`Class with ID ${classId} deleted successfully.`);
-          // Refresh the class list after deletion.
+          toast.success('Deleted Successfully');
           fetchClassOptions();
-          // handleRefresh();
         })
         .catch((error) => {
-          // Handle any errors.
           console.error(`Error deleting class with ID ${classId}: ${error}`);
         });
     }
@@ -74,29 +64,44 @@ function DisplayClasses() {
 
   return (
     <div>
-      <h2>Modify Classes</h2> <button onClick={handleRefresh}>Refresh</button>
-      <ul>
+      <hr />
+ <h2 className="text-center bg-dark text-light w-75 mx-auto border border-white">List Of All Classes</h2>      <Button color="primary" onClick={fetchClassOptions} className="mb-3 w-25 mx-auto">
+        Refresh
+      </Button>
+      <ListGroup>
         {classOptions.map((option) => (
-          <li key={option._id}>
+          <ListGroupItem key={option._id} className="d-flex justify-content-between align-items-center">
             {option.name}
-            <button onClick={() => openUpdateForm(option._id, option.name)}>Update</button>
-            <button onClick={() => handleDeleteClass(option._id)}>Delete</button>
-          </li>
+            <div>
+              <Button color="info" onClick={() => openUpdateForm(option._id, option.name)} className="mx-2">
+                Update
+              </Button>
+              <Button color="danger" onClick={() => handleDeleteClass(option._id)}>
+                Delete
+              </Button>
+            </div>
+          </ListGroupItem>
         ))}
-      </ul>
+      </ListGroup>
 
-      {isUpdateFormVisible && (
-        <div>
-          <h3>Update Class</h3>
-          <input
+      <Modal isOpen={isModalOpen} toggle={closeUpdateForm}>
+        <ModalHeader toggle={closeUpdateForm}>Update Class</ModalHeader>
+        <ModalBody>
+          <Input
             type="text"
             value={updateClassData.name}
-            onChange={(e) => setUpdateClassData((prevData) => ({ ...prevData, name: e.target.value }))}
+            onChange={(e) => setUpdateClassData({ ...updateClassData, name: e.target.value })}
           />
-          <button onClick={handleUpdateClass}>Save</button>
-          <button onClick={closeUpdateForm}>Cancel</button>
-        </div>
-      )}
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={handleUpdateClass}>
+            Save
+          </Button>
+          <Button color="secondary" onClick={closeUpdateForm}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 }
