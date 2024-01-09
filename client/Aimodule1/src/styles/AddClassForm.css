@@ -1,0 +1,18 @@
+.add-class-form{
+   width: 95%;
+   margin: auto;
+}
+.add-class-card{
+    width: 100%;
+    margin: auto;
+}
+.add-class{
+    margin: 0%;
+}
+
+@media screen and (max-width: 600px) {
+    .add-class-form{
+        width: 84vw;
+    }
+    
+}

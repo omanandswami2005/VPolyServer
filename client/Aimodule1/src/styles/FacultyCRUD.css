@@ -1,0 +1,16 @@
+@media screen and (max-width: 700px) {
+    .std-mgmt123{
+        width: 90vw;
+        border: 2px solid rgb(0, 0, 0);
+        padding: 10px;
+    }
+    
+}
+@media screen and (min-width: 700px) {
+    .std-mgmt123{
+        width: 65vw;
+        border: 2px solid rgb(0, 0, 0);
+        padding-inline: 10px;
+    }
+    
+}

@@ -245,16 +245,21 @@ const attendanceControllers = {
   },
   updateAllAttendance: async (req, res) => {
     const { date, timeSlot } = req.params;
-    const { present, studentList } = req.body;
+    const { present, className } = req.body;
 
-    console.log(date, timeSlot, present, studentList);
+    console.log(date, timeSlot, present,className);
   
     try {
       // Find all students for the given date, time slot, and class
       const students = await StudentAttendance.find({
         date,
         timeSlot,
-        studentEnrollmentNo: { $in: studentList },
+      }).populate({
+        path: 'studentId',
+        match: { 'class.name': className }, // Filter students based on class name
+        populate: {
+          path: 'class', // Populate the class field in studentId
+        },
       });
       console.log(students);
   

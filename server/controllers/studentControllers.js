@@ -64,7 +64,11 @@ const studentController = {
   
     try {
       const updatedStudent = await Student.findByIdAndUpdate(id, { name, rollNo, enrollmentNo }, { new: true });
-  
+
+
+      // Update Attendance document
+    await Attendance.findOneAndUpdate({ studentId: id }, { studentName: name, studentEnrollmentNo: enrollmentNo }, { new: true });
+
       if (!updatedStudent) {
         return res.status(404).json({ message: 'Class not found' });
       }
@@ -99,6 +103,7 @@ const studentController = {
         // Update the student with the new class ID
         await Student.findByIdAndUpdate(id, { $set: { class: selectedClassId } }, { new: true });
   
+       
         // Update the Class model to add the student reference to the new class
         await Class.findByIdAndUpdate(selectedClassId, { $addToSet: { students: id } });
       }
@@ -142,6 +147,40 @@ const studentController = {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   },
+  deleteAllStudent: async (req, res) => {
+    const { selectedStudents } = req.body;
+    try {
+      // Fetch the first selected student to get the associated class ID before deletion
+      const firstStudent = await Student.findById(selectedStudents[0]).populate('class');
+  
+      if (!firstStudent) {
+        return res.status(404).json({ message: 'Student not found' });
+      }
+  
+      const classId = firstStudent.class ? firstStudent.class._id : null;
+  
+      // Fetch and delete attendance records associated with the students
+      const attendanceRecords = await Attendance.find({ studentId: { $in: selectedStudents } });
+      await Attendance.deleteMany({ studentId: { $in: selectedStudents } });
+      console.log(attendanceRecords);
+  
+      if (classId) {
+        // Update the Class model to remove the students reference
+        await Class.findByIdAndUpdate(classId, { $pullAll: { students: selectedStudents } });
+      }
+  
+      // Delete the selected students
+      await Student.deleteMany({ _id: { $in: selectedStudents } });
+  
+      // Respond with the classId and deleted attendance records
+      res.json({ classId, deletedAttendanceRecords: attendanceRecords });
+    } catch (error) {
+      console.error('Error deleting students', error);
+      res.status(500).json({ error: 'Error deleting students' });
+    }
+  }
+  
+  ,
   
 }
 

@@ -12,5 +12,7 @@ router.get('/getstudentsbyclass/:class', studentController.getStudentsByClass);
 
   router.delete('/:studentId', studentController.deleteStudent);
 
+  router.post('/deleteAllStudents',studentController.deleteAllStudent)
+
 
   module.exports = router;

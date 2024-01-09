@@ -17,16 +17,12 @@ function ManualAttendance(props) {
   const [classList, setClassList] = useState([]);
   const [allPresent, setAllPresent] = useState(false);
 
-  // console.log(props);
-  const [filteredStudents, setFilteredStudents] = useState([]); // State to store filtered students
+  const [timeSlots, setTimeSlots,] = useState([]); 
   const [searchTerm, setSearchTerm] = useState(""); // State to store search term
   
 
   const [timeSlotDropdownOpen, setTimeSlotDropdownOpen] = useState(false);
   const [classDropdownOpen, setClassDropdownOpen] = useState(false);
-
-  // const toggleTimeSlotDropdown = () => setTimeSlotDropdownOpen(prevState => !prevState);
-  // const toggleClassDropdown = () => setClassDropdownOpen(prevState => !prevState);
 
   const toggleTimeSlot = () => {
     setClassDropdownOpen(false); // Close the class dropdown
@@ -40,17 +36,6 @@ function ManualAttendance(props) {
   
 
 const to =()=>{}
-
-
-  useEffect(() => {
-    // Filter students based on the search term
-    const filtered = students.filter(student =>
-      student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.studentEnrollmentNo.includes(searchTerm)
-    );
-    setFilteredStudents(filtered);
-  }, [searchTerm, students]);
- 
 
   useEffect(() => {
     console.log(selectedClass);
@@ -75,13 +60,18 @@ const to =()=>{}
         axios
           .post(`/attendance/manualattendance`, { selectedDate, selectedTimeSlot ,className: selectedClass,})
           .then((response) => {
-            console.log(response.data.studentAttendance);
+            console.log("hi",response.data.studentAttendance);
             // setStudents([]);
+            if(response.data.studentAttendance.length <1)
+            {
+              toast.error("No Students Found, Please Add Students in Selected Class");
+              setStudents([]);
+            }
+            else{
             setStudents(
-              response.data.studentAttendance || response.data
-            );
-          })
-          .catch((error) => {
+              response.data.studentAttendance);}
+
+          }).catch((error) => {
             console.error("Error fetching or creatingAttendance data:", error);
             // navigate("/login");
             toast.error("Session Expired :/ Please Login Again");
@@ -92,7 +82,7 @@ const to =()=>{}
     }
   }, [selectedDate, selectedTimeSlot, navigate, props.userData.name,selectedClass]);
   
-  const [timeSlots, setTimeSlots] = useState([]);
+  
 
   useEffect(() => {
     // Fetch time slots from the server
@@ -101,12 +91,17 @@ const to =()=>{}
     }).catch((error) => {
       console.error('Error fetching time slots:', error);
     });
-  }, []);
+
+        // Check if all students are present
+        const allStudentsPresent = students.length > 0 && students.every(student => student.present);
+        setAllPresent(allStudentsPresent);
+    
+  }, [students]);
 
   // Handle the class selection change
-  const handleClassChange = (e) => {
-    setSelectedClass(e.target.value);
-  };
+  // const handleClassChange = (e) => {
+  //   setSelectedClass(e.target.value);
+  // };
   const setTodaysDate = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -127,11 +122,7 @@ const to =()=>{}
     try {
       await axios.put(`/attendance/updateAll/${selectedDate}/${selectedTimeSlot}`, {
         present: !allPresent,
-        studentList: updatedStudents.map((student) => student.studentEnrollmentNo),
-      }).then((response) => {
-        console.log(response.data);
-        toast.success("Updated all students");
-      })
+        className: selectedClass});
     } catch (error) {
       console.error("Error updating all students:", error);
       toast.error("Failed to update all students");
@@ -243,9 +234,7 @@ const to =()=>{}
       </Dropdown>
       </div>
       <hr />
-        <Button color="primary" onClick={toggleEnrollmentNo} className="mx-2">
-          Toggle Enrollment No
-        </Button>
+        
         <Button color="success" onClick={toggleAllStudents} className="mx-2"
         disabled={!students.length} // Disable if students are not fetched
                   >
@@ -266,16 +255,24 @@ const to =()=>{}
   />
 </div>
 
-      <div className="manualAttendance">
-      <table className="tb">
-        <thead>
-          <tr className="tr">
-            <th className="th">Roll No.</th>
-            {showEnrollmentNo && <th className="th">Enrollment No.</th>}
-            <th className="th">Name</th>
-            <th className="th">Present</th>
-          </tr>
-        </thead>
+<div className="manualAttendance w-100" style={{ overflowX: "auto", overflowY: "auto", maxWidth: "100%", maxHeight: "80vh", margin: "auto" }}>
+
+       <div className="table-responsive">
+          <table className="tb">
+          <thead>
+              <tr className="tr">
+                <th className="th" style={{ minWidth: "20vw", maxWidth: "50px", margin: "auto" }} onClick={toggleEnrollmentNo}>
+                  Roll No.
+                  <br />
+                  <button className="btn btn-primary btn-sm " onClick={toggleEnrollmentNo}>
+                    {showEnrollmentNo ? "Hide" : "Show"} Enrollment
+                  </button>
+                </th>
+                {showEnrollmentNo && <th className="th" style={{ maxWidth: "100px" }}>Enrollment No.</th>}
+                <th className="th" style={{ maxWidth: "150px" }}>Name</th>
+                <th className="th" style={{ maxWidth: "120px" }}>Present</th>
+              </tr>
+            </thead>
         <tbody>
             {students
               .slice()
@@ -294,12 +291,12 @@ const to =()=>{}
 
                 return (
                   <tr key={student.studentEnrollmentNo}>
-                    <td className="td">{index + 1}</td>
+                    <td className="td" onClick={toggleEnrollmentNo}>{index + 1}</td>
                     {showEnrollmentNo && <td className="td">{student.studentEnrollmentNo}</td>}
                     <td className="td">{student.studentName}</td>
-                    <td className="td">
+                    <td className="td" onClick={() => toggleAttendance(student.studentEnrollmentNo)}>
                       <Switch
-                        onChange={() => toggleAttendance(student.studentEnrollmentNo)}
+                        onChange={() => ""}
                         checked={student.present}
                       />
                       <p>{student.present ? "Present" : "Absent"}</p>
@@ -309,6 +306,7 @@ const to =()=>{}
               })}
           </tbody>
       </table>
+      </div>
     </div>
       <div className="summary">
         <p>Total Students: {totalStudents}</p>

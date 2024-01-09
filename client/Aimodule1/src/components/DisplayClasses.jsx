@@ -1,28 +1,54 @@
+// DisplayClasses.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { Button, Input, ListGroup, ListGroupItem, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, Input, Modal, ModalHeader, ModalBody, ModalFooter, Table, Form, FormGroup, Label } from 'reactstrap';
+import { useData } from '../DataContext';
+
+
 
 function DisplayClasses() {
-  const [classOptions, setClassOptions] = useState([]);
+  
+  const { classOptions, faculties, fetchAll, fetchClassOptions } = useData();
+
   const [updateClassData, setUpdateClassData] = useState({
     id: '',
     name: '',
+    assignedFaculty: [],
   });
+  // const [faculties, setFaculties] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchClassOptions();
-  }, []);
+    fetchAll();
+  }, [fetchAll]);
 
-  const fetchClassOptions = () => {
-    axios.get('/class').then((response) => {
-      setClassOptions(response.data);
+  // const fetchAll = () => {
+  //   fetchClassOptions();
+  //   fetchFaculties();
+  // };
+
+  // const fetchClassOptions = () => {
+  //   axios.get('/class').then((response) => {
+  //     setClassOptions(response.data);
+  //   });
+  // };
+
+  // const fetchFaculties = () => {
+  //   axios.get('/faculty').then((response) => {
+  //     setFaculties(response.data);
+  //   });
+  // };
+
+  const openUpdateForm = (classId) => {
+    const selectedClass = classOptions.find((option) => option._id === classId);
+
+    setUpdateClassData({
+      id: selectedClass._id,
+      name: selectedClass.name,
+      assignedFaculty: selectedClass.assignedFaculty || [],
     });
-  };
 
-  const openUpdateForm = (classId, className) => {
-    setUpdateClassData({ id: classId, name: className });
     setModalOpen(true);
   };
 
@@ -31,14 +57,14 @@ function DisplayClasses() {
   };
 
   const handleUpdateClass = () => {
-    const { id, name } = updateClassData;
+    const { id, name, assignedFaculty } = updateClassData;
+
     axios
-      .put(`/class/${id}`, { name })
+      .put(`/class/${id}`, { name, assignedFaculty })
       .then((response) => {
-        console.log(`Class with ID ${id} updated successfully.`);
         toast.success('Updated Successfully');
         closeUpdateForm();
-        fetchClassOptions();
+       fetchAll();
       })
       .catch((error) => {
         toast.error('Failed to Update');
@@ -52,7 +78,6 @@ function DisplayClasses() {
       axios
         .delete(`/class/${classId}`)
         .then(() => {
-          console.log(`Class with ID ${classId} deleted successfully.`);
           toast.success('Deleted Successfully');
           fetchClassOptions();
         })
@@ -63,35 +88,85 @@ function DisplayClasses() {
   };
 
   return (
-    <div>
-      <hr />
- <h2 className="text-center bg-dark text-light w-75 mx-auto border border-white">List Of All Classes</h2>      <Button color="primary" onClick={fetchClassOptions} className="mb-3 w-25 mx-auto">
-        Refresh
-      </Button>
-      <ListGroup>
-        {classOptions.map((option) => (
-          <ListGroupItem key={option._id} className="d-flex justify-content-between align-items-center">
-            {option.name}
-            <div>
-              <Button color="info" onClick={() => openUpdateForm(option._id, option.name)} className="mx-2">
-                Update
-              </Button>
-              <Button color="danger" onClick={() => handleDeleteClass(option._id)}>
-                Delete
-              </Button>
-            </div>
-          </ListGroupItem>
-        ))}
-      </ListGroup>
+    <div className="w-100">
+      <h4 className="text-center bg-dark text-light w-50 mx-auto border border-white">List Of All Classes</h4>
+    
+      <div style={{ maxHeight: '80vh', overflowY: 'auto' }} className='w-100'>
+      <Table bordered responsive hover className="align-middle text-center">
+  <thead className='position-sticky top-0 z-1'>
+    <tr>
+    
+      <th className="bg-dark text-light border-secondary border-2">Class Name</th>
+      <th className="bg-dark text-light border-secondary border-2">Assigned To</th>
+      <th className="bg-dark text-light border-secondary border-2">Actions</th>
+    </tr>
+  </thead>
+       
+  <tbody style={{ maxHeight: '80vh', overflowY: 'auto' }} className='w-100' >
+    {classOptions.map((option, index) => (
+      <tr key={option._id}>
+        <td className="border-secondary border-2">({index + 1}) {option.name}</td>
+        <td className="border-secondary border-2">
+         
+        <td className="border-secondary border-2">
+  <td className="border-secondary border-1">
+  {faculties
+    .filter((faculty) => faculty.assignedClasses.includes(option.name))
+    .map((faculty, facultyIndex) => (
+      <span key={facultyIndex} style={{ fontWeight: faculty.role === 'HOD' ? 'bold' : 'normal', color: faculty.role === 'HOD' ? 'red' : 'inherit' }}>
+        [ {faculty.name}{faculty.role === 'HOD' ? ' (HOD)' : ''} ]
+      </span>
+    ))
+    .reduce((prev, curr) => prev.length === 0 ? [curr] : [...prev, ', ', curr], []) || "Not Assigned"}
+</td>
 
+</td>
+
+        </td>
+        <td className="border-secondary border-2">
+          <Button color="info" onClick={() => openUpdateForm(option._id)} className="mx-1 my-1">
+            Update
+          </Button>
+          <Button color="danger" onClick={() => handleDeleteClass(option._id)}>
+            Delete
+          </Button>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</Table>
+
+      </div>
       <Modal isOpen={isModalOpen} toggle={closeUpdateForm}>
         <ModalHeader toggle={closeUpdateForm}>Update Class</ModalHeader>
         <ModalBody>
-          <Input
-            type="text"
-            value={updateClassData.name}
-            onChange={(e) => setUpdateClassData({ ...updateClassData, name: e.target.value })}
-          />
+          <Form>
+            <FormGroup>
+              <Label for="className">Class Name</Label>
+              <Input
+                type="text"
+                id="className"
+                value={updateClassData.name}
+                onChange={(e) => setUpdateClassData({ ...updateClassData, name: e.target.value })}
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label for="assignedFaculty">Assigned Faculty</Label>
+              <Input
+                type="select"
+                id="assignedFaculty"
+                multiple
+                value={updateClassData.assignedFaculty}
+                onChange={(e) => setUpdateClassData({ ...updateClassData, assignedFaculty: Array.from(e.target.selectedOptions, (item) => item.value) })}
+              >
+                {faculties.map((faculty) => (
+                  <option key={faculty._id} value={faculty.name}>
+                    {faculty.name}
+                  </option>
+                ))}
+              </Input>
+            </FormGroup>
+          </Form>
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={handleUpdateClass}>

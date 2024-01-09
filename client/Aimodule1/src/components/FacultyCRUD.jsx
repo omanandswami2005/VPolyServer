@@ -15,8 +15,12 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from 'reactstrap';
-
+import '../styles/FacultyCRUD.css';
 function FacultyManagement() {
   const [facultyList, setFacultyList] = useState([]);
   const [newFaculty, setNewFaculty] = useState({
@@ -32,6 +36,9 @@ function FacultyManagement() {
   const [editRole, setEditRole] = useState('');
   const [isModalOpen, setModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isHOD, setIsHOD] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [updateDropdownOpen, setUpdateDropdownOpen] = useState(false);
 
   useEffect(() => {
     axios.get('/faculty').then((response) => {
@@ -41,17 +48,30 @@ function FacultyManagement() {
     axios.get('/class').then((response) => {
       setAvailableClasses(response.data);
     });
+
   }, []);
+
+  const toggleDropdown = () => setDropdownOpen((prevState) => !prevState);
+  const toggleUpdateDropdown = () => setUpdateDropdownOpen((prevState) => !prevState);
 
   const createFacultyMember = async () => {
     if (!newFaculty.name || !newFaculty.id || !newFaculty.role || !newFaculty.password) {
       toast.error('Please fill in all the required fields.');
       return;
     }
+    if (facultyList.some((faculty) => faculty.id === newFaculty.id)) {
+      toast.error('Faculty ID already exists. Please choose a different ID.');
+      return;
+    }
+    if (facultyList.some((faculty) => faculty.name === newFaculty.name)) {
+      toast.error('Faculty with the same Name already exists. Please enter a different Name.');
+      return;
+    }
+
     const newFacultyData = {
       name: newFaculty.name,
       id: newFaculty.id,
-      assignedClasses: newFaculty.assignedClasses,
+      assignedClasses: newFaculty.role === 'HOD' ? availableClasses.map((facultyClass) => facultyClass.name) : editClasses,
       role: newFaculty.role,
       password: newFaculty.password,
     };
@@ -81,24 +101,24 @@ function FacultyManagement() {
     setModalOpen(true);
   };
 
+
   const updateFacultyMember = () => {
     if (!editFaculty) {
-      // Handle the case where editFaculty is null
       return;
     }
-    
+
     const updatedFaculty = {
       _id: editFaculty._id,
       name: editFaculty.name,
       id: editFaculty.id,
-      assignedClasses: editClasses,
+      assignedClasses: editRole === 'HOD' ? availableClasses.map((facultyClass) => facultyClass.name) : editClasses,
       role: editRole,
       password: editFaculty.password,
     };
 
     axios
       .put(`/faculty/${editFaculty._id}`, updatedFaculty)
-      .then((response) => {
+      .then(() => {
         toast.success('Faculty Updated Successfully!');
         setEditFaculty(null);
         setModalOpen(false);
@@ -134,11 +154,38 @@ function FacultyManagement() {
     setEditClasses(selectedClassIds);
   };
 
+  const setFac = (e) => {
+    if (e === 'HOD') {
+      setEditRole(e);
+      setNewFaculty({
+        ...newFaculty,
+        role: e,
+        assignedClasses: availableClasses.map((facultyClass) => facultyClass.name),
+      });
+     
+
+      setIsHOD(true);
+    } else {
+      setEditRole(e);
+      setNewFaculty({
+        ...newFaculty,
+        role: e,
+        assignedClasses: editClasses || [],
+      });
+      
+
+      setIsHOD(false);
+    }
+  };
+
   return (
-    <div>
-<h1 className='mgmt-title text-center bg-info rounded text-white border w-100 mx-auto mt-2'>Faculties Management</h1>      <div><hr />
-      <h2 className="text-center my-3 d-block bg-dark text-white w-50 mx-auto border">Add Faculties</h2>        <Form>
-          <Row form>
+    <div className='mgmt-main '>
+      <h1 className='mgmt-title text-center bg-info rounded text-white border w-100 mx-auto mt-2'>Faculties Management</h1>
+      <div className='std-mgmt123'>
+      
+        <h2 className="text-center my-3 d-block bg-dark text-white w-75 mx-auto border">Add Faculties</h2>
+        <Form>
+          <Row>
             <Col md={4}>
               <FormGroup>
                 <Label for="name">Name</Label>
@@ -168,18 +215,17 @@ function FacultyManagement() {
             <Col md={4}>
               <FormGroup>
                 <Label for="role">Role</Label>
-                <Input
-                  type="select"
-                  id="role"
-                  value={newFaculty.role}
-                  required
-                  onChange={(e) => setNewFaculty({ ...newFaculty, role: e.target.value })}
-                >
-                  <option value="SelectRole">Select Role Of Faculty</option>
-                  <option value="Teacher">Teacher</option>
-                  <option value="HOD">HOD</option>
-                </Input>
+                <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown} onMouseLeave={toggleDropdown}>
+                  <DropdownToggle caret onMouseOver={toggleDropdown} onClick={toggleDropdown} style={{ backgroundColor: '#007bff', color: '#ffffff' }}>
+                    {newFaculty.role}
+                  </DropdownToggle >
+                  <DropdownMenu>
+                    <DropdownItem onClick={() => setFac('HOD')}>HOD</DropdownItem>
+                    <DropdownItem onClick={() => setFac('Teacher')}>Teacher</DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
               </FormGroup>
+
             </Col>
           </Row>
           <FormGroup>
@@ -203,20 +249,30 @@ function FacultyManagement() {
           </FormGroup>
           <FormGroup>
             <Label for="assignedClasses">Assigned Classes</Label>
-            <Input
-              type="select"
-              id="assignedClasses"
-              multiple
-              required
-              onChange={(e) => setNewFaculty({ ...newFaculty, assignedClasses: Array.from(e.target.options).filter(option => option.selected).map(option => option.value) })}
-              value={newFaculty.assignedClasses}
-            >
-              {availableClasses.map((facultyClass) => (
-                <option key={facultyClass._id} value={facultyClass.name}>
-                  {facultyClass.name}
-                </option>
-              ))}
-            </Input>
+            {isHOD ? (
+              <Input
+                type="text"
+                id="assignedClasses"
+                value="All Classes (HOD)"
+                readOnly
+                disabled
+              />
+            ) : (
+              <Input
+                type="select"
+                id="assignedClasses"
+                multiple
+                required
+                onChange={handleClassSelection}
+                value={editClasses}
+              >
+                {availableClasses.map((facultyClass) => (
+                  <option key={facultyClass._id} value={facultyClass.name}>
+                    {facultyClass.name}
+                  </option>
+                ))}
+              </Input>
+            )}
           </FormGroup>
           <Button color="primary" className="mx-auto d-block" onClick={createFacultyMember}>
             Create Faculty
@@ -225,11 +281,12 @@ function FacultyManagement() {
       </div>
       <hr />
       <div>
-      <h2 className="text-center bg-dark text-light w-50 mx-auto border border-white">Faculties List</h2>        <ListGroup>
+        <h2 className="text-center bg-dark text-light w-50 mx-auto border border-white">Faculties List</h2>
+        <ListGroup>
           {facultyList.map((faculty) => (
             <ListGroupItem key={faculty._id}>
               <>
-                <h4> Name : {faculty.name} ({faculty.id})</h4>
+                <h4> Name: {faculty.name} ({faculty.id})</h4>
                 <h6>Role: {faculty.role}</h6>
                 <h6>
                   Assigned Classes:{' '}
@@ -237,22 +294,22 @@ function FacultyManagement() {
                     ? faculty.assignedClasses.join(', ')
                     : 'None'}
                 </h6>
-                <Button color="primary" onClick={() => editFacultyMember(faculty)} className=" mx-2">
-                Edit
-              </Button>
-              <Button color="danger" onClick={() => deleteFaculty(faculty._id)} className=" mx-2">
-                Delete
-              </Button>
+                <Button color="primary" onClick={() => editFacultyMember(faculty)} className="mx-2">
+                  Edit
+                </Button>
+                <Button color="danger" onClick={() => deleteFaculty(faculty._id)} className="mx-2">
+                  Delete
+                </Button>
               </>
             </ListGroupItem>
           ))}
         </ListGroup>
       </div>
-      <Modal isOpen={isModalOpen} toggle={cancelEdit} className='w-75'>
+      <Modal isOpen={isModalOpen} toggle={cancelEdit} className=' ' style={{ maxWidth: '700px', margin: '0 auto' }}>
         <ModalHeader toggle={cancelEdit}>Update Faculty</ModalHeader>
         <ModalBody>
           <Form>
-            <Row form>
+            <Row>
               <Col md={4}>
                 <FormGroup>
                   <Label for="modalName">Name</Label>
@@ -260,7 +317,7 @@ function FacultyManagement() {
                     type="text"
                     id="modalName"
                     value={editFaculty ? editFaculty.name : ''}
-                    readOnly
+                    onChange={(e) => setEditFaculty({ ...editFaculty, name: e.target.value })}
                   />
                 </FormGroup>
               </Col>
@@ -271,25 +328,23 @@ function FacultyManagement() {
                     type="text"
                     id="modalId"
                     value={editFaculty ? editFaculty.id : ''}
-                    readOnly
+                    onChange={(e) => setEditFaculty({ ...editFaculty, id: e.target.value })}
                   />
                 </FormGroup>
               </Col>
               <Col md={4}>
-                <FormGroup>
-                  <Label for="modalRole">Role</Label>
-                  <Input
-                    type="select"
-                    id="modalRole"
-                    value={editRole}
-                    required
-                    onChange={(e) => setEditRole(e.target.value)}
-                  >
-                    <option value="SelectRole">Select Role Of Faculty</option>
-                    <option value="Teacher">Teacher</option>
-                    <option value="HOD">HOD</option>
-                  </Input>
-                </FormGroup>
+              <FormGroup>
+                <Label for="">Role</Label>
+                <Dropdown isOpen={updateDropdownOpen} toggle={toggleUpdateDropdown} onMouseLeave={toggleUpdateDropdown}>
+                  <DropdownToggle caret onMouseOver={toggleUpdateDropdown} onClick={toggleUpdateDropdown} style={{ backgroundColor: '#007bff', color: '#ffffff' }}>
+                    {editRole}
+                  </DropdownToggle>
+                  <DropdownMenu>
+                    <DropdownItem onClick={() => setFac('HOD')}>HOD</DropdownItem>
+                    <DropdownItem onClick={() => setFac('Teacher')}>Teacher</DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              </FormGroup>
               </Col>
             </Row>
             <FormGroup>
@@ -299,8 +354,7 @@ function FacultyManagement() {
                 id="modalPassword"
                 placeholder="Enter New Password"
                 value={editFaculty ? editFaculty.password : ''}
-                required
-                onChange={(e) => setNewFaculty({ ...editFaculty, password: e.target.value })}
+                onChange={(e) => setEditFaculty({ ...editFaculty, password: e.target.value })}
               />
               <Button
                 type="button"
@@ -311,35 +365,46 @@ function FacultyManagement() {
                 {showPassword ? 'Hide Password' : 'Show Password'}
               </Button>
             </FormGroup>
-            <FormGroup>
-              <Label for="modalAssignedClasses">Assigned Classes</Label>
-              <Input
-                type="select"
-                id="modalAssignedClasses"
-                multiple
-                required
-                onChange={handleClassSelection}
-                value={editClasses}
-              >
-                {availableClasses.map((facultyClass) => (
-                  <option
-                    key={facultyClass._id}
-                    value={facultyClass.name}
-                  >
-                    {facultyClass.name}
-                  </option>
-                ))}
-              </Input>
-            </FormGroup>
+            {editRole === 'HOD' ? (
+              <FormGroup>
+                <Label for="modalAssignedClasses">Assigned Classes</Label>
+                <Input
+                  type="text"
+                  id="modalAssignedClasses"
+                  value="All Classes (HOD)"
+                  readOnly
+                  disabled
+                />
+              </FormGroup>
+            ) : (
+              <FormGroup>
+                <Label for="modalAssignedClasses">Assigned Classes</Label>
+                <Input
+                  type="select"
+                  id="modalAssignedClasses"
+                  multiple
+                  required
+                  onChange={handleClassSelection}
+                  value={editClasses}
+                >
+                  {availableClasses.map((facultyClass) => (
+                    <option key={facultyClass._id} value={facultyClass.name}>
+                      {facultyClass.name}
+                    </option>
+                  ))}
+                </Input>
+              </FormGroup>
+            )}
           </Form>
         </ModalBody>
+
         <ModalFooter>
-        <Button color="primary" onClick={updateFacultyMember} className="mx-2 d-block mx-auto">
-              Update Faculty
-            </Button>
-            <Button color="secondary" onClick={cancelEdit} className="d-block mx-auto">
-              Cancel
-            </Button>
+          <Button color="primary" onClick={updateFacultyMember} className="mx-2 d-block mx-auto">
+            Update Faculty
+          </Button>
+          <Button color="secondary" onClick={cancelEdit} className="d-block mx-auto">
+            Cancel
+          </Button>
         </ModalFooter>
       </Modal>
     </div>

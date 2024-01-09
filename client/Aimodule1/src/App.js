@@ -19,8 +19,6 @@ import ScheduleManagementView from './views/ScheduleManagementView';
 
 
 
-
-
 const App = ()=> {
   return (
     <div>

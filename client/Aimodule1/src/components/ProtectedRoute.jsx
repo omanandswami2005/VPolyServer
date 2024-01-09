@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
+import { Spinner } from 'reactstrap'; // Import a spinner component from your UI library
 
-const ProtectedRoute = ({ component: Component,path ,props }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null); 
-  const [data,setData]=useState(null);// Initially, unknown
-
+const ProtectedRoute = ({ component: Component, path, props }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -14,31 +14,47 @@ const ProtectedRoute = ({ component: Component,path ,props }) => {
       });
 
       try {
-        const res = await API.post('/auth/loggedIn'); // Check authentication
+        const res = await API.post('/auth/loggedIn');
         if (res.data.data) {
-          setIsAuthenticated(true); // User is authenticated
-          setData(res.data.userData)
+          setIsAuthenticated(true);
+          setData(res.data.userData);
         } else {
-          setIsAuthenticated(false); // User is not authenticated
+          setIsAuthenticated(false);
         }
       } catch (err) {
-        setIsAuthenticated(false); // An error occurred, consider user not authenticated
+        setIsAuthenticated(false);
       }
     };
 
     checkAuthentication();
   }, [path]);
-// console.log(data)
+
   return (
     <div className='App'>
       {isAuthenticated === true ? (
-        console.log("true"),
         <Component userData={data} props={props} />
       ) : isAuthenticated === false ? (
-        console.log("false"),
         <Navigate to="/login" />
       ) : (
-        <p>Loading...</p>
+        <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'rgba(255, 255, 255, 0.3)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 1000,
+              }}
+            >
+              <Spinner animation="border" role="status" variant="primary">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+              <p className="ml-2">Checking authentication Status...</p>
+            </div>
       )}
     </div>
   );

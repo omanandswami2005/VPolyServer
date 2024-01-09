@@ -1,5 +1,6 @@
 // const mongoose = require('mongoose');
 const TimeSlot = require('../models/TimeSlot');
+const Attendance = require('../models/studentAttendance');;
 
 const timeSlotControllers = {
 createTimeSlot:async (req, res) => {
@@ -27,6 +28,9 @@ createTimeSlot:async (req, res) => {
     try {
       const { id } = req.params;
       const deletedTimeSlot = await TimeSlot.findByIdAndDelete(id);
+      //10:30 -> 11:30
+      await Attendance.deleteMany({ timeSlot: deletedTimeSlot.startTime+' -> '+deletedTimeSlot.endTime });
+      console.log(deletedTimeSlot);
       res.json({ deletedTimeSlot });
     } catch (error) {
       console.error('Error deleting time slot:', error);

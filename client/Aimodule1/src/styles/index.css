@@ -19,3 +19,11 @@ body {
      background: linear-gradient(45deg, rgb(253, 253, 253), rgb(255, 0, 0));
 }
 
+/* Add this style to your CSS */
+thead th {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+  }
+  

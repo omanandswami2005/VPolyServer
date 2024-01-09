@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 function DisplayAllStudents() {
   const [students, setStudents] = useState([]);
   const [selectedClass, setSelectedClass] = useState('Show All Students');
-  const [isUpdateFormVisible, setUpdateFormVisible] = useState(false);
+  // const [isUpdateFormVisible, setUpdateFormVisible] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -31,9 +31,9 @@ function DisplayAllStudents() {
     try {
       const response = await axios.get('/student');
       setStudents(response.data);
-      
-        setLoading(false); // Set loading back to false after a short delay
-   
+
+      setLoading(false); // Set loading back to false after a short delay
+
     } catch (error) {
       console.error('Error fetching student data:', error);
     }
@@ -72,45 +72,53 @@ function DisplayAllStudents() {
 
 
   const handleDeleteSelected = async (studentId) => {
-    
+
 
     try {
       if (typeof studentId === 'string') {
-       await handleDisSelectAllStudent(studentId)
-        const confirmDelete = window.confirm('Are you sure you want to delete this student?');
+        await handleDisSelectAllStudent(studentId)
+        const confirmDelete = window.confirm('Are you sure you want to delete this student? (This Action CANNOT be undone! and Also All The Attendance data will be DELETED For All Time of respective Student!)');
+        // toast.confirmDelete();
         if (confirmDelete) {
           setLoading(true); // Set loading to true during deletion
 
           await handleDelete(studentId);
           toast.success('Deleted Successfully');
+        } else {
+          return;
         }
       } else {
         const selectedCount = selectedStudents.length;
         if (selectedCount === 0) {
           toast.error('No students selected');
         } else {
-          const confirmDelete = window.confirm(`Are you sure you want to delete ${selectedCount} selected student(s)?`);
+          const confirmDelete = window.confirm(`Are you sure you want to delete ${selectedCount} student(s)? (This Action CANNOT be undone! and Also All The Attendance data will be DELETED For All Time of Selected Students!)`);
           if (confirmDelete) {
             setLoading(true); // Set loading to true during deletion
 
-            await Promise.all(selectedStudents.map(async (studentId) => {
-              await handleDelete(studentId);
-            }));
-            toast.success('Deleted Successfully');
-            setSelectedStudents([]);
+
+            try {
+              await axios.post('/student/deleteAllStudents', { selectedStudents });
+              console.log('Students deleted successfully');
+              toast.success('Deleted Successfully');
+              setSelectedStudents([]);
+              handleRefresh();
+              setLoading(false);
+
+            } catch (error) {
+              console.error('Error deleting students', error);
+              // Handle the error, display a message, or perform other actions as needed
+            }
+
           }
         }
       }
     } catch (error) {
       console.error('Error deleting students', error);
       toast.error('Error Deleting Students');
-    } finally {
-      // setTimeout(() => {
-      //   setLoading(false); // Set loading back to false after a short delay
-      // }, 100);
     }
   };
-  
+
 
   const fetchClassOptions = async () => {
     try {
@@ -153,7 +161,6 @@ function DisplayAllStudents() {
         .sort((a, b) => a.rollNo - b.rollNo);
 
   const openUpdateForm = (student) => {
-    setUpdateFormVisible(true);
     setUpdateStudentData({
       _id: student._id,
       name: student.name,
@@ -164,9 +171,7 @@ function DisplayAllStudents() {
     toggleModal();
   };
 
-  const closeUpdateForm = () => {
-    setUpdateFormVisible(false);
-  };
+
 
   const handleUpdate = async () => {
     const { _id, name, rollNo, enrollmentNo, selectedClassId } = updateStudentData;
@@ -182,7 +187,6 @@ function DisplayAllStudents() {
       await axios.put(`/student/${_id}`, dataToUpdate);
       toast.success('Updated Successfully');
       handleRefresh();
-      closeUpdateForm();
     } catch (error) {
       if (error.response && error.response.status === 500) {
         toast.error('Duplicate RollNo In Same Class Is Not Allowed!');
@@ -208,7 +212,7 @@ function DisplayAllStudents() {
 
   const handleRefresh = () => {
     fetchStudentData();
-    
+
   };
 
   const toggleModal = () => {
@@ -363,33 +367,33 @@ function DisplayAllStudents() {
           <Button color="primary" onClick={() => { handleUpdate(updateStudentData._id); toggleModal(); }}>
             Save
           </Button>
-          <Button color="danger" onClick={() => { closeUpdateForm(); toggleModal(); }}>
+          <Button color="danger" onClick={() => { toggleModal(); }}>
             Cancel
           </Button>
         </ModalFooter>
       </Modal>
 
       {loading ? (
-  <div
-    style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      background: 'rgba(255, 255, 255, 0.7)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000,
-    }}
-  >
-    <Spinner animation="border" role="status" variant="primary">
-      <span className="visually-hidden">Loading...</span>
-    </Spinner>
-    <p className="ml-2">Just a second!</p>
-  </div>
-) : null}
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(255, 255, 255, 0.7)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <Spinner animation="border" role="status" variant="primary">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+          <p className="ml-2">Just a second!</p>
+        </div>
+      ) : null}
 
     </div>
   );
