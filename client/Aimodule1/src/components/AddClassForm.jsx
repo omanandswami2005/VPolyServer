@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, Form, FormGroup, Label, Input, Col, Row, Card, CardBody, CardTitle, Spinner } from 'reactstrap';
+import { Col, Row, Card, CardBody, CardTitle, Spinner } from 'reactstrap';
 import toast from 'react-hot-toast';
 import { useData } from '../DataContext';
+import { AwesomeButton } from 'react-awesome-button';
+import 'react-awesome-button/dist/styles.css'; // Import the styles for AwesomeButton
+import { TrashIcon,PlusIcon,ZapIcon } from "@primer/octicons-react"; // custom icons
 
 import '../styles/AddClassForm.css';
 
@@ -11,8 +14,16 @@ function AddClassForm() {
   const [loading, setLoading] = useState(false);
   const { classOptions, fetchAll } = useData();
 
+  const preventDefault = (e) => e.preventDefault();
+ 
   const handleClassSubmit = async (e) => {
     e.preventDefault();
+
+
+    if (classNames.some(className => className.trim() === '')) {
+      toast.error('Please fill in all class names.');
+      return;
+    }
 
     // Check if any class name in classNames array already exists in classOptions
     setLoading(true);
@@ -27,18 +38,18 @@ function AddClassForm() {
     const apiUrl = '/class';
 
     try {
-      setLoading(true); // Set loading to true when making the request
+      setLoading(true);
 
       const response = await axios.post(apiUrl, { classNames });
       console.log('Classes added successfully', response.data);
       toast.success('Added Successfully');
       setClassNames(['']);
-      fetchAll(); // Call fetchAll after adding classes
+      fetchAll();
     } catch (error) {
       console.error('Error adding classes', error);
       toast.error('Sorry, something went wrong. Please try again.');
     } finally {
-      setLoading(false); // Set loading back to false after the request is complete
+      setLoading(false);
     }
   };
 
@@ -63,50 +74,53 @@ function AddClassForm() {
   };
 
   return (
-    <div className="my-1 add-class-form p-2 border border-dark rounded border-3 mx-auto ">
-
+    <div className="my-1 add-class-form border border-dark rounded border-3 mx-auto">
       <Card className="border-0 shadow add-class-card" style={{ maxHeight: '55vh', overflowY: 'auto' }}>
         <CardBody>
           <CardTitle tag="h2" className="text-center text-white bg-dark mb-4 rounded">
             Add Class/es
           </CardTitle>
-          <Form onSubmit={handleClassSubmit}>
+          <form onSubmit={preventDefault} >
             {classNames.map((className, index) => (
-              <FormGroup row key={index} className="mb-3">
-                <Label sm={3} for={`className${index + 1}`} className='m-0'>
+              <div key={index} className="mb-3 row">
+                <label htmlFor={`className${index + 1}`} className="col-sm-3 col-form-label">
                   Class {index + 1} :
-                </Label>
-                <Col sm={8} className="d-flex align-items-center">
-                  <Input
+                </label>
+                <div className="col-sm-8 d-flex align-items-center">
+                  <input
                     type="text"
-                    required
+                    
                     placeholder={`Enter Class Name ${index + 1}`}
                     value={className}
                     onChange={(e) => handleClassChange(index, e.target.value)}
                     className="w-100 text-center border border-dark rounded me-1"
                   />
-                  <Button
-                    type="button"
-                    color="danger"
-                    onClick={() => handleCancelClassField(index)}
+                  <AwesomeButton
+                    type="secondary"
+                    onPress={() => handleCancelClassField(index)}
                     disabled={classNames.length === 1}
+                    className="aws-btn"
+                    
                   >
-                    Cancel
-                  </Button>
-                </Col>
-              </FormGroup>
+                    <TrashIcon />
+                     Cancel
+                  </AwesomeButton>
+                </div>
+              </div>
             ))}
             <Row className="mx-auto w-100">
               <Col sm={{ size: 10, offset: 1 }} className="d-flex justify-content-end">
-                <Button type="submit" color="success" disabled={loading} className="">
-                  {loading ? <Spinner size="sm" color="light" /> : 'Add Classes'}
-                </Button>
-                <Button type="button" onClick={handleAddClassField} color="primary" className="ms-2">
-                  Add More Class
-                </Button>
+                <AwesomeButton type="primary" onPress={handleClassSubmit}  style={{ fontSize: '100%' }}  className="aws-btn ">
+                <ZapIcon />
+                   Add Classes
+                </AwesomeButton>
+                <AwesomeButton type="danger" onPress={handleAddClassField} className="ms-1 aws-btn w=100">
+                <PlusIcon size={20} />
+                   Add More Class
+                </AwesomeButton>
               </Col>
             </Row>
-          </Form>
+          </form>
         </CardBody>
       </Card>
     </div>

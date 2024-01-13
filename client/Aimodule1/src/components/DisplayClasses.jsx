@@ -1,44 +1,45 @@
-// DisplayClasses.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { Button, Input, Modal, ModalHeader, ModalBody, ModalFooter, Table, Form, FormGroup, Label } from 'reactstrap';
+import { Box, Typography, Table } from '@mui/material';
+import { AwesomeButton } from 'react-awesome-button';
 import { useData } from '../DataContext';
+import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
+import { Modal, Form, FormGroup, Label, Input, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { useMemo } from 'react';
+import { darken, lighten, useTheme, ThemeProvider, createTheme } from '@mui/material';
 
-
-
-function DisplayClasses() {
-  
+const DisplayClasses = () => {
   const { classOptions, faculties, fetchAll, fetchClassOptions } = useData();
+  const theme = useTheme();
+
+  const baseBackgroundColor =
+    theme.palette.mode === 'dark'
+      ? 'rgba(3, 44, 43, 1)'
+      : 'rgba(244, 255, 233, 1)';
+
+  const combinedData = React.useMemo(() => {
+    return classOptions.map((classOption) => ({
+      ...classOption,
+      assignedFaculty: faculties
+        .filter((faculty) => faculty.assignedClasses.includes(classOption.name))
+        .map((faculty) => {
+          if (faculty.role === 'HOD') {
+            return { name: faculty.name, role: 'HOD' };
+          } else {
+            return { name: faculty.name, role: 'Faculty' };
+          }
+        }),
+    }));
+  }, [classOptions, faculties]);
 
   const [updateClassData, setUpdateClassData] = useState({
     id: '',
     name: '',
     assignedFaculty: [],
   });
-  // const [faculties, setFaculties] = useState([]);
+
   const [isModalOpen, setModalOpen] = useState(false);
-
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
-
-  // const fetchAll = () => {
-  //   fetchClassOptions();
-  //   fetchFaculties();
-  // };
-
-  // const fetchClassOptions = () => {
-  //   axios.get('/class').then((response) => {
-  //     setClassOptions(response.data);
-  //   });
-  // };
-
-  // const fetchFaculties = () => {
-  //   axios.get('/faculty').then((response) => {
-  //     setFaculties(response.data);
-  //   });
-  // };
 
   const openUpdateForm = (classId) => {
     const selectedClass = classOptions.find((option) => option._id === classId);
@@ -64,7 +65,7 @@ function DisplayClasses() {
       .then((response) => {
         toast.success('Updated Successfully');
         closeUpdateForm();
-       fetchAll();
+        fetchAll();
       })
       .catch((error) => {
         toast.error('Failed to Update');
@@ -73,6 +74,7 @@ function DisplayClasses() {
   };
 
   const handleDeleteClass = (classId) => {
+    table.setRowSelection([]);
     const confirmDelete = window.confirm('Are you sure you want to delete this class?');
     if (confirmDelete) {
       axios
@@ -87,98 +89,150 @@ function DisplayClasses() {
     }
   };
 
-  return (
-    <div className="w-100">
-      <h4 className="text-center bg-dark text-light w-50 mx-auto border border-white">List Of All Classes</h4>
-    
-      <div style={{ maxHeight: '80vh', overflowY: 'auto' }} className='w-100'>
-      <Table bordered responsive hover className="align-middle text-center">
-  <thead className='position-sticky top-0 z-1'>
-    <tr>
-    
-      <th className="bg-dark text-light border-secondary border-2">Class Name</th>
-      <th className="bg-dark text-light border-secondary border-2">Assigned To</th>
-      <th className="bg-dark text-light border-secondary border-2">Actions</th>
-    </tr>
-  </thead>
-       
-  <tbody style={{ maxHeight: '80vh', overflowY: 'auto' }} className='w-100' >
-    {classOptions.map((option, index) => (
-      <tr key={option._id}>
-        <td className="border-secondary border-2">({index + 1}) {option.name}</td>
-        <td className="border-secondary border-2">
-         
-        <td className="border-secondary border-2">
-  <td className="border-secondary border-1">
-  {faculties
-    .filter((faculty) => faculty.assignedClasses.includes(option.name))
-    .map((faculty, facultyIndex) => (
-      <span key={facultyIndex} style={{ fontWeight: faculty.role === 'HOD' ? 'bold' : 'normal', color: faculty.role === 'HOD' ? 'red' : 'inherit' }}>
-        [ {faculty.name}{faculty.role === 'HOD' ? ' (HOD)' : ''} ]
-      </span>
-    ))
-    .reduce((prev, curr) => prev.length === 0 ? [curr] : [...prev, ', ', curr], []) || "Not Assigned"}
-</td>
+  const columns = [
+    {
+      accessorKey: 'name',
+      header: 'Class Name',
+    },
+    {
+      accessorKey: 'assignedFaculty',
+      header: 'Assigned To',
+      Cell: ({ row }) => (
+        <span>
+          {(row.original.assignedFaculty || []).map((faculty, index) => (
+            <span
+              key={faculty.name}
+              style={{
+                fontWeight: 'normal',
+                color: faculty.role === 'HOD' ? 'blue' : 'black',
+              }}
+            >
+              {index > 0 && ', '}
+              {faculty.role === 'HOD' ? `[${faculty.name} (${faculty.role}) ] ` : faculty.name}
+            </span>
+          ))}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'actions',
+      header: 'Actions',
+      Cell: ({ row }) => (
+        <span>
+          <span>
+            <AwesomeButton type="primary" onReleased={() => openUpdateForm(row.original._id || '')} className="mx-1 my-1">
+              Update
+            </AwesomeButton>
+          </span>
+          <span>
+            <AwesomeButton type="secondary" onReleased={() => handleDeleteClass(row.original._id || '')}>
+              Delete
+            </AwesomeButton>
+          </span>
+        </span>
+      ),
+    },
+  ];
 
-</td>
-
-        </td>
-        <td className="border-secondary border-2">
-          <Button color="info" onClick={() => openUpdateForm(option._id)} className="mx-1 my-1">
-            Update
-          </Button>
-          <Button color="danger" onClick={() => handleDeleteClass(option._id)}>
-            Delete
-          </Button>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</Table>
-
-      </div>
-      <Modal isOpen={isModalOpen} toggle={closeUpdateForm}>
-        <ModalHeader toggle={closeUpdateForm}>Update Class</ModalHeader>
-        <ModalBody>
-          <Form>
-            <FormGroup>
-              <Label for="className">Class Name</Label>
-              <Input
-                type="text"
-                id="className"
-                value={updateClassData.name}
-                onChange={(e) => setUpdateClassData({ ...updateClassData, name: e.target.value })}
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label for="assignedFaculty">Assigned Faculty</Label>
-              <Input
-                type="select"
-                id="assignedFaculty"
-                multiple
-                value={updateClassData.assignedFaculty}
-                onChange={(e) => setUpdateClassData({ ...updateClassData, assignedFaculty: Array.from(e.target.selectedOptions, (item) => item.value) })}
-              >
-                {faculties.map((faculty) => (
-                  <option key={faculty._id} value={faculty.name}>
-                    {faculty.name}
-                  </option>
-                ))}
-              </Input>
-            </FormGroup>
-          </Form>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="primary" onClick={handleUpdateClass}>
-            Save
-          </Button>
-          <Button color="secondary" onClick={closeUpdateForm}>
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
-    </div>
+  const renderDetailPanel = ({ row }) => (
+    <Box className="d-flex flex-row gap-2 ">
+      <Typography variant="h6">Assigned Faculties:</Typography>
+      <Table className="table table-bordered table-striped table-hover mx-auto">
+        <thead className="table-dark">
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(row.original.assignedFaculty || []).map((faculty, index) => (
+            <tr key={index}>
+              <td>{faculty.name}</td>
+              <td>{faculty.role}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </Box>
   );
-}
+
+  const table = useMaterialReactTable({
+    columns,
+    data: combinedData,
+    renderDetailPanel,
+    initialState: {
+      pageSize: 25,
+      density: 'compact',
+      columnVisibility: { assignedFaculty: false },
+    },
+    enablePagination: false,
+    enableRowPinning: true,
+    enableStickyHeader: true,
+    enableColumnResizing: true,
+    rowPinningDisplayMode: 'select-sticky',
+  });
+
+  const modalContent = (
+    <React.Fragment>
+      <ModalHeader toggle={closeUpdateForm}>Update Class</ModalHeader>
+      <ModalBody>
+        <Form>
+          <FormGroup>
+            <Label for="className">Class Name</Label>
+            <Input
+              type="text"
+              id="className"
+              value={updateClassData.name}
+              onChange={(e) => setUpdateClassData({ ...updateClassData, name: e.target.value })}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="assignedFaculty">Assigned Faculty</Label>
+            <Input
+              type="select"
+              id="assignedFaculty"
+              multiple
+              value={updateClassData.assignedFaculty}
+              onChange={(e) =>
+                setUpdateClassData({
+                  ...updateClassData,
+                  assignedFaculty: Array.from(e.target.selectedOptions, (item) => item.value),
+                })
+              }
+            >
+              {faculties.map((faculty) => (
+                <option key={faculty._id || ''} value={faculty.name}>
+                  {faculty.name}
+                </option>
+              ))}
+            </Input>
+          </FormGroup>
+        </Form>
+      </ModalBody>
+      <ModalFooter>
+        <AwesomeButton type="primary" onPress={handleUpdateClass}>
+          Save
+        </AwesomeButton>
+        <AwesomeButton type="secondary" onPress={closeUpdateForm}>
+          Cancel
+        </AwesomeButton>
+      </ModalFooter>
+    </React.Fragment>
+  );
+
+  return (
+    <ThemeProvider theme={createTheme()}>
+      <div className={`w-100 `}>
+        <h4 className={`text-center w-50 mx-auto border border-white`}>List Of All Classes</h4>
+        <div style={{ maxHeight: '80vh', overflow: 'auto', maxWidth: '95vw' }} className="w-100 border border-dark rounded ">
+          <MaterialReactTable table={table} />
+        </div>
+        <Modal isOpen={isModalOpen} toggle={closeUpdateForm}>
+          {modalContent}
+        </Modal>
+      </div>
+    </ThemeProvider>
+  );
+};
 
 export default DisplayClasses;

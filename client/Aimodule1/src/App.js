@@ -19,9 +19,9 @@ import ScheduleManagementView from './views/ScheduleManagementView';
 
 
 
-const App = ()=> {
+const App = ({ isDarkMode, toggleDarkMode }) => {
   return (
-    <div>
+    <div className={`app ${isDarkMode ? 'dark-mode' : ''}`}>
      <Routes>
       <Route path="/logout" element={<Logoutpage />} />
       
@@ -33,11 +33,14 @@ const App = ()=> {
 
         <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} path="/dashboard" />} />
 
-      
+        {/* <Route path="/dashboard/spinner" element={<DNASpinner />} /> */}
 
+      
         <Route path="/dashboard/ai" element={<ProtectedRoute component={AiAttendace} path="/auth/loggedIn" />} />
 
         <Route path="/dashboard/startmanualattendance" element={<ProtectedRoute component={ManualAttendance} path="/auth/loggedIn" />} />
+
+        
 
         <Route path="/dashboard/viewattendance" element={<ProtectedRoute component={ViewAttendanceView} path="/auth/loggedIn"  />} />
     
@@ -64,7 +67,9 @@ const App = ()=> {
         
         
       </Routes>
-      <Toaster position="top-right"    toastOptions={{duration: 3000 ,  style: {
+      <Toaster position="top-right"    toastOptions={{duration: 3000 ,
+      closeButton: true,
+        style: {
             color: 'black',
             background: 'linear-gradient(45deg, rgb(255, 171, 171), rgb(218, 218, 218))',
             fontWeight: 'bold',
@@ -72,6 +77,14 @@ const App = ()=> {
             fontFamily: 'times new roman',
   
           }}}/>
+
+          {/* Dark mode toggle button */}
+      <div className="toggle-dark-mode">
+        <label>
+          <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} />
+          Dark Mode
+        </label>
+      </div>
 
     </div>
 

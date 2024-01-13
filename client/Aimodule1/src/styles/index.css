@@ -10,20 +10,56 @@
     background-color: rgb(0, 182, 254);
 }
 
-div{
-    /* padding: 5px; */
-    
-}
-
 body {
-     background: linear-gradient(45deg, rgb(253, 253, 253), rgb(255, 0, 0));
+     background: linear-gradient(45deg, rgb(253, 253, 253), rgb(69, 240, 252));
 }
 
-/* Add this style to your CSS */
-thead th {
-    position: sticky;
-    top: 0;
-    background-color: white;
-    z-index: 1;
+.aws-btn {
+    /* --button-default-height: 48px; */
+    /* --button-primary-font-size: 14px; */
+    --button-default-border-radius: 6px;
+    /* --button-horizontal-padding: 20px; */
+    --button-raise-level: 5px;
+    --button-hover-pressure: 2;
+    --transform-speed: 0.185s;
+    --button-primary-color: #00b8c4;
+    --button-primary-color-dark: #d0b400;
+    --button-primary-color-light: #ffe11d;
+    --button-primary-color-hover: #00a0ab;
+    --button-primary-color-active: #008891;
+    --button-primary-border: 1px solid #ffe11d;
+    --button-secondary-color: #db4557;
+    --button-secondary-color-dark: #d0b400;
+    --button-secondary-color-light: #ffe11d;
+    --button-secondary-color-hover: #d73044;
+    --button-secondary-color-active: #c7263a;
+    --button-secondary-border: 1px solid #ffe11d;
+    --button-anchor-color: #2d2d3a;
+    --button-anchor-color-dark: #674f40;
+    --button-anchor-color-light: #97735d;
+    --button-anchor-color-hover: #2d2d3a;
+    --button-anchor-color-active: #2d2d3a;
+    --button-anchor-border: 1px solid #876753;
+    --button-danger-color: #2d2d3a;
+    --button-danger-color-dark: #0c0c0f;
+    --button-danger-color-light: #f1f1f4;
+    --button-danger-color-hover: #292934;
+    --button-danger-color-active: #22222c;
+    --button-danger-border: none;
+  }
+  
+  /* Add these styles to your existing CSS file */
+
+.app.dark-mode {
+    background-color: #333; /* Dark background color */
+    color: white; /* Light text color */
+    /* Add more styles as needed */
+  }
+  
+  .toggle-dark-mode {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    /* Add more styles as needed */
   }
   

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
-import { Spinner } from 'reactstrap'; // Import a spinner component from your UI library
+import DNASpinner from './Spinners/DNASpinner';
 
 const ProtectedRoute = ({ component: Component, path, props }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -27,7 +27,7 @@ const ProtectedRoute = ({ component: Component, path, props }) => {
     };
 
     checkAuthentication();
-  }, [path]);
+  }, []);
 
   return (
     <div className='App'>
@@ -50,10 +50,8 @@ const ProtectedRoute = ({ component: Component, path, props }) => {
                 zIndex: 1000,
               }}
             >
-              <Spinner animation="border" role="status" variant="primary">
-                <span className="visually-hidden">Loading...</span>
-              </Spinner>
-              <p className="ml-2">Checking authentication Status...</p>
+             <DNASpinner /> 
+              <h4 className="mx-3 font-italic" >Checking authentication Status...</h4>
             </div>
       )}
     </div>

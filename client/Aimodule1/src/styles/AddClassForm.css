@@ -10,9 +10,11 @@
     margin: 0%;
 }
 
+
+
 @media screen and (max-width: 600px) {
     .add-class-form{
-        width: 84vw;
+        width: 85vw;
     }
     
 }
