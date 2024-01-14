@@ -21,6 +21,8 @@ import {
   DropdownItem,
 } from 'reactstrap';
 import '../styles/FacultyCRUD.css';
+import { useData } from '../DataContext';
+
 function FacultyManagement() {
   const [facultyList, setFacultyList] = useState([]);
   const [newFaculty, setNewFaculty] = useState({
@@ -39,6 +41,7 @@ function FacultyManagement() {
   const [isHOD, setIsHOD] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [updateDropdownOpen, setUpdateDropdownOpen] = useState(false);
+  const {  fetchAll } = useData();
 
   useEffect(() => {
     axios.get('/faculty').then((response) => {
@@ -88,6 +91,8 @@ function FacultyManagement() {
           role: 'Select Role',
           password: '',
         });
+        fetchAll();
+
       })
       .catch((error) => {
         console.error('Error creating faculty member:', error);
@@ -124,6 +129,7 @@ function FacultyManagement() {
         setModalOpen(false);
         axios.get('/faculty').then((response) => {
           setFacultyList(response.data);
+          fetchAll();
         });
       })
       .catch((error) => {
@@ -142,6 +148,7 @@ function FacultyManagement() {
       axios.delete(`/faculty/${facultyId}`).then(() => {
         toast.success('Faculty Deleted Successfully!');
         setFacultyList(facultyList.filter((faculty) => faculty._id !== facultyId));
+        fetchAll();
       });
     }
   };

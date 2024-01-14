@@ -3,12 +3,17 @@ import { Button, Table, Form, FormGroup, Label, Input, Modal, ModalHeader, Modal
 import '../styles/DisplayAllStudents.css';
 
 import axios from 'axios';
-import { Spinner } from 'react-bootstrap';
+// import { Spinner } from 'react-bootstrap';
 import toast from 'react-hot-toast';
+import MutatingDotsSpinner from './Spinners/MutatingDotsSpinner';
+
+import AddStudentForm from './AddStudentsForm';
 
 function DisplayAllStudents() {
   const [students, setStudents] = useState([]);
   const [selectedClass, setSelectedClass] = useState('Show All Students');
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+
   // const [isUpdateFormVisible, setUpdateFormVisible] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,6 +42,9 @@ function DisplayAllStudents() {
     } catch (error) {
       console.error('Error fetching student data:', error);
     }
+  };
+  const toggleAddStudentModal = () => {
+    setShowAddStudentModal(!showAddStudentModal);
   };
 
   const handleSelectAll = () => {
@@ -222,6 +230,15 @@ function DisplayAllStudents() {
   return (
     <div className="my-5 ">
       <hr />
+      <Button color="info" onClick={toggleAddStudentModal}>
+        Add Student
+      </Button>
+      <Modal isOpen={showAddStudentModal} toggle={toggleAddStudentModal}>
+        <ModalHeader toggle={toggleAddStudentModal}>Add Student/es</ModalHeader>
+        <ModalBody>
+          <AddStudentForm updateStudentList={handleRefresh} />
+        </ModalBody>
+      </Modal>
       <h1 className="text-center bg-dark text-light w-75 mx-auto border border-white">All Students</h1>
       <Form>
         <FormGroup className=''>
@@ -373,27 +390,7 @@ function DisplayAllStudents() {
         </ModalFooter>
       </Modal>
 
-      {loading ? (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'rgba(255, 255, 255, 0.7)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-          }}
-        >
-          <Spinner animation="border" role="status" variant="primary">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-          <p className="ml-2">Just a second!</p>
-        </div>
-      ) : null}
+      {loading && <MutatingDotsSpinner />}
 
     </div>
   );

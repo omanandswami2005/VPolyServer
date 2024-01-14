@@ -3,11 +3,16 @@ import { MutatingDots } from 'react-loader-spinner';
 
 const MutatingDotsSpinner = () => {
   const containerStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100vh',  // 100% of the viewport height
-    background: '#ffffff',  // White background color
+    background: 'rgba(0, 0, 0, 0.8)', // Semi-transparent white background
+    zIndex: 9999, // Set a high z-index to ensure it appears above other elements
   };
 
   return (

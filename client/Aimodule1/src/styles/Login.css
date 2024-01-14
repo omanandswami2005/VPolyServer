@@ -1,20 +1,16 @@
 .login{
     width: 40vw;
+    /* height: 99vh; */
+    /* border: 2px solid rgb(0, 0, 0); */
     
-
-    border: 5px double rgb(0, 0, 0);
+border-style: double;
     padding: 3px;
-    margin: 10rem 0;
-    padding: 1rem;
-   
+    margin: 5rem 0;
+    padding: 2rem;
+
 
 }
 
-body{
-    display: flex;
-    justify-content: center;
-    
-}
 
 @media screen and (max-width: 600px) {
     .login{

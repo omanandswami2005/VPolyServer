@@ -1,5 +1,5 @@
 import Login from './components/Login';
-
+import { useEffect,useCallback } from 'react';
 import { Routes, Route } from "react-router-dom";
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
@@ -17,11 +17,36 @@ import Faculty1 from './views/FacultyView';
 import ViewAttendanceView from './views/ViewAttendanceView';
 import ScheduleManagementView from './views/ScheduleManagementView';
 
+import DarkModeToggler from '../src/components/DarkModeButton/DarkModeToggler';
+import { useDarkMode } from './DarkModeContext';
 
 
-const App = ({ isDarkMode, toggleDarkMode }) => {
+
+
+const App = () => {
+  const { isDarkMode } = useDarkMode();
+
+  // Function to update styles of body and html
+  const updateBodyStyles = useCallback(() => {
+    document.body.style.background = isDarkMode
+      ? 'linear-gradient(45deg, rgb(253, 253, 253), rgb(69, 240, 252))'
+      : 'linear-gradient(45deg, rgb(0, 0, 0), rgb(0, 0, 0))';
+    document.body.style.color = isDarkMode ? 'black' : 'white';
+    document.documentElement.style.background = isDarkMode
+      ? 'linear-gradient(45deg, rgb(253, 253, 253), rgb(69, 240, 252))'
+      : 'linear-gradient(45deg, rgb(0, 0, 0), rgb(0, 0, 0))';
+    document.documentElement.style.color = isDarkMode ? 'black' : 'white';
+  }, [isDarkMode]);
+
+  // Call the function when component mounts and when dark mode changes
+  useEffect(() => {
+    updateBodyStyles();
+  }, [isDarkMode,updateBodyStyles]);
+
+
   return (
-    <div className={`app ${isDarkMode ? 'dark-mode' : ''}`}>
+    <div  className="App">
+      <DarkModeToggler/>
      <Routes>
       <Route path="/logout" element={<Logoutpage />} />
       
@@ -60,13 +85,8 @@ const App = ({ isDarkMode, toggleDarkMode }) => {
         <Route path="/dashboard/scheduleSetup" element={<ProtectedRoute component={ScheduleManagementView} path="/auth/loggedIn" />} />
 
 
-     
-
-
-
-        
-        
       </Routes>
+      
       <Toaster position="top-right"    toastOptions={{duration: 3000 ,
       closeButton: true,
         style: {
@@ -78,16 +98,7 @@ const App = ({ isDarkMode, toggleDarkMode }) => {
   
           }}}/>
 
-          {/* Dark mode toggle button */}
-      <div className="toggle-dark-mode">
-        <label>
-          <input type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} />
-          Dark Mode
-        </label>
-      </div>
-
     </div>
-
   );
 }
 

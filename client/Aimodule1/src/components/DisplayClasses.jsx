@@ -1,24 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState,useMemo } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { Box, Typography, Table } from '@mui/material';
+import AddClassForm from '../components/AddClassForm';
+import {
+  Box,
+  Typography,
+  Table,
+  ThemeProvider,
+  createTheme,
+  
+} from '@mui/material';
+import { useDarkMode } from '../DarkModeContext';
+
 import { AwesomeButton } from 'react-awesome-button';
-import { useData } from '../DataContext';
-import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
+import { PlusIcon } from "@primer/octicons-react";
+
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from 'material-react-table';
 import { Modal, Form, FormGroup, Label, Input, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
-import { useMemo } from 'react';
-import { darken, lighten, useTheme, ThemeProvider, createTheme } from '@mui/material';
+
+import { useData } from '../DataContext';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { IconButton, Tooltip } from '@mui/material';
 
 const DisplayClasses = () => {
   const { classOptions, faculties, fetchAll, fetchClassOptions } = useData();
-  const theme = useTheme();
+  
+  const { isDarkMode } = useDarkMode();
+  const [isAddClassModalOpen, setAddClassModalOpen] = useState(false);
 
-  const baseBackgroundColor =
-    theme.palette.mode === 'dark'
-      ? 'rgba(3, 44, 43, 1)'
-      : 'rgba(244, 255, 233, 1)';
+  const toggleAddClassModal = () => {
+    setAddClassModalOpen(!isAddClassModalOpen);
+  };
 
-  const combinedData = React.useMemo(() => {
+  const combinedData = useMemo(() => {
     return classOptions.map((classOption) => ({
       ...classOption,
       assignedFaculty: faculties
@@ -94,41 +112,45 @@ const DisplayClasses = () => {
       accessorKey: 'name',
       header: 'Class Name',
     },
-    {
-      accessorKey: 'assignedFaculty',
-      header: 'Assigned To',
-      Cell: ({ row }) => (
-        <span>
-          {(row.original.assignedFaculty || []).map((faculty, index) => (
-            <span
-              key={faculty.name}
-              style={{
-                fontWeight: 'normal',
-                color: faculty.role === 'HOD' ? 'blue' : 'black',
-              }}
-            >
-              {index > 0 && ', '}
-              {faculty.role === 'HOD' ? `[${faculty.name} (${faculty.role}) ] ` : faculty.name}
-            </span>
-          ))}
-        </span>
-      ),
-    },
+    // {
+    //   accessorKey: 'assignedFaculty',
+    //   header: 'Assigned To',
+    //   Cell: ({ row }) => (
+    //     <span>
+    //       {(row.original.assignedFaculty || []).map((faculty, index) => (
+    //         <span
+    //           key={faculty.name}
+    //           style={{
+    //             fontWeight: 'normal',
+    //             color: faculty.role === 'HOD' ? 'blue' : 'black',
+    //           }}
+    //         >
+    //           {index > 0 && ', '}
+    //           {faculty.role === 'HOD' ? `[${faculty.name} (${faculty.role}) ] ` : faculty.name}
+    //         </span>
+    //       ))}
+    //     </span>
+    //   ),
+    // },
     {
       accessorKey: 'actions',
       header: 'Actions',
       Cell: ({ row }) => (
         <span>
-          <span>
-            <AwesomeButton type="primary" onReleased={() => openUpdateForm(row.original._id || '')} className="mx-1 my-1">
-              Update
-            </AwesomeButton>
-          </span>
-          <span>
-            <AwesomeButton type="secondary" onReleased={() => handleDeleteClass(row.original._id || '')}>
-              Delete
-            </AwesomeButton>
-          </span>
+          <AwesomeButton type="primary" onReleased={() => openUpdateForm(row.original._id )}>
+          <Tooltip title="Update">
+            <IconButton>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          </AwesomeButton>
+          <AwesomeButton type="secondary" className='ms-2' onReleased={() => handleDeleteClass(row.original._id || '')}>
+          <Tooltip title="Delete">
+            <IconButton color="error">
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+          </AwesomeButton>
         </span>
       ),
     },
@@ -166,28 +188,35 @@ const DisplayClasses = () => {
       columnVisibility: { assignedFaculty: false },
     },
     enablePagination: false,
-    enableRowPinning: true,
     enableStickyHeader: true,
     enableColumnResizing: true,
-    rowPinningDisplayMode: 'select-sticky',
+   
+    renderTopToolbarCustomActions: () => (
+      <AwesomeButton type="danger" onReleased={toggleAddClassModal}>
+        <PlusIcon size={20} /> Add Class/es
+      </AwesomeButton>
+    ),
   });
 
   const modalContent = (
     <React.Fragment>
-      <ModalHeader toggle={closeUpdateForm}>Update Class</ModalHeader>
-      <ModalBody>
+      <ModalHeader toggle={closeUpdateForm} style={{ background: !isDarkMode ? '#333' : '#f8f9fa', color: !isDarkMode ? '#000' : '#fff' }}>
+        Update Class
+      </ModalHeader>
+      <ModalBody style={{ background: !isDarkMode ? '#333' : '#fff', color: !isDarkMode ? '#fff' : '#000' }}>
         <Form>
           <FormGroup>
-            <Label for="className">Class Name</Label>
+            <Label for="className" style={{ color: !isDarkMode ? '#fff' : '#000' }}>Class Name</Label>
             <Input
               type="text"
               id="className"
               value={updateClassData.name}
               onChange={(e) => setUpdateClassData({ ...updateClassData, name: e.target.value })}
+              style={{ background: !isDarkMode ? '#444' : '#fff', color: !isDarkMode ? '#fff' : '#000' }}
             />
           </FormGroup>
           <FormGroup>
-            <Label for="assignedFaculty">Assigned Faculty</Label>
+            <Label for="assignedFaculty" style={{ color: !isDarkMode ? '#fff' : '#000' }}>Assigned Faculty</Label>
             <Input
               type="select"
               id="assignedFaculty"
@@ -199,6 +228,7 @@ const DisplayClasses = () => {
                   assignedFaculty: Array.from(e.target.selectedOptions, (item) => item.value),
                 })
               }
+              style={{ background: !isDarkMode ? '#444' : '#fff', color: !isDarkMode ? '#fff' : '#000' }}
             >
               {faculties.map((faculty) => (
                 <option key={faculty._id || ''} value={faculty.name}>
@@ -209,7 +239,7 @@ const DisplayClasses = () => {
           </FormGroup>
         </Form>
       </ModalBody>
-      <ModalFooter>
+      <ModalFooter style={{ background:!isDarkMode ? '#333' : '#f8f9fa', color: !isDarkMode ? '#fff' : '#000' }}>
         <AwesomeButton type="primary" onPress={handleUpdateClass}>
           Save
         </AwesomeButton>
@@ -219,17 +249,28 @@ const DisplayClasses = () => {
       </ModalFooter>
     </React.Fragment>
   );
+  
+  
+
+  
 
   return (
-    <ThemeProvider theme={createTheme()}>
+   <ThemeProvider theme={createTheme({ palette: { mode: isDarkMode ? 'light' : 'dark' } })}>
       <div className={`w-100 `}>
-        <h4 className={`text-center w-50 mx-auto border border-white`}>List Of All Classes</h4>
+        <h4 className={`text-center w-50 mx-auto border border-white`}>
+          List Of All Classes
+        </h4>
         <div style={{ maxHeight: '80vh', overflow: 'auto', maxWidth: '95vw' }} className="w-100 border border-dark rounded ">
           <MaterialReactTable table={table} />
         </div>
+      
         <Modal isOpen={isModalOpen} toggle={closeUpdateForm}>
           {modalContent}
         </Modal>
+
+        <AddClassForm isModalOpen={isAddClassModalOpen} toggleAddClassModal={toggleAddClassModal} />
+
+      
       </div>
     </ThemeProvider>
   );

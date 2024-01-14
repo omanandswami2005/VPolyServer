@@ -5,6 +5,8 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import './styles/index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { DataProvider } from './DataContext';
+import { DarkModeProvider } from './DarkModeContext';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -17,12 +19,14 @@ const RootComponent = () => {
     setDarkMode(newDarkMode);
     localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
   };
-  
+
   return (
     <Router>
-      <DataProvider>
-        <App isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
-      </DataProvider>
+      <DarkModeProvider>
+        <DataProvider>
+          <App isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+        </DataProvider>
+      </DarkModeProvider>
     </Router>
   );
 };

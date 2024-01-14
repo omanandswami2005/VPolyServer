@@ -3,6 +3,7 @@ import {  Form, FormGroup, Label, Input, Button } from 'reactstrap';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import '../styles/Login.css';
+import {useDarkMode} from '../DarkModeContext';
 
 
 function Login() {
@@ -11,6 +12,7 @@ function Login() {
   // Define state variables to hold form data
   const [facultyId, setFacultyId] = useState('');
   const [password, setPassword] = useState('');
+  const {isDarkMode} = useDarkMode();
 
   // Function to handle form submission
   const handleSubmit = async (e) => {
@@ -64,7 +66,7 @@ function Login() {
 
   return (
     
-    <div className='login'>
+    <div className={isDarkMode ? 'boder-dark login' : 'border-light login h-100'}>
       <h2>Faculty Login</h2>
       <Form onSubmit={handleSubmit} >
         <FormGroup>

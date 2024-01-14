@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mui/material": "^5.15.4",
     "@primer/octicons-react": "^19.8.0",
     "@teachablemachine/image": "^0.8.5",
     "ag-grid-community": "^31.0.1",

@@ -1,31 +1,31 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Col, Row, Card, CardBody, CardTitle, Spinner } from 'reactstrap';
+import { Card, CardContent, Typography, TextField, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import "../styles/AddClassForm.css";
+import { useTheme } from '@mui/system';
 import toast from 'react-hot-toast';
 import { useData } from '../DataContext';
 import { AwesomeButton } from 'react-awesome-button';
-import 'react-awesome-button/dist/styles.css'; // Import the styles for AwesomeButton
-import { TrashIcon,PlusIcon,ZapIcon } from "@primer/octicons-react"; // custom icons
+import 'react-awesome-button/dist/styles.css';
+import { TrashIcon, PlusIcon, ZapIcon } from "@primer/octicons-react";
+import MutatingDotesSpinner from './Spinners/MutatingDotsSpinner'
 
-import '../styles/AddClassForm.css';
-
-function AddClassForm() {
+function AddClassForm({ isModalOpen, toggleAddClassModal }) {
   const [classNames, setClassNames] = useState(['']);
   const [loading, setLoading] = useState(false);
   const { classOptions, fetchAll } = useData();
+  const theme = useTheme();
 
   const preventDefault = (e) => e.preventDefault();
- 
+
   const handleClassSubmit = async (e) => {
     e.preventDefault();
-
 
     if (classNames.some(className => className.trim() === '')) {
       toast.error('Please fill in all class names.');
       return;
     }
 
-    // Check if any class name in classNames array already exists in classOptions
     setLoading(true);
     const isAlreadyPresent = classNames.some(className => classOptions.some(option => option.name === className));
 
@@ -38,14 +38,15 @@ function AddClassForm() {
     const apiUrl = '/class';
 
     try {
-      setLoading(true);
+      // setLoading(true);
 
       const response = await axios.post(apiUrl, { classNames });
       console.log('Classes added successfully', response.data);
       toast.success('Added Successfully');
       setClassNames(['']);
       fetchAll();
-    } catch (error) {
+      toggleAddClassModal();
+        } catch (error) {
       console.error('Error adding classes', error);
       toast.error('Sorry, something went wrong. Please try again.');
     } finally {
@@ -72,58 +73,69 @@ function AddClassForm() {
     updatedClassNames[index] = value;
     setClassNames(updatedClassNames);
   };
+  
 
   return (
-    <div className="my-1 add-class-form border border-dark rounded border-3 mx-auto">
-      <Card className="border-0 shadow add-class-card" style={{ maxHeight: '55vh', overflowY: 'auto' }}>
-        <CardBody>
-          <CardTitle tag="h2" className="text-center text-white bg-dark mb-4 rounded">
-            Add Class/es
-          </CardTitle>
-          <form onSubmit={preventDefault} >
-            {classNames.map((className, index) => (
-              <div key={index} className="mb-3 row">
-                <label htmlFor={`className${index + 1}`} className="col-sm-3 col-form-label">
-                  Class {index + 1} :
-                </label>
-                <div className="col-sm-8 d-flex align-items-center">
-                  <input
-                    type="text"
-                    
-                    placeholder={`Enter Class Name ${index + 1}`}
-                    value={className}
-                    onChange={(e) => handleClassChange(index, e.target.value)}
-                    className="w-100 text-center border border-dark rounded me-1"
-                  />
-                  <AwesomeButton
-                    type="secondary"
-                    onPress={() => handleCancelClassField(index)}
-                    disabled={classNames.length === 1}
-                    className="aws-btn"
-                    
-                  >
-                    <TrashIcon />
-                     Cancel
-                  </AwesomeButton>
+    <>
+    <Dialog open={isModalOpen} onClose={toggleAddClassModal}  style={{ width: '100' ,margin: '0' }} className="p-0">
+      <DialogTitle>
+        <Typography variant="h5" component="div" className={`text-center mb-4`}>
+          Add Class/es
+        </Typography>
+      </DialogTitle>
+      <DialogContent >
+        <Card className={`border-0 shadow add-class-card`} style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+          <CardContent>
+            <form onSubmit={preventDefault}>
+              {classNames.map((className, index) => (
+                <div key={index} className="mb-3 row">
+                  <label htmlFor={`className${index + 1}`} className=" col-form-label">
+                    Class Name {index + 1} :
+                  </label>
+                  <div className=" d-flex align-items-center">
+                    <TextField
+                      type="text"
+                      placeholder={`Class ${index + 1}`}
+                      value={className}
+                      onChange={(e) => handleClassChange(index, e.target.value)}
+                      variant="outlined"
+                      className={`w-100 text-center ${theme.palette.mode === 'dark' ? 'border-light' : 'border-dark'} rounded me-1`}
+                    />
+                    <AwesomeButton
+                      type="secondary"
+                      onPress={() => handleCancelClassField(index)}
+                      disabled={classNames.length === 1}
+                      className="aws-btn"
+                    >
+                      <TrashIcon />
+                      Cancel
+                    </AwesomeButton>
+                  </div>
                 </div>
-              </div>
-            ))}
-            <Row className="mx-auto w-100">
-              <Col sm={{ size: 10, offset: 1 }} className="d-flex justify-content-end">
-                <AwesomeButton type="primary" onPress={handleClassSubmit}  style={{ fontSize: '100%' }}  className="aws-btn ">
-                <ZapIcon />
-                   Add Classes
-                </AwesomeButton>
-                <AwesomeButton type="danger" onPress={handleAddClassField} className="ms-1 aws-btn w=100">
-                <PlusIcon size={20} />
-                   Add More Class
-                </AwesomeButton>
-              </Col>
-            </Row>
-          </form>
-        </CardBody>
-      </Card>
-    </div>
+              ))}
+              <Grid container justifyContent="flex-end">
+                <Grid item className='d-flex align-items-center justify-content-end'>
+                  <AwesomeButton type="primary" onPress={handleClassSubmit}   className="aws-btn">
+                    <ZapIcon />
+                    Add Class(es)
+                  </AwesomeButton>
+                  <AwesomeButton type="danger" onPress={handleAddClassField} className="ms-1 aws-btn w=100">
+                    <PlusIcon size={20} />
+                    Multiple
+                  </AwesomeButton>
+                </Grid>
+              </Grid>
+            </form>
+          </CardContent>
+        </Card>
+      </DialogContent>
+      <DialogActions>
+        <Button variant="contained" onClick={toggleAddClassModal}>
+          Done !
+        </Button>
+      </DialogActions>
+    </Dialog>
+{loading && <MutatingDotesSpinner />}    </>
   );
 }
 
