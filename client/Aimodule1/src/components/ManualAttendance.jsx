@@ -34,6 +34,8 @@ function ManualAttendance(props) {
     setTimeSlotDropdownOpen(false); // Close the time slot dropdown
     setClassDropdownOpen((prevState) => !prevState);
   };
+
+  
   
 
 const to =()=>{}
@@ -61,7 +63,7 @@ const to =()=>{}
         axios
           .post(`/attendance/manualattendance`, { selectedDate, selectedTimeSlot ,className: selectedClass,})
           .then((response) => {
-            console.log("hi",response.data.studentAttendance);
+            // console.log("hi",response.data.studentAttendance);
             // setStudents([]);
             if(response.data.studentAttendance.length <1)
             {
@@ -131,34 +133,39 @@ const to =()=>{}
   };
 
 
-  const toggleAttendance = (studentEnrollmentNo) => {
+  const toggleAttendance = async (studentEnrollmentNo) => {
     try {
-      axios
+       await axios
         .put(`/attendance/update/${studentEnrollmentNo}`, { selectedDate, selectedTimeSlot })
-        .then((response) => {
-          
-          const updatedTempRecord = response.data.mainRecord;
-          const updatedStudents = [...students];
-          const studentIndex = updatedStudents.findIndex(
-            (student) => student.studentEnrollmentNo === updatedTempRecord.studentEnrollmentNo
-          );
+      .then((response) => {
+        
+        const updatedTempRecord = response.data.mainRecord;
 
-          if (studentIndex !== -1) {
-            updatedStudents[studentIndex].present = updatedTempRecord.present;
-            setStudents(updatedStudents);
-          } else {
-            console.error("Student not found in the students array.");
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching or creatingAttendance data:", error);
-          navigate("/login");
-          toast.error("Session Expired :/ Please Login Again");
-        });
-    } catch (error) {
-      console.error("Error toggling attendance:", error);
-    }
-  };
+        // console.log(updatedTempRecord.present);
+
+        const updatedStudents = [...students];
+        
+        const studentIndex = updatedStudents.findIndex(
+          (student) => student.studentId._id === updatedTempRecord.studentId
+        );
+
+        if (studentIndex !== -1) {
+          updatedStudents[studentIndex].present = updatedTempRecord.present;
+          setStudents(updatedStudents);
+        } else {
+          console.error("Student not found in the students array.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching or creatingAttendance data:", error);
+        // navigate("/login");
+        toast.error("Session Expired :/ Please Login Again");
+      });
+  } catch (error) {
+    console.error("Error toggling attendance:", error);
+  }
+};
+
 
   // Calculate the total, present, and absent students
   const totalStudents = students.length;
@@ -277,32 +284,28 @@ const to =()=>{}
         <tbody>
             {students
               .slice()
-              .sort((a, b) => parseInt(a.studentEnrollmentNo, 10) - parseInt(b.studentEnrollmentNo, 10))
-              .map((student, index) => {
-                // Check if the student matches the search term
-                const matchesSearch = (
-                  student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  student.studentEnrollmentNo.includes(searchTerm)
-                );
-
-                // If there's a search term and the student doesn't match, skip rendering
-                if (searchTerm && !matchesSearch) {
-                  return null;
-                }
+              .sort((a, b) => parseInt(a.studentId?.enrollmentNo, 10) - parseInt(b.studentId?.enrollmentNo, 10))
+              .map((student) => {
+      
 
                 return (
-                  <tr key={student.studentEnrollmentNo}>
-                    <td className="td" onClick={toggleEnrollmentNo}>{index + 1}</td>
-                    {showEnrollmentNo && <td className="td">{student.studentEnrollmentNo}</td>}
-                    <td className="td">{student.studentName}</td>
-                    <td className="td" onClick={() => toggleAttendance(student.studentEnrollmentNo)}>
-                      <Switch
-                        onChange={() => ""}
-                        checked={student.present}
-                      />
-                      <p>{student.present ? "Present" : "Absent"}</p>
-                    </td>
-                  </tr>
+                  <tr key={student.studentId?.enrollmentNo}>
+
+                  <td className="td" onClick={toggleEnrollmentNo}>{student.studentId?.rollNo}</td>
+
+                  {showEnrollmentNo && <td className="td">{student.studentId?.enrollmentNo}</td>}
+                  
+                  <td className="td">{student.studentId?.name}</td>
+                 
+                  
+                  <td className="td" onClick={() =>toggleAttendance(student.studentId.enrollmentNo)}>
+                    <Switch
+                      onChange={() => ""}
+                      checked={student.present}
+                    />
+                    <p>{student.present ? "Present" : "Absent"}</p>
+                  </td>
+                </tr>
                 );
               })}
           </tbody>

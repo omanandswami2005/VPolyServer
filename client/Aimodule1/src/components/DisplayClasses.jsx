@@ -58,7 +58,8 @@ const DisplayClasses = () => {
   });
 
   const [isModalOpen, setModalOpen] = useState(false);
-
+console.log(classOptions);
+console.trace();
   const openUpdateForm = (classId) => {
     const selectedClass = classOptions.find((option) => option._id === classId);
 
@@ -136,23 +137,25 @@ const DisplayClasses = () => {
       accessorKey: 'actions',
       header: 'Actions',
       Cell: ({ row }) => (
-        <span>
-          <AwesomeButton type="primary" onReleased={() => openUpdateForm(row.original._id )}>
-          <Tooltip title="Update">
-            <IconButton>
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
+        <div>
+          <AwesomeButton type="primary" onReleased={() => openUpdateForm(row.original._id)}>
+           
+            <Tooltip title="Update Class" placement="top">
+                <EditIcon />
+           
+              </Tooltip>
+
           </AwesomeButton>
           <AwesomeButton type="secondary" className='ms-2' onReleased={() => handleDeleteClass(row.original._id || '')}>
-          <Tooltip title="Delete">
-            <IconButton color="error">
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
+          
+            <Tooltip title="Delete Class" placement="top">
+                <DeleteIcon />
+            </Tooltip>
+            
           </AwesomeButton>
-        </span>
+        </div>
       ),
+      
     },
   ];
 

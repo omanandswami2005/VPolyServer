@@ -7,10 +7,12 @@ const DataContext = createContext();
 export const DataProvider = ({ children }) => {
   const [classOptions, setClassOptions] = useState([]);
   const [faculties, setFaculties] = useState([]);
+  const [students, setStudents] = useState([]);
+
 
   useEffect(() => {
-    // Fetch data when the component mounts
     fetchAll();
+    fetchStudentData();
   }, []);
 
   const fetchAll = async () => {
@@ -27,6 +29,7 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+
   const fetchClassOptions = async () => {
     try {
       const response = await axios.get('/class');
@@ -35,15 +38,30 @@ export const DataProvider = ({ children }) => {
       console.error('Error fetching class options:', error);
     }
   }
+
+  const fetchStudentData = async () => {
+    try {
+      const response = await axios.get('/student');
+      setStudents(response.data);
+    } catch (error) {
+      console.error('Error fetching student data:', error);
+    }
+  };
+
+  
+
   const state = {
     classOptions,
     faculties,
+    students,
   };
 
   const actions = {
     fetchAll,
     fetchClassOptions,
+    fetchStudentData,
   };
+  console.log(classOptions)
 
   return (
     <DataContext.Provider value={{ ...state, ...actions }}>

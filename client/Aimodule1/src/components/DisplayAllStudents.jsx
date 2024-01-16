@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, Table, Form, FormGroup, Label, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import '../styles/DisplayAllStudents.css';
 
@@ -8,13 +8,14 @@ import toast from 'react-hot-toast';
 import MutatingDotsSpinner from './Spinners/MutatingDotsSpinner';
 
 import AddStudentForm from './AddStudentsForm';
+import { useData } from '../DataContext';
 
 function DisplayAllStudents() {
-  const [students, setStudents] = useState([]);
+
   const [selectedClass, setSelectedClass] = useState('Show All Students');
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const {students,fetchStudentData,classOptions} = useData();
 
-  // const [isUpdateFormVisible, setUpdateFormVisible] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -24,25 +25,12 @@ function DisplayAllStudents() {
     enrollmentNo: '',
     selectedClassId: '',
   });
-  const [classOptions, setClassOptions] = useState([]);
   const [modal, setModal] = useState(false);
-
-  useEffect(() => {
-    fetchStudentData();
-    fetchClassOptions();
-  }, [selectedClass]);
-
-  const fetchStudentData = async () => {
-    try {
-      const response = await axios.get('/student');
-      setStudents(response.data);
-
-      setLoading(false); // Set loading back to false after a short delay
-
-    } catch (error) {
-      console.error('Error fetching student data:', error);
-    }
-  };
+// useEffect(() => {
+//     fetchStudentData();
+//     fetchClassOptions();
+//   }, []); // Empty dependency array to fetch data only on mount
+  
   const toggleAddStudentModal = () => {
     setShowAddStudentModal(!showAddStudentModal);
   };
@@ -58,6 +46,7 @@ function DisplayAllStudents() {
       setSelectedStudents(allStudents);
     }
   };
+
 
   const handleSelectStudent = (studentId) => {
     if (selectedStudents.includes(studentId)) {
@@ -84,14 +73,13 @@ function DisplayAllStudents() {
 
     try {
       if (typeof studentId === 'string') {
-        await handleDisSelectAllStudent(studentId)
+        
+         handleDisSelectAllStudent(studentId)
         const confirmDelete = window.confirm('Are you sure you want to delete this student? (This Action CANNOT be undone! and Also All The Attendance data will be DELETED For All Time of respective Student!)');
         // toast.confirmDelete();
         if (confirmDelete) {
           setLoading(true); // Set loading to true during deletion
-
-          await handleDelete(studentId);
-          toast.success('Deleted Successfully');
+           handleDelete(studentId);
         } else {
           return;
         }
@@ -110,7 +98,7 @@ function DisplayAllStudents() {
               console.log('Students deleted successfully');
               toast.success('Deleted Successfully');
               setSelectedStudents([]);
-              handleRefresh();
+              fetchStudentData();
               setLoading(false);
 
             } catch (error) {
@@ -128,14 +116,14 @@ function DisplayAllStudents() {
   };
 
 
-  const fetchClassOptions = async () => {
-    try {
-      const response = await axios.get('/class');
-      setClassOptions(response.data);
-    } catch (error) {
-      console.error('Error fetching class options:', error);
-    }
-  };
+  // const fetchClassOptions = async () => {
+  //   try {
+  //     const response = await axios.get('/class');
+  //     setClassOptions(response.data);
+  //   } catch (error) {
+  //     console.error('Error fetching class options:', error);
+  //   }
+  // };
 
   const checkboxStyle = {
     transform: 'scale(1.5)',
@@ -157,6 +145,8 @@ function DisplayAllStudents() {
 
     return classCounts;
   };
+  // console.log(classOptions)
+  // console.trace()
 
   const classCounts = countStudentsInClasses();
 
@@ -178,6 +168,7 @@ function DisplayAllStudents() {
     });
     toggleModal();
   };
+  
 
 
 
@@ -194,10 +185,10 @@ function DisplayAllStudents() {
     try {
       await axios.put(`/student/${_id}`, dataToUpdate);
       toast.success('Updated Successfully');
-      handleRefresh();
+      fetchStudentData();
     } catch (error) {
       if (error.response && error.response.status === 500) {
-        toast.error('Duplicate RollNo In Same Class Is Not Allowed!');
+        toast.error('Enrollment Number Already Exists!');
       } else if (error.response && error.response.status === 400 && error.response.data.message) {
         toast.error(error.response.data.message);
       } else {
@@ -211,17 +202,20 @@ function DisplayAllStudents() {
     axios
       .delete(`/student/${studentId}`)
       .then(() => {
-        handleRefresh();
+        fetchStudentData();
+        setLoading(false); 
+        toast.success('Deleted Successfully');
+
+
       })
       .catch((error) => {
         console.error(`Error deleting student with ID ${studentId}: ${error}`);
+        setLoading(false); 
+
       });
   };
 
-  const handleRefresh = () => {
-    fetchStudentData();
-
-  };
+ 
 
   const toggleModal = () => {
     setModal(!modal);
@@ -236,7 +230,7 @@ function DisplayAllStudents() {
       <Modal isOpen={showAddStudentModal} toggle={toggleAddStudentModal}>
         <ModalHeader toggle={toggleAddStudentModal}>Add Student/es</ModalHeader>
         <ModalBody>
-          <AddStudentForm updateStudentList={handleRefresh} />
+          <AddStudentForm />
         </ModalBody>
       </Modal>
       <h1 className="text-center bg-dark text-light w-75 mx-auto border border-white">All Students</h1>
@@ -257,9 +251,7 @@ function DisplayAllStudents() {
               </option>
             ))}
           </Input>
-          <Button color="info" onClick={handleRefresh}>
-            Refresh
-          </Button>
+         
           <div className="d-flex justify-content-center align-items-center my-3">
             <FormGroup check className="ms-2 bg-white d-inline-block mx-5 border border-dark rounded-3 text-center">
               <Label check>
@@ -338,16 +330,7 @@ function DisplayAllStudents() {
                 onChange={(e) => setUpdateStudentData({ ...updateStudentData, name: e.target.value })}
               />
             </FormGroup>
-            <FormGroup>
-              <Label for="updateRollNo">Roll No</Label>
-              <Input
-                type="text"
-                id="updateRollNo"
-                placeholder="Roll No"
-                value={updateStudentData.rollNo}
-                onChange={(e) => setUpdateStudentData({ ...updateStudentData, rollNo: e.target.value })}
-              />
-            </FormGroup>
+           
             <FormGroup>
               <Label for="updateEnrollmentNo">Enrollment No</Label>
               <Input
@@ -370,8 +353,9 @@ function DisplayAllStudents() {
                   setUpdateStudentData({ ...updateStudentData, selectedClassId: e.target.value })
                 }
               >
+               
                 <option value="">Select Class</option>
-                {classOptions.map((option) => (
+                {classOptions && classOptions.map((option) => (
                   <option key={option._id} value={option._id}>
                     {option.name}
                   </option>

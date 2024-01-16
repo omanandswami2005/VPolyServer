@@ -1,5 +1,6 @@
 const Class = require('../models/Class');
 const StudentAttendance = require('../models/studentAttendance');
+const Student = require('../models/Student');
 
 
 
@@ -70,67 +71,82 @@ const attendanceControllers = {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   },
-  getAllStudentForMalualAttendace: async (req, res) => {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  getAllStudentForMalualAttendance: async (req, res) => {
     const { selectedDate, selectedTimeSlot, className } = req.body;
-    console.log(selectedDate, selectedTimeSlot, className);
+  
     try {
       // Find the class by name and populate its students
-      const classData = await Class.findOne({ name: className }).populate('students');
-
+      const classData = await Class.findOne({ name: className }).populate('students', 'name enrollmentNo rollNo');
+  
       if (!classData) {
         return res.status(404).json({ message: `Class '${className}' not found.` });
       }
-
+  
       console.log(`Class: ${classData.name}`);
       console.log('Students:');
-
-      // Clear the studentsToAdd array before processing students for the new class
-      const studentsToAdd = [];
-
-      for (const student of classData.students) {
-        const existingAttendance = await StudentAttendance.findOne({
+  
+      // Get an array of existing student IDs for the given date and time slot
+      const existingStudentIds = (
+        await StudentAttendance.find({
+          date: selectedDate,
+          timeSlot: selectedTimeSlot,
+        })
+      ).map((attendance) => attendance.studentId.toString());
+  
+      // Filter students who are not present and whose attendance record does not exist
+      const studentsToAdd = classData.students
+        .filter((student) => !existingStudentIds.includes(student._id.toString()))
+        .map((student) => ({
           studentId: student._id,
           date: selectedDate,
           timeSlot: selectedTimeSlot,
-        });
-
-        if (!existingAttendance) {
-          // If the student is not present, add them to the attendance model
-          studentsToAdd.push({
-            studentId: student._id,
-            studentName: student.name,
-            studentRollNo: student.rollNo,
-            studentEnrollmentNo: student.enrollmentNo,
-            date: selectedDate,
-            timeSlot: selectedTimeSlot,
-            present: false,
-          });
-        }
-
-        console.log(`- ${student.name}`);
-      }
-
+          present: false,
+        }));
+  
       // Insert new student attendance records if there are any
       if (studentsToAdd.length > 0) {
         await StudentAttendance.insertMany(studentsToAdd);
-        // console.log('Added new attendance records for missing students.');
       }
-
+  
       // Now, send all the student attendance data as a response, including both existing and newly added records
       const allStudentAttendance = await StudentAttendance.find({
         date: selectedDate,
         timeSlot: selectedTimeSlot,
       }).populate({
         path: 'studentId',
+        select: 'name enrollmentNo rollNo',
         populate: {
           path: 'class', // Populate the class field in studentId
         },
       });
-      const filteredStudentAttendance = allStudentAttendance.filter((attendance) => {
-        return attendance.studentId?.class?.name === className;
-      });
+  
+      const filteredStudentAttendance = allStudentAttendance.filter(
+        (attendance) => attendance.studentId?.class?.name === className
+      );
+  
       console.log(filteredStudentAttendance);
-
+  
       res.json({ data: true, studentAttendance: filteredStudentAttendance });
     } catch (error) {
       console.error('Error:', error);
@@ -138,94 +154,106 @@ const attendanceControllers = {
     }
   }
   ,
-  getAllStudentForMalualAttendaceToday: async (req, res) => {
-    const { selectedTimeSlot, className } = req.body;
-    const today = new Date(); // Get today's date
-    // const dayOfWeek = today.getDay();
-    const date = today.getDate();
-    const month = today.getMonth();
-    const year = today.getFullYear();
-    const selectedDate = `${year}-${month + 1}-${date}`
-    // console.log(selectedDate);
-    try {
-      // Find the class by name and populate its students
-      const classData = await Class.findOne({ name: className }).populate('students');
+  // getAllStudentForMalualAttendaceToday: async (req, res) => {
+  //   const { selectedTimeSlot, className } = req.body;
+  //   const today = new Date(); // Get today's date
+  //   // const dayOfWeek = today.getDay();
+  //   const date = today.getDate();
+  //   const month = today.getMonth();
+  //   const year = today.getFullYear();
+  //   const selectedDate = `${year}-${month + 1}-${date}`
+  //   // console.log(selectedDate);
+  //   try {
+  //     // Find the class by name and populate its students
+  //     const classData = await Class.findOne({ name: className }).populate('students');
 
-      if (!classData) {
-        return res.status(404).json({ message: `Class '${className}' not found.` });
-      }
+  //     if (!classData) {
+  //       return res.status(404).json({ message: `Class '${className}' not found.` });
+  //     }
 
-      // console.log(`Class: ${classData.name}`);
-      // console.log('Students:');
+  //     // console.log(`Class: ${classData.name}`);
+  //     // console.log('Students:');
 
-      // Clear the studentsToAdd array before processing students for the new class
-      const studentsToAdd = [];
+  //     // Clear the studentsToAdd array before processing students for the new class
+  //     const studentsToAdd = [];
 
-      for (const student of classData.students) {
-        const existingAttendance = await StudentAttendance.findOne({
-          studentId: student._id,
-          date: selectedDate,
-          timeSlot: selectedTimeSlot,
-        });
+  //     for (const student of classData.students) {
+  //       const existingAttendance = await StudentAttendance.findOne({
+  //         studentId: student._id,
+  //         date: selectedDate,
+  //         timeSlot: selectedTimeSlot,
+  //       });
 
-        if (!existingAttendance) {
-          // If the student is not present, add them to the attendance model
-          studentsToAdd.push({
-            studentId: student._id,
-            studentName: student.name,
-            studentRollNo: student.rollNo,
-            studentEnrollmentNo: student.enrollmentNo,
-            date: selectedDate,
-            timeSlot: selectedTimeSlot,
-            present: false,
-          });
-        }
+  //       if (!existingAttendance) {
+  //         // If the student is not present, add them to the attendance model
+  //         studentsToAdd.push({
+  //           studentId: student._id,
+  //           date: selectedDate,
+  //           timeSlot: selectedTimeSlot,
+  //           present: false,
+  //         });
+  //       }
 
-        console.log(`- ${student.name}`);
-      }
+  //       console.log(`- ${student.name}`);
+  //     }
 
-      // Insert new student attendance records if there are any
-      if (studentsToAdd.length > 0) {
-        await StudentAttendance.insertMany(studentsToAdd);
-        console.log('Added new attendance records for missing students.');
-      }
+  //     // Insert new student attendance records if there are any
+  //     if (studentsToAdd.length > 0) {
+  //       await StudentAttendance.insertMany(studentsToAdd);
+  //       console.log('Added new attendance records for missing students.');
+  //     }
 
-      // Now, send all the student attendance data as a response, including both existing and newly added records
-      const allStudentAttendance = await StudentAttendance.find({
-        date: selectedDate,
-        timeSlot: selectedTimeSlot,
-      }).populate({
-        path: 'studentId',
-        populate: {
-          path: 'class', // Populate the class field in studentId
-        },
-      });
-      const filteredStudentAttendance = allStudentAttendance.filter((attendance) => {
-        return attendance.studentId.class.name === className;
-      });
-      // console.log(filteredStudentAttendance);
+  //     // Now, send all the student attendance data as a response, including both existing and newly added records
+  //     const allStudentAttendance = await StudentAttendance.find({
+  //       date: selectedDate,
+  //       timeSlot: selectedTimeSlot,
+  //     }).populate({
+  //       path: 'studentId',
+  //       populate: {
+  //         path: 'class', // Populate the class field in studentId
+  //       },
+  //     });
+  //     const filteredStudentAttendance = allStudentAttendance.filter((attendance) => {
+  //       return attendance.studentId.class.name === className;
+  //     });
+  //     // console.log(filteredStudentAttendance);
 
-      res.json({ data: true, studentAttendance: filteredStudentAttendance });
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  },
+  //     res.json({ data: true, studentAttendance: filteredStudentAttendance });
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //     res.status(500).json({ error: 'Internal Server Error' });
+  //   }
+  // },
+
+
+
+
+
+
+
+
+
+
   updateAttendance: async (req, res) => {
 
     const studentEnrollmentNo = req.params.id;
     const { selectedDate, selectedTimeSlot } = req.body;
-    // console.log(studentEnrollmentNo, selectedDate, selectedTimeSlot);
+    console.log(studentEnrollmentNo, selectedDate, selectedTimeSlot);
     try {
 
-      // Also update the corresponding record in the main database
-      const mainRecord = await StudentAttendance.findOne({
-        studentEnrollmentNo: studentEnrollmentNo,
-        date: `${selectedDate}`,
-        timeSlot: selectedTimeSlot,
+    // Find the student based on enrollment number
+    const student = await Student.findOne({ enrollmentNo: studentEnrollmentNo });
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
 
-      });
-      // console.log(mainRecord);
+    // Also update the corresponding record in the main database
+    const mainRecord = await StudentAttendance.findOne({
+      studentId: student._id,
+      date: selectedDate,
+      timeSlot: selectedTimeSlot,
+    });
+
       if (!mainRecord) {
         // If the record doesn't exist in the main database, return an error
         return res.status(404).json({ error: 'Record not found' });

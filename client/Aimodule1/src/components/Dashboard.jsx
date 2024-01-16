@@ -25,7 +25,8 @@ import vapm from '../images/vapmlogo.png';
 // const navigate = useNavigate();
 const name = userData.name;
 const role = userData.role;
-// console.log(userData.role);
+
+console.log(userData.role);
   return (
     <div>
 
