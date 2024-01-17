@@ -1,4 +1,4 @@
-import React, { useState,useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import AddClassForm from '../components/AddClassForm';
@@ -8,7 +8,7 @@ import {
   Table,
   ThemeProvider,
   createTheme,
-  
+
 } from '@mui/material';
 import { useDarkMode } from '../DarkModeContext';
 
@@ -24,11 +24,11 @@ import { Modal, Form, FormGroup, Label, Input, ModalBody, ModalFooter, ModalHead
 import { useData } from '../DataContext';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { IconButton, Tooltip } from '@mui/material';
+import { Tooltip } from '@mui/material';
 
 const DisplayClasses = () => {
   const { classOptions, faculties, fetchAll, fetchClassOptions } = useData();
-  
+
   const { isDarkMode } = useDarkMode();
   const [isAddClassModalOpen, setAddClassModalOpen] = useState(false);
 
@@ -58,8 +58,8 @@ const DisplayClasses = () => {
   });
 
   const [isModalOpen, setModalOpen] = useState(false);
-console.log(classOptions);
-console.trace();
+  // console.log(classOptions);
+  // console.trace();
   const openUpdateForm = (classId) => {
     const selectedClass = classOptions.find((option) => option._id === classId);
 
@@ -75,6 +75,7 @@ console.trace();
   const closeUpdateForm = () => {
     setModalOpen(false);
   };
+
 
   const handleUpdateClass = () => {
     const { id, name, assignedFaculty } = updateClassData;
@@ -93,7 +94,7 @@ console.trace();
   };
 
   const handleDeleteClass = (classId) => {
-    table.setRowSelection([]);
+    // table.setRowSelection([]);
     const confirmDelete = window.confirm('Are you sure you want to delete this class?');
     if (confirmDelete) {
       axios
@@ -139,23 +140,23 @@ console.trace();
       Cell: ({ row }) => (
         <div>
           <AwesomeButton type="primary" onReleased={() => openUpdateForm(row.original._id)}>
-           
+
             <Tooltip title="Update Class" placement="top">
-                <EditIcon />
-           
-              </Tooltip>
+              <EditIcon />
+
+            </Tooltip>
 
           </AwesomeButton>
           <AwesomeButton type="secondary" className='ms-2' onReleased={() => handleDeleteClass(row.original._id || '')}>
-          
+
             <Tooltip title="Delete Class" placement="top">
-                <DeleteIcon />
+              <DeleteIcon />
             </Tooltip>
-            
+
           </AwesomeButton>
         </div>
       ),
-      
+
     },
   ];
 
@@ -186,14 +187,15 @@ console.trace();
     data: combinedData,
     renderDetailPanel,
     initialState: {
-      pageSize: 25,
       density: 'compact',
       columnVisibility: { assignedFaculty: false },
     },
-    enablePagination: false,
+    // enablePagination: false,
     enableStickyHeader: true,
     enableColumnResizing: true,
-   
+    enableRowVirtualization: true,
+    enableColumnVirtualization: true,
+
     renderTopToolbarCustomActions: () => (
       <AwesomeButton type="danger" onReleased={toggleAddClassModal}>
         <PlusIcon size={20} /> Add Class/es
@@ -242,7 +244,7 @@ console.trace();
           </FormGroup>
         </Form>
       </ModalBody>
-      <ModalFooter style={{ background:!isDarkMode ? '#333' : '#f8f9fa', color: !isDarkMode ? '#fff' : '#000' }}>
+      <ModalFooter style={{ background: !isDarkMode ? '#333' : '#f8f9fa', color: !isDarkMode ? '#fff' : '#000' }}>
         <AwesomeButton type="primary" onPress={handleUpdateClass}>
           Save
         </AwesomeButton>
@@ -252,13 +254,13 @@ console.trace();
       </ModalFooter>
     </React.Fragment>
   );
-  
-  
 
-  
+
+
+
 
   return (
-   <ThemeProvider theme={createTheme({ palette: { mode: isDarkMode ? 'light' : 'dark' } })}>
+    <ThemeProvider theme={createTheme({ palette: { mode: isDarkMode ? 'light' : 'dark' } })}>
       <div className={`w-100 `}>
         <h4 className={`text-center w-50 mx-auto border border-white`}>
           List Of All Classes
@@ -266,14 +268,14 @@ console.trace();
         <div style={{ maxHeight: '80vh', overflow: 'auto', maxWidth: '95vw' }} className="w-100 border border-dark rounded ">
           <MaterialReactTable table={table} />
         </div>
-      
+
         <Modal isOpen={isModalOpen} toggle={closeUpdateForm}>
           {modalContent}
         </Modal>
 
         <AddClassForm isModalOpen={isAddClassModalOpen} toggleAddClassModal={toggleAddClassModal} />
 
-      
+
       </div>
     </ThemeProvider>
   );

@@ -1,18 +1,39 @@
-import React, { useState } from 'react';
-import { Button, Table, Form, FormGroup, Label, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import React, { useState ,useEffect} from 'react';
+import { Button,  Form, FormGroup, Label, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import '../styles/DisplayAllStudents.css';
 
 import axios from 'axios';
 // import { Spinner } from 'react-bootstrap';
 import toast from 'react-hot-toast';
 import MutatingDotsSpinner from './Spinners/MutatingDotsSpinner';
+import { AwesomeButton } from 'react-awesome-button';
+import { PlusIcon } from "@primer/octicons-react";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import {  Tooltip } from '@mui/material';
 
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from 'material-react-table';
+import {
+  Box,
+  Typography,
+  Table,
+  ThemeProvider,
+  createTheme,
+  
+} from '@mui/material';
 import AddStudentForm from './AddStudentsForm';
 import { useData } from '../DataContext';
+import { useDarkMode } from '../DarkModeContext';
+
 
 function DisplayAllStudents() {
+  
+  const { isDarkMode } = useDarkMode();
 
-  const [selectedClass, setSelectedClass] = useState('Show All Students');
+  const [selectedClass, setSelectedClass] = useState('Select Class');
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const {students,fetchStudentData,classOptions} = useData();
 
@@ -26,6 +47,8 @@ function DisplayAllStudents() {
     selectedClassId: '',
   });
   const [modal, setModal] = useState(false);
+  // const [filteredStudents, setFilteredStudents] = useState([]);
+
 // useEffect(() => {
 //     fetchStudentData();
 //     fetchClassOptions();
@@ -57,7 +80,7 @@ function DisplayAllStudents() {
       setSelectedStudents((prevSelected) => [...prevSelected, studentId]);
     }
   };
-  const handleDisSelectAllStudent = (studentId) => {
+  const handleDisSelectAllStudent = () => {
     const allStudents = filteredStudents.map((student) => student._id);
 
     if (selectedStudents.length === allStudents.length) {
@@ -74,7 +97,7 @@ function DisplayAllStudents() {
     try {
       if (typeof studentId === 'string') {
         
-         handleDisSelectAllStudent(studentId)
+         handleDisSelectAllStudent();
         const confirmDelete = window.confirm('Are you sure you want to delete this student? (This Action CANNOT be undone! and Also All The Attendance data will be DELETED For All Time of respective Student!)');
         // toast.confirmDelete();
         if (confirmDelete) {
@@ -96,8 +119,9 @@ function DisplayAllStudents() {
             try {
               await axios.post('/student/deleteAllStudents', { selectedStudents });
               console.log('Students deleted successfully');
+               setSelectedStudents([]);
+               console.log(selectedStudents);
               toast.success('Deleted Successfully');
-              setSelectedStudents([]);
               fetchStudentData();
               setLoading(false);
 
@@ -125,10 +149,10 @@ function DisplayAllStudents() {
   //   }
   // };
 
-  const checkboxStyle = {
-    transform: 'scale(1.5)',
-    marginRight: '0px',
-  };
+  // const checkboxStyle = {
+  //   transform: 'scale(1.5)',
+  //   marginRight: '0px',
+  // };
 
   const countStudentsInClasses = () => {
     const classCounts = { 'N/A': 0 };
@@ -145,12 +169,12 @@ function DisplayAllStudents() {
 
     return classCounts;
   };
-  // console.log(classOptions)
+  console.log(classOptions)
   // console.trace()
 
   const classCounts = countStudentsInClasses();
 
-  const filteredStudents =
+  const sortedStudents =
     selectedClass === 'Show All Students'
       ? students.slice().sort((a, b) => a.rollNo - b.rollNo)
       : students
@@ -158,11 +182,21 @@ function DisplayAllStudents() {
         .slice()
         .sort((a, b) => a.rollNo - b.rollNo);
 
+  const filteredStudents = sortedStudents.map((student) => {
+    return {
+      _id: student._id,
+      rollNo: student.rollNo,
+      name: student.name,
+      enrollmentNo: student.enrollmentNo,
+     class: student.class ? student.class.name : 'N/A',
+    };
+  })
+
   const openUpdateForm = (student) => {
     setUpdateStudentData({
       _id: student._id,
-      name: student.name,
       rollNo: student.rollNo,
+      name: student.name,
       enrollmentNo: student.enrollmentNo,
       selectedClassId: student.class ? student.class._id : '',
     });
@@ -215,35 +249,136 @@ function DisplayAllStudents() {
       });
   };
 
- 
-
   const toggleModal = () => {
     setModal(!modal);
   };
 
+  let data = React.useMemo(() => {
+    return selectedClass === 'Show All Students'
+      ? filteredStudents.slice()
+      : filteredStudents
+          .filter((student) => (student.class ? student.class : 'N/A') === selectedClass)
+          .slice()
+              // eslint-disable-next-line
+  }, [selectedClass, students]);
+
+
+
+
+
+  const columns =  [
+    {
+      accessorKey: 'rollNo',
+      header: 'Roll No.',
+    },
+    {
+      accessorKey: 'name',
+      header: 'Name',
+    },
+    {
+      accessorKey: 'enrollmentNo',
+      header: 'Enrollment No.',
+    },
+    {
+      accessorKey: 'class',
+      header: 'Class',
+    },
+    {
+      accessorKey: 'actions',
+      header: 'Actions',
+      Cell: ({ row }) => (
+        <div>
+          <AwesomeButton type="primary" onReleased={() => openUpdateForm(row.original)}>
+            <Tooltip title="Update Class" placement="top">
+              <EditIcon />
+            </Tooltip>
+          </AwesomeButton>
+          <AwesomeButton type="secondary" className='ms-2' onReleased={() => handleDeleteSelected(row.original._id || '')}>
+            <Tooltip title="Delete Class" placement="top">
+              <DeleteIcon />
+            </Tooltip>
+          </AwesomeButton>
+        </div>
+      ),
+    },
+  ] 
+
+  
+  
+  const table = useMaterialReactTable({
+    columns,
+    data ,
+    initialState: {
+      density: 'compact',
+    },
+    paginationDisplayMode: 'pages',
+
+    
+    enableStickyHeader: true,
+    enableColumnResizing: true,
+    enableRowVirtualization: true,
+    enableColumnVirtualization: true,
+    rowVirtualizerOptions: { overscan: 5 },
+    muiTableContainerProps: { sx: { maxHeight: '50vh', maxWidth: '100vw' } },
+    enableRowSelection: true,
+    getRowId: (originalRow) => originalRow._id || '',
+
+    renderTopToolbarCustomActions: () => (
+      <Box sx={{ display: 'flex', gap: '1rem', p: '4px' }}>
+
+      <AwesomeButton type="danger" onReleased={toggleAddStudentModal}>
+        <PlusIcon size={20} /> Add Student/es
+      </AwesomeButton>
+      <AwesomeButton type="danger"  disabled={selectedStudents.length === 0} onReleased={() => handleDeleteSelected()}>
+          Delete Selected Accounts
+        </AwesomeButton>
+      </Box>
+    ),
+  });
+  
+  useEffect(() => {
+    const selectedIds = Object.keys(table.getState().rowSelection);
+    setSelectedStudents(selectedIds);
+    console.log(selectedStudents);
+    // eslint-disable-next-line
+  }, [table.getState().rowSelection]);
+  
+
+  useEffect(() => {
+    // console.log(selectedStudents);
+  }, [selectedStudents]);
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   return (
     <div className="my-5 ">
-      <hr />
-      <Button color="info" onClick={toggleAddStudentModal}>
-        Add Student
-      </Button>
-      <Modal isOpen={showAddStudentModal} toggle={toggleAddStudentModal}>
+       <Modal isOpen={showAddStudentModal} toggle={toggleAddStudentModal}>
         <ModalHeader toggle={toggleAddStudentModal}>Add Student/es</ModalHeader>
         <ModalBody>
           <AddStudentForm />
         </ModalBody>
       </Modal>
-      <h1 className="text-center bg-dark text-light w-75 mx-auto border border-white">All Students</h1>
-      <Form>
-        <FormGroup className=''>
-          <h5 className='ms-5'>Select Filter :</h5>
-          <Input
+      <Input
             className='w-50 d-inline-block mx-5 bg-white text-dark'
             type="select"
             id="selectClass"
             value={selectedClass}
             onChange={(e) => setSelectedClass(e.target.value)}
           >
+            <option value="">Select Class</option>
             <option value="Show All Students">Show All Students</option>
             {Object.keys(classCounts).map((className) => (
               <option key={className} value={className}>
@@ -251,70 +386,7 @@ function DisplayAllStudents() {
               </option>
             ))}
           </Input>
-         
-          <div className="d-flex justify-content-center align-items-center my-3">
-            <FormGroup check className="ms-2 bg-white d-inline-block mx-5 border border-dark rounded-3 text-center">
-              <Label check>
-                <Input
-                  type="checkbox"
-                  checked={selectedStudents.length === filteredStudents.length}
-                  onChange={handleSelectAll}
-                />
-                {' '}
-                {selectedStudents.length === filteredStudents.length ? 'Deselect All' : 'Select All'}
-              </Label>
-            </FormGroup>
-            <Button color="danger" onClick={handleDeleteSelected}>
-              Delete Selected
-            </Button>
-          </div>
-        </FormGroup>
-      </Form>
-      <div className="table-responsive">
-        <div className="table-container">
-          <div className="table-responsive">
-            <Table bordered className='text-center w-100 mx-auto'>
-              <thead>
-                <tr>
-                  <th>Roll No</th>
-                  <th>Name</th>
-                  <th>Enrollment No</th>
-                  <th>Class</th>
-                  <th>Actions</th>
-                  <th>Selected Students</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredStudents.map((student) => (
-                  <tr key={student._id}>
-                    <td>{student.rollNo}</td>
-                    <td>{student.name}</td>
-                    <td>{student.enrollmentNo}</td>
-                    <td>{student.class ? student.class.name : 'N/A'}</td>
-                    <td>
-                      <Button color="primary" onClick={() => openUpdateForm(student)} className='mx-2 mb-1'>
-                        Update
-                      </Button>
-                      <Button color="danger" onClick={() => handleDeleteSelected(student._id)}>
-                        Delete
-                      </Button>
-                    </td>
-                    <td>
-                      <Input
-                        type="checkbox"
-                        checked={selectedStudents.includes(student._id)}
-                        onChange={() => handleSelectStudent(student._id)}
-                        style={checkboxStyle}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        </div>
-      </div>
-
+         <MaterialReactTable table={table} />
       <Modal isOpen={modal} toggle={toggleModal}>
         <ModalHeader toggle={toggleModal}>Update Student</ModalHeader>
         <ModalBody>
