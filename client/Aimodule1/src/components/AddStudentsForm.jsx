@@ -1,11 +1,25 @@
 import React, { useState, useRef } from 'react';
-import { Form, Button, Row, Col, Container, } from 'react-bootstrap'; // Import Spinner
+// import { Form,  Row, Col,  } from 'react-bootstrap'; // Import Spinner
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
 import * as XLSX from 'xlsx';
 import MutatingDotsSpinner from './Spinners/MutatingDotsSpinner';
 import { useData } from '../DataContext';
+import { useDarkMode } from '../DarkModeContext';
+
+import {
+  Container,
+  Button,
+  Select,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  TextField,
+  Box,
+  Card,
+} from '@mui/material';
+// import Select from 'react-select';
 
 function AddStudentForm() {
   const [studentData, setStudentData] = useState([
@@ -18,7 +32,9 @@ function AddStudentForm() {
   const [selectedClass, setSelectedClass] = useState('');
   const [classId, setClassId] = useState('');
   const [loading, setLoading] = useState(false); // Add loading state
-  const formRef = useRef(null);
+  // const formRef = useRef(null);
+  const { isDarkMode } = useDarkMode();
+
   // const lastFormFieldRef = useRef(null);
   const { classOptions, fetchStudentData } = useData();
 
@@ -33,28 +49,9 @@ function AddStudentForm() {
     },
   });
 
-  const handleGoToBottom = () => {
-    if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }
-  };
-
-  const handleGoToUP = () => {
-    if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
+  
 
 
-  // useEffect(() => {
-  //   // console.log('Updated studentData:', studentData);
-  // }, [studentData]);
-
-  // useEffect(() => {
-  //   axios.get('/class').then((response) => {
-  //     setClassOptions(response.data);
-  //   });
-  // }, []);
 
   const handleCancelStudent = (index) => {
     const updatedStudentData = [...studentData];
@@ -115,6 +112,7 @@ function AddStudentForm() {
   };
 
   const handleExcelUpload = async (files) => {
+    setLoading(true);
     const file = files[0];
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -138,119 +136,106 @@ function AddStudentForm() {
         console.error('Error processing Excel file', error);
         toast.error('Error processing Excel file');
       }
+      finally {
+        setLoading(false);
+      }
     };
     reader.readAsArrayBuffer(file);
+
   };
 
   return (
     <>
-      <h1 className="text-center my-3 d-block bg-dark text-white w-75 mx-auto border">Add Student/es</h1>
-      <Container className="my-3" ref={formRef}>
-        <Form onSubmit={handleStudentSubmit}>
-          {studentData.length > 10 && (
-            <Row className="mb-3">
-              <Col>
-                <Button variant="secondary" onClick={handleGoToBottom}>
-                  Go to Bottom
-                </Button>
-              </Col>
-            </Row>
-          )}
-          <Row className="mb-3">
-            <Col>
-              <Form.Select
-                value={selectedClass}
-                required
-                onChange={handleClassChange}
-                className="w-50"
+   
+    <Container className="my-3">
+      <form onSubmit={handleStudentSubmit}>
+       
+
+        <Box mb={3}>
+          <FormControl fullWidth>
+            <InputLabel id="class-select-label">Select Class</InputLabel>
+            <Select
+              labelId="class-select-label"
+              value={selectedClass}
+              required
+              onChange={handleClassChange}
+              fullWidth
+            >
+             
+              {classOptions.map((option) => (
+                <MenuItem key={option._id} value={option.name}>
+                  {option.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+        <Card className={`border-0 shadow add-class-card`} style={{ maxHeight: '50vh', overflowY: 'auto',borderRadius: '10px',borderColor:'red' }} >
+        {studentData.map((student, index) => (
+          <Box key={index} mb={1} >
+            <TextField
+            style={{ margin: '10px' }}
+              type="text"
+              placeholder="Enter Name"
+              required
+              value={student.name}
+              onChange={(e) => handleStudentChange(index, 'name', e.target.value)}
+              fullWidth
+            />
+            <TextField
+              type="number"
+              style={{ margin: '10px' }}
+              placeholder="Enrollment No"
+              value={student.enrollmentNo}
+              onChange={(e) => handleStudentChange(index, 'enrollmentNo', e.target.value)}
+              fullWidth
+            />
+            {studentData.length > 1 && (
+              <Button
+                variant="contained"
+                color="warning"
+                style={{ marginInline: '30px' }}
+
+                onClick={() => handleCancelStudent(index)}
+                fullWidth
               >
-                <option value="">Select Class</option>
-                {classOptions.map((option) => (
-                  <option key={option._id} value={option.name}>
-                    {option.name}
-                  </option>
-                ))}
-              </Form.Select>
-            </Col>
-          </Row>
-
-          {studentData.map((student, index) => (
-            <Row key={index} className="mb-3">
-              <Col md={6} className="mb-2">
-                <Form.Control
-                  type="text"
-                  placeholder="Name"
-                  required
-                  value={student['name']}
-                  onChange={(e) => handleStudentChange(index, 'name', e.target.value)}
-                  className="w-75 mx-auto"
-                />
-              </Col>
-
-              <Col md={6} className="mb-2">
-                <Form.Control
-                  type="number"
-                  placeholder="Enrollment No"
-                  value={student['enrollmentNo']}
-                  onChange={(e) => handleStudentChange(index, 'enrollmentNo', e.target.value)}
-                  className="w-75 mx-auto"
-                />
-              </Col>
-              {studentData.length > 1 && (
-                <Col md={3} className="">
-                  <Button
-                    variant="warning"
-                    onClick={() => handleCancelStudent(index)}
-                    className="w-100 mx-auto"
-                  >
-                    Cancel
-                  </Button>
-                </Col>
-              )}
-            </Row>
-          ))}
-
-          <Row className="mb-3">
-            <Col>
-              <Button variant="primary" onClick={handleAddStudent}>
-                Add More Student
+                Cancel
               </Button>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Button variant="success" type="submit" disabled={studentData.length === 0}>
-                Add Students
-              </Button>
-            </Col>
-          </Row>
-          {studentData.length > 10 && (
-            <Row className="mb-3">
-              <Col>
-                <Button variant="secondary" onClick={handleGoToUP}>
-                  Go to Bottom
-                </Button>
-              </Col>
-            </Row>
-          )}
+            )}
+          </Box>
+        ))}
+</Card>
+        <Box mb={3} mt={2}>
+          <Button variant="contained" onClick={handleAddStudent}>
+            Multiple
+          </Button>
+        </Box>
 
-          <Row className="w-100 mx-auto border mt-3  text-center bg-light rounded-3">
-            <Col>
+        <Box mb={3}>
+          <Button
+            variant="contained"
+            color="success"
+            type="submit"
+            disabled={studentData.length === 0}
+            fullWidth
+          >
+            Add Students
+          </Button>
+        </Box>
 
-              <a href="#ok" className=''>
-                <div {...getRootProps()} className={`dropzone ${isDragActive ? 'active' : ''}`}>
-                  <input {...getInputProps()} />
-                  <p>Drag 'n' drop an Excel file here, or click to select one</p>
-                </div>
-              </a>
-            </Col>
-          </Row>
-        </Form>
-      </Container>
-      {loading &&
-        <MutatingDotsSpinner />
-      }
-    </>
+       
+
+        <Box mb={3} border={1} className={`text-center ${isDarkMode ? 'bg-light' : 'bg-dark'} rounded-3`}>
+          <Box {...getRootProps()} className={`dropzone ${isDragActive ? 'active' : ''}`}>
+            <input {...getInputProps()} />
+            <p>Drag 'n' drop an Excel file here, or click to select one</p>
+          </Box>
+        </Box>
+      </form>
+    </Container>
+
+    {loading && <MutatingDotsSpinner />}
+  </>
   );
 }
 

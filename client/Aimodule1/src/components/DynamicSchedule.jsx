@@ -1,8 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  
+  Typography,
+  createTheme,
+  ThemeProvider,
+} from '@mui/material';
 import '../styles/DynamicSchedule.css';
 
+const theme = createTheme({
+  palette: {
+    mode: 'light', // Initial mode, can be 'light' or 'dark'
+  },
+});
 
 function TimeSlotForm({ onTimeSlotCreate }) {
   const [startTime, setStartTime] = useState('');
@@ -10,7 +26,6 @@ function TimeSlotForm({ onTimeSlotCreate }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
 
     // Send a request to create a new time slot
     try {
@@ -27,16 +42,29 @@ function TimeSlotForm({ onTimeSlotCreate }) {
 
   return (
     <form onSubmit={handleSubmit} className="time-slot-form">
-      <label className="time-slot-label">
-        Start Time:
-        <input  className="time-slot-input" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)}
-        required />
-      </label>
-      <label className="time-slot-label">
-        End Time:
-        <input className="time-slot-input" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
-      </label>
-      <button className='time-slot-button' type="submit">Add Time Slot</button>
+      <FormControl fullWidth>
+        {/* <InputLabel htmlFor="start-time">Start Time:</InputLabel> */}
+        <input
+          className="time-slot-input"
+          type="time"
+          value={startTime}
+          onChange={(e) => setStartTime(e.target.value)}
+          required
+        />
+      </FormControl>
+      <FormControl fullWidth>
+        {/* <InputLabel htmlFor="end-time">End Time:</InputLabel> */}
+        <input
+          className="time-slot-input"
+          type="time"
+          value={endTime}
+          onChange={(e) => setEndTime(e.target.value)}
+          required
+        />
+      </FormControl>
+      <Button variant="contained" color="primary" type="submit">
+        Add Time Slot
+      </Button>
     </form>
   );
 }
@@ -79,29 +107,51 @@ function DynamicSchedule() {
   };
 
   return (
-    <div className='schedule'>
-      <h1 className="fw-bold fs-10 text-center h1schedule">
-        Schedule Management
-      </h1>
-      <h3>Select Time To Create</h3>
-    <TimeSlotForm onTimeSlotCreate={handleTimeSlotCreate} />
+    <ThemeProvider theme={theme}>
+      <div className="schedule">
+        <Typography variant="h4" align="center" gutterBottom>
+          Schedule Management
+        </Typography>
 
-    <h3>Select Time-slot To Delete</h3>
-    <select className='time-slot-select'
-      value={selectedTimeSlot}
-      onChange={(e) => setSelectedTimeSlot(e.target.value)}
-    >
-      <option value="timeSlotDefault">Select Time Slot</option>
-      {timeSlots.map((timeSlot) => (
-        <option key={timeSlot._id} value={timeSlot._id}>
-          {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
-        </option>
-      ))}
-    </select>
+        <Typography variant="h6" gutterBottom>
+          Select Time To Create
+        </Typography>
 
-    <button className='time-slot-button1'  onClick={handleTimeSlotDelete}>Delete Selected Slot</button>
-    </div >
-);
+        <TimeSlotForm onTimeSlotCreate={handleTimeSlotCreate} />
+
+        <Typography variant="h6" gutterBottom>
+          Select Time-slot To Delete
+        </Typography>
+
+        <FormControl fullWidth>
+          <InputLabel htmlFor="time-slot-select" style={{ color: `${theme.palette.mode === 'light' ? 'black' : 'white'}`, background: `${theme.palette.mode === 'light' ? 'white' : 'black'}` }}>Select Time Slot</InputLabel>
+          <Select
+            id="time-slot-select"
+            value={selectedTimeSlot}
+            style={{ color: `${theme.palette.mode === 'light' ? 'black' : 'white'}`, background: `${theme.palette.mode === 'light' ? 'white' : 'black'}` }}
+
+            onChange={(e) => setSelectedTimeSlot(e.target.value)}
+          >
+            <MenuItem value="timeSlotDefault">Select Time Slot</MenuItem>
+            {timeSlots.map((timeSlot) => (
+              <MenuItem key={timeSlot._id} value={timeSlot._id}>
+                {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleTimeSlotDelete}
+          disabled={selectedTimeSlot === 'timeSlotDefault'}
+        >
+          Delete Selected Slot
+        </Button>
+      </div>
+    </ThemeProvider>
+  );
 }
 
 export default DynamicSchedule;

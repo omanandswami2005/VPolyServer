@@ -205,7 +205,7 @@ const DisplayClasses = () => {
 
   const modalContent = (
     <React.Fragment>
-      <ModalHeader toggle={closeUpdateForm} style={{ background: !isDarkMode ? '#333' : '#f8f9fa', color: !isDarkMode ? '#000' : '#fff' }}>
+      <ModalHeader toggle={closeUpdateForm} style={{ background: !isDarkMode ? '#333' : '#f8f9fa', color: !isDarkMode ? '#fff' : '#000' }}>
         Update Class
       </ModalHeader>
       <ModalBody style={{ background: !isDarkMode ? '#333' : '#fff', color: !isDarkMode ? '#fff' : '#000' }}>
@@ -265,6 +265,7 @@ const DisplayClasses = () => {
         <h4 className={`text-center w-50 mx-auto border border-white`}>
           List Of All Classes
         </h4>
+        
         <div style={{ maxHeight: '80vh', overflow: 'auto', maxWidth: '95vw' }} className="w-100 border border-dark rounded ">
           <MaterialReactTable table={table} />
         </div>

@@ -1,5 +1,5 @@
 import React, { useState ,useEffect} from 'react';
-import { Button,  Form, FormGroup, Label, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import {   Form, FormGroup, Label,  Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import '../styles/DisplayAllStudents.css';
 
 import axios from 'axios';
@@ -17,13 +17,23 @@ import {
   useMaterialReactTable,
 } from 'material-react-table';
 import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  FormControl,
+  InputLabel,
+  Input,
+  Select,
+  MenuItem,
+  useTheme,
   Box,
-  Typography,
-  Table,
   ThemeProvider,
   createTheme,
   
 } from '@mui/material';
+
 import AddStudentForm from './AddStudentsForm';
 import { useData } from '../DataContext';
 import { useDarkMode } from '../DarkModeContext';
@@ -32,6 +42,7 @@ import { useDarkMode } from '../DarkModeContext';
 function DisplayAllStudents() {
   
   const { isDarkMode } = useDarkMode();
+  const theme = useTheme();
 
   const [selectedClass, setSelectedClass] = useState('Select Class');
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
@@ -47,6 +58,21 @@ function DisplayAllStudents() {
     selectedClassId: '',
   });
   const [modal, setModal] = useState(false);
+   // Define a dark theme
+   const darkTheme = createTheme({
+    palette: {
+      mode: 'dark',
+     
+    },
+  });
+
+
+  // Define a light theme
+  const lightTheme = createTheme({
+    palette: {
+      mode: 'light',
+    },
+  });
   // const [filteredStudents, setFilteredStudents] = useState([]);
 
 // useEffect(() => {
@@ -58,28 +84,28 @@ function DisplayAllStudents() {
     setShowAddStudentModal(!showAddStudentModal);
   };
 
-  const handleSelectAll = () => {
-    const allStudents = filteredStudents.map((student) => student._id);
+  // const handleSelectAll = () => {
+  //   const allStudents = filteredStudents.map((student) => student._id);
 
-    if (selectedStudents.length === allStudents.length) {
-      // All students are already selected, so deselect all
-      setSelectedStudents([]);
-    } else {
-      // Not all students are selected, so select all
-      setSelectedStudents(allStudents);
-    }
-  };
+  //   if (selectedStudents.length === allStudents.length) {
+  //     // All students are already selected, so deselect all
+  //     setSelectedStudents([]);
+  //   } else {
+  //     // Not all students are selected, so select all
+  //     setSelectedStudents(allStudents);
+  //   }
+  // };
 
 
-  const handleSelectStudent = (studentId) => {
-    if (selectedStudents.includes(studentId)) {
-      // If already selected, remove from the list
-      setSelectedStudents((prevSelected) => prevSelected.filter((id) => id !== studentId));
-    } else {
-      // If not selected, add to the list
-      setSelectedStudents((prevSelected) => [...prevSelected, studentId]);
-    }
-  };
+  // const handleSelectStudent = (studentId) => {
+  //   if (selectedStudents.includes(studentId)) {
+  //     // If already selected, remove from the list
+  //     setSelectedStudents((prevSelected) => prevSelected.filter((id) => id !== studentId));
+  //   } else {
+  //     // If not selected, add to the list
+  //     setSelectedStudents((prevSelected) => [...prevSelected, studentId]);
+  //   }
+  // };
   const handleDisSelectAllStudent = () => {
     const allStudents = filteredStudents.map((student) => student._id);
 
@@ -107,20 +133,21 @@ function DisplayAllStudents() {
           return;
         }
       } else {
-        const selectedCount = selectedStudents.length;
+        let selectedCount = selectedStudents.length;
         if (selectedCount === 0) {
           toast.error('No students selected');
         } else {
-          const confirmDelete = window.confirm(`Are you sure you want to delete ${selectedCount} student(s)? (This Action CANNOT be undone! and Also All The Attendance data will be DELETED For All Time of Selected Students!)`);
+          const confirmDelete = window.confirm(`Are you sure you want to delete selected student(s)? (This Action CANNOT be undone! and Also All The Attendance data will be DELETED For All Time of Selected Students!)`);
           if (confirmDelete) {
             setLoading(true); // Set loading to true during deletion
 
 
             try {
               await axios.post('/student/deleteAllStudents', { selectedStudents });
-              console.log('Students deleted successfully');
+              // console.log('Students deleted successfully');
                setSelectedStudents([]);
-               console.log(selectedStudents);
+               
+              //  console.log(selectedStudents);
               toast.success('Deleted Successfully');
               fetchStudentData();
               setLoading(false);
@@ -128,6 +155,11 @@ function DisplayAllStudents() {
             } catch (error) {
               console.error('Error deleting students', error);
               // Handle the error, display a message, or perform other actions as needed
+            }
+            finally{
+              selectedCount=0;
+              setSelectedStudents([]);
+
             }
 
           }
@@ -169,7 +201,7 @@ function DisplayAllStudents() {
 
     return classCounts;
   };
-  console.log(classOptions)
+  // console.log(classOptions)
   // console.trace()
 
   const classCounts = countStudentsInClasses();
@@ -293,6 +325,7 @@ function DisplayAllStudents() {
               <EditIcon />
             </Tooltip>
           </AwesomeButton>
+
           <AwesomeButton type="secondary" className='ms-2' onReleased={() => handleDeleteSelected(row.original._id || '')}>
             <Tooltip title="Delete Class" placement="top">
               <DeleteIcon />
@@ -318,20 +351,43 @@ function DisplayAllStudents() {
     enableColumnResizing: true,
     enableRowVirtualization: true,
     enableColumnVirtualization: true,
-    rowVirtualizerOptions: { overscan: 5 },
+    // rowVirtualizerOptions: { overscan: 5 },
     muiTableContainerProps: { sx: { maxHeight: '50vh', maxWidth: '100vw' } },
     enableRowSelection: true,
     getRowId: (originalRow) => originalRow._id || '',
 
     renderTopToolbarCustomActions: () => (
-      <Box sx={{ display: 'flex', gap: '1rem', p: '4px' }}>
+      <Box sx={{ display: 'flex', gap: '.5rem', p: '4px',flexWrap: 'wrap' }}>
 
       <AwesomeButton type="danger" onReleased={toggleAddStudentModal}>
         <PlusIcon size={20} /> Add Student/es
       </AwesomeButton>
       <AwesomeButton type="danger"  disabled={selectedStudents.length === 0} onReleased={() => handleDeleteSelected()}>
-          Delete Selected Accounts
+          Delete Selected
         </AwesomeButton>
+        <Box >
+          <FormControl style={{ width: '100%', }}>
+           
+            <Select
+              labelId="class-select-label"
+              value={selectedClass}
+              required
+              onChange={(e) => setSelectedClass(e.target.value)}
+              fullWidth
+              renderValue={(value) => (value === '' ? 'Select Class' : value)}
+
+            >
+              <MenuItem value="Show All Students">Show All Students</MenuItem>
+              {classOptions.map((option) => (
+    classCounts[option.name] > 0 && (
+      <MenuItem key={option._id} value={option.name}>
+        {option.name} {classCounts[option.name] ? `(${classCounts[option.name]})` : ''}
+      </MenuItem>
+    )
+  ))}
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
     ),
   });
@@ -339,17 +395,76 @@ function DisplayAllStudents() {
   useEffect(() => {
     const selectedIds = Object.keys(table.getState().rowSelection);
     setSelectedStudents(selectedIds);
-    console.log(selectedStudents);
+    // console.log(selectedIds);
     // eslint-disable-next-line
   }, [table.getState().rowSelection]);
   
-
-  useEffect(() => {
-    // console.log(selectedStudents);
-  }, [selectedStudents]);
   
 
+const modalContent =(
+      <Dialog  onClose={toggleModal} open={modal}  >
+        <DialogTitle style={{ background: !isDarkMode ? '#333' : '#f8f9fa', color: !isDarkMode ? '#fff' : '#000' }}>
+          Update Student
+        </DialogTitle>
+        <DialogContent style={{ background: !isDarkMode ? '#333' : '#f8f9fa', color: !isDarkMode ? '#fff' : '#000' ,height: '300px',paddingTop: '20px'}}>
+          {/* Update form fields */}
+          <FormControl fullWidth  style={{marginBottom: '40px'}}
+>
+            <InputLabel htmlFor="updateName">Name :</InputLabel>
+            <Input
+              type="text"
+              id="updateName"
+              placeholder="Name"
+              value={updateStudentData.name}
+              onChange={(e) => setUpdateStudentData({ ...updateStudentData, name: e.target.value })}
+            />
+          </FormControl>
 
+          <FormControl fullWidth style={{marginBottom: '40px'}}
+>
+            <InputLabel htmlFor="updateEnrollmentNo">Enrollment No :</InputLabel>
+            <Input
+              type="text"
+              id="updateEnrollmentNo"
+              placeholder="Enrollment No"
+              value={updateStudentData.enrollmentNo}
+              onChange={(e) =>
+                setUpdateStudentData({ ...updateStudentData, enrollmentNo: e.target.value })
+              }
+            />
+          </FormControl>
+
+          <FormControl fullWidth style={{marginBottom: '5px'}}>
+            <InputLabel htmlFor="updateClass">Select Class</InputLabel>
+            <Select
+              id="updateClass"
+              value={updateStudentData.selectedClassId}
+              onChange={(e) =>
+                setUpdateStudentData({ ...updateStudentData, selectedClassId: e.target.value })
+              }
+              // renderValue={(value) => (value === '' ? 'Select Class' : value)}
+            >
+              {/* <MenuItem value="">Select Class</MenuItem> */}
+              {classOptions &&
+                classOptions.map((option) => (
+                  <MenuItem key={option._id} value={option._id}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <AwesomeButton type='primary' onReleased={() => { handleUpdate(updateStudentData._id); toggleModal(); }}>
+            Save
+          </AwesomeButton>
+          <AwesomeButton type='secondary' onReleased={toggleModal}>
+            Cancel
+          </AwesomeButton>
+        </DialogActions>
+      </Dialog>
+    
+)
 
 
 
@@ -364,19 +479,26 @@ function DisplayAllStudents() {
 
 
   return (
+    <ThemeProvider theme={isDarkMode ? lightTheme : darkTheme}>
     <div className="my-5 ">
+
+
        <Modal isOpen={showAddStudentModal} toggle={toggleAddStudentModal}>
-        <ModalHeader toggle={toggleAddStudentModal}>Add Student/es</ModalHeader>
-        <ModalBody>
+
+        <ModalHeader toggle={toggleAddStudentModal} style={{ background: !isDarkMode ? '#333' : '#f8f9fa', color: !isDarkMode ? '#fff' : '#000' }}>Add Student/es
+        </ModalHeader>
+
+        <ModalBody style={{ background: !isDarkMode ? '#333' : '#fff', color: !isDarkMode ? '#fff' : '#000' }}>
           <AddStudentForm />
         </ModalBody>
       </Modal>
-      <Input
+
+
+      {/* <Input
             className='w-50 d-inline-block mx-5 bg-white text-dark'
             type="select"
             id="selectClass"
-            value={selectedClass}
-            onChange={(e) => setSelectedClass(e.target.value)}
+            
           >
             <option value="">Select Class</option>
             <option value="Show All Students">Show All Students</option>
@@ -385,70 +507,25 @@ function DisplayAllStudents() {
                 {className} ({classCounts[className]})
               </option>
             ))}
-          </Input>
-         <MaterialReactTable table={table} />
-      <Modal isOpen={modal} toggle={toggleModal}>
-        <ModalHeader toggle={toggleModal}>Update Student</ModalHeader>
-        <ModalBody>
-          <Form>
-            {/* Update form fields */}
-            <FormGroup>
-              <Label for="updateName">Name</Label>
-              <Input
-                type="text"
-                id="updateName"
-                placeholder="Name"
-                value={updateStudentData.name}
-                onChange={(e) => setUpdateStudentData({ ...updateStudentData, name: e.target.value })}
-              />
-            </FormGroup>
-           
-            <FormGroup>
-              <Label for="updateEnrollmentNo">Enrollment No</Label>
-              <Input
-                type="text"
-                id="updateEnrollmentNo"
-                placeholder="Enrollment No"
-                value={updateStudentData.enrollmentNo}
-                onChange={(e) =>
-                  setUpdateStudentData({ ...updateStudentData, enrollmentNo: e.target.value })
-                }
-              />
-            </FormGroup>
-            <FormGroup>
-              <Label for="updateClass">Select Class</Label>
-              <Input
-                type="select"
-                id="updateClass"
-                value={updateStudentData.selectedClassId}
-                onChange={(e) =>
-                  setUpdateStudentData({ ...updateStudentData, selectedClassId: e.target.value })
-                }
-              >
-               
-                <option value="">Select Class</option>
-                {classOptions && classOptions.map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.name}
-                  </option>
-                ))}
-              </Input>
-            </FormGroup>
-          </Form>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="primary" onClick={() => { handleUpdate(updateStudentData._id); toggleModal(); }}>
-            Save
-          </Button>
-          <Button color="danger" onClick={() => { toggleModal(); }}>
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
+          </Input> */}
+
+          
+
+
+<div style={{ maxHeight: '80vh', maxWidth: '99vw' }} className="w-100 border border-dark rounded ">
+          <MaterialReactTable table={table} />
+        </div>
+
+<Modal isOpen={modal} toggle={toggleModal}>
+       {modalContent}
+</Modal>
+
 
       {loading && <MutatingDotsSpinner />}
 
     </div>
+    </ThemeProvider>
+
   );
 }
 

@@ -11,27 +11,11 @@ const studentController = {
     const { studentData, classId } = req.body;
 
     try {
-      // Fetch existing students in the class
-      // const existingStudents = await Student.find({ class: classId }).sort('enrollmentNo').exec();
-
-      //sort studentData by enrollmentNo
-      // studentData.sort((a, b) => a.enrollmentNo - b.enrollmentNo);
-
-      // Find the index where the new student should be inserted based on enrollmentNo
-      // let insertIndex = existingStudents.findIndex(student => student.enrollmentNo > studentData[0].enrollmentNo);
-      // console.log(insertIndex);
-
-      // // so we insert at the beginning; otherwise, insertIndex is the correct position.
-      // if (insertIndex === -1 && existingStudents.length > 0) {
-      //   insertIndex = existingStudents.length;
-
-      // }
-      // else if (insertIndex === -1 && existingStudents.length === 0) {
-      //   insertIndex = 0;
-      // }
-
-      // const startIndex = insertIndex === -1 ? 0 : insertIndex;
-      // console.log(startIndex);
+    //    // Check for duplicate enrollment numbers before inserting
+    // const duplicateEnrollments = await Student.find({ enrollmentNo: { $in: studentData.map(student => student.enrollmentNo) } });
+    // if (duplicateEnrollments.length > 0) {
+    //   return res.status(400).json({ message: 'Duplicate enrollment numbers detected' });
+    // }
 
       // Calculate rollNo for new students based on enrollmentNo
       const newStudents = studentData.map((student, index) => ({
@@ -127,7 +111,7 @@ const studentController = {
         throw new Error('Student not found');
       }
 
-      const currentClassId = student.class._id;
+      const currentClassId = student.class._id ? student.class._id : null;
       console.log(currentClassId);
 
       // If currentClassId is not null, update the Class model to remove the student reference from the current class
@@ -217,7 +201,7 @@ const studentController = {
     const { selectedStudents } = req.body;
     try {
       // Fetch the first selected student to get the associated class ID before deletion
-      const firstStudent = await Student.findById(selectedStudents[0]).populate('class');
+      const firstStudent = await Student.findById(selectedStudents[selectedStudents.length - 1]).populate('class');
 
       if (!firstStudent) {
         return res.status(404).json({ message: 'Student not found' });
