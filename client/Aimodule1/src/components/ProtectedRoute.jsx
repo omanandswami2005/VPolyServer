@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 import DNASpinner from './Spinners/DNASpinner';
 
-const ProtectedRoute = ({ component: Component, path, props }) => {
+const ProtectedRoute = ({ component: Component,  props }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [data, setData] = useState(null);
 

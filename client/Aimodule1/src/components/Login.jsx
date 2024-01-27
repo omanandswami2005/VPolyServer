@@ -61,16 +61,17 @@ function Login() {
       }
     } catch (error) {
       console.error('Error:', error);
+      toast.error('Something went wrong :( ');
     }
   };
 
   return (
     
-    <div className={isDarkMode ? 'boder-dark login' : 'border-light login h-100'}>
+    <div className='log' >
       <h2>Faculty Login</h2>
-      <Form onSubmit={handleSubmit} >
+      <Form onSubmit={handleSubmit} className={isDarkMode ? 'boder-dark login' : 'border-light login'} >
         <FormGroup>
-          <Label for="facultyId">Faculty ID</Label>
+          <Label for="facultyId">Faculty ID :</Label>
           <Input
             type="text"
             id="facultyId"
@@ -81,7 +82,7 @@ function Login() {
           />
         </FormGroup>
         <FormGroup>
-          <Label for="password">Password</Label>
+          <Label for="password">Password :</Label>
           <Input
             type="password"
             id="password"

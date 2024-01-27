@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 const Class = mongoose.model('Class');
 const Faculty = require('../models/Faculty');
+const Student = require('../models/Student');
 
 const classController = {
 
@@ -15,8 +16,6 @@ const classController = {
           res.status(500).json({ error: 'Error fetching classes' });
         }
       }
-
-
       ,
 
       addClass: async (req, res) => {
@@ -56,7 +55,7 @@ const classController = {
         const { assignedFaculty } = req.body;
       
         try {
-          const updatedClass = await Class.findByIdAndUpdate(id, { name }, { new: true });
+          const updatedClass = await Class.findByIdAndUpdate(id, { name });
 
       
           if (!updatedClass) {
@@ -70,12 +69,14 @@ const classController = {
             { $pull: { assignedClasses: name } }
           );
           
+
       
           // Update faculty members with the updated class in their assignedClasses array
           await Faculty.updateMany(
             { assignedClasses: updatedClass.name },
             { $set: { 'assignedClasses.$': name } }
           );
+
           await Faculty.updateMany(
             { name: { $in: assignedFaculty } },
             { $addToSet: { assignedClasses: name } }
@@ -104,7 +105,12 @@ const classController = {
             await Faculty.updateMany(
               { assignedClasses: deletedClass.name },
               { $pull: { assignedClasses: deletedClass.name } }
-            );
+            ); 
+
+            // const studentsToDelete = await Student.find({ class: deletedClass._id });
+             
+            await Student.deleteMany({ class: deletedClass._id });
+
       
             return res.json({ message: `Class with ID ${classId} deleted successfully.` });
           } else {

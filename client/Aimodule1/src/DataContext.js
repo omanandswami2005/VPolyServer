@@ -1,5 +1,4 @@
-// DataContext.js
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import axios from 'axios';
 
 const DataContext = createContext();
@@ -9,62 +8,63 @@ export const DataProvider = ({ children }) => {
   const [faculties, setFaculties] = useState([]);
   const [students, setStudents] = useState([]);
 
-
-  useEffect(() => {
-    fetchAll();
-    fetchStudentData();
-  }, []);
-
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     try {
-      // Fetch classes
-      const classResponse = await axios.get('/class');
-      setClassOptions(classResponse.data);
+      const [classResponse, facultyResponse] = await Promise.all([
+        axios.get('/class'),
+        axios.get('/faculty'),
+      ]);
 
-      // Fetch faculties
-      const facultyResponse = await axios.get('/faculty');
+      setClassOptions(classResponse.data);
       setFaculties(facultyResponse.data);
     } catch (error) {
       console.error('Error fetching data', error);
     }
-  };
+  }, []);
 
-
-  const fetchClassOptions = async () => {
-    try {
-      const response = await axios.get('/class');
-      setClassOptions(response.data);
-    } catch (error) {
-      console.error('Error fetching class options:', error);
-    }
-  }
-
-  const fetchStudentData = async () => {
+  const fetchStudentData = useCallback(async () => {
     try {
       const response = await axios.get('/student');
       setStudents(response.data);
     } catch (error) {
       console.error('Error fetching student data:', error);
     }
-  };
+  }, []); // Empty dependency array since there are no dependencies
 
-  
+  // const fetchClassOptions = useCallback(async () => {
+  //   try {
+  //     const response = await axios.get('/class');
+  //     setClassOptions(response.data);
+  //   } catch (error) {
+  //     console.error('Error fetching class options:', error);
+  //   }
+  // },[]);
 
-  const state = {
-    classOptions,
-    faculties,
-    students,
-  };
+  useEffect(() => {
+    fetchAll();
+    fetchStudentData();
+  }, [fetchAll, fetchStudentData]);
 
-  const actions = {
-    fetchAll,
-    fetchClassOptions,
-    fetchStudentData,
-  };
-  console.log(classOptions)
+  const memoizedState = useMemo(
+    () => ({
+      classOptions,
+      faculties,
+      students,
+    }),
+    [classOptions, faculties, students]
+  );
+
+  const actions = useMemo(
+    () => ({
+      fetchAll,
+      
+      fetchStudentData,
+    }),
+    [fetchAll, fetchStudentData]
+  );
 
   return (
-    <DataContext.Provider value={{ ...state, ...actions }}>
+    <DataContext.Provider value={{ ...memoizedState, ...actions }}>
       {children}
     </DataContext.Provider>
   );

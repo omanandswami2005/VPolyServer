@@ -1,0 +1,67 @@
+
+
+
+@media (max-width: 844px) { 
+
+    .navButtons{
+display: none;
+    }
+    .logoutBtn{
+        display: none;
+    }
+   
+    .logo1{
+        width: 100px;
+        height: auto;
+        border-radius: 5%;
+        margin-right: 9px;
+     }
+ }
+
+
+@media (min-width: 846px) { 
+
+    .navButtons{
+display: block;
+/* font-size: 10px; */
+    }
+    .logoutBtn{
+        display: block;
+    }
+    .menuIcon{
+       display: none;
+    }
+    .logo1{
+        width: 115px;
+        height: auto;
+        border-radius: 5%;
+        margin-right: 15px;
+     }
+    
+ }
+
+
+ 
+  
+
+ /* Add this media query for tablet-sized screens */
+@media (min-width: 600px) and (max-width: 1024px) {
+    .navButtons {
+      display: flex;
+      overflow-x: auto; /* Make the container horizontally scrollable */
+      white-space: nowrap;
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+    .logoutBtn{
+        display: block;
+    }
+    .logo1 {
+      width: 120px; 
+    }
+    .logoVapm{
+        height: auto;
+        width: 60px;
+    }
+  }
+  

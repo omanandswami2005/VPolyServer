@@ -1,14 +1,21 @@
 .login{
     width: 40vw;
-    /* height: 99vh; */
-    /* border: 2px solid rgb(0, 0, 0); */
+    
     
 border-style: double;
     padding: 3px;
-    margin: 5rem 0;
+    font-size: larger;
+    margin: 1rem 0;
     padding: 2rem;
+}
+.log{
+    margin-top: 50px;
+}
 
-
+h2{
+    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
+    font-style: italic;
 }
 
 

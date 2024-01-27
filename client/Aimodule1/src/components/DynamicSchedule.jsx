@@ -4,72 +4,37 @@ import toast from 'react-hot-toast';
 import {
   Button,
   FormControl,
-  InputLabel,
+  
   MenuItem,
   Select,
-  
   Typography,
   createTheme,
   ThemeProvider,
+  TextField,
 } from '@mui/material';
-import '../styles/DynamicSchedule.css';
+import { useDarkMode } from '../DarkModeContext';
+
+import { TimePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
+
 
 const theme = createTheme({
   palette: {
     mode: 'light', // Initial mode, can be 'light' or 'dark'
   },
 });
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
 
-function TimeSlotForm({ onTimeSlotCreate }) {
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  },
+});
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+function DynamicSchedule({ onTimeSlotCreate }) {
+  const { isDarkMode } = useDarkMode();
 
-    // Send a request to create a new time slot
-    try {
-      const response = await axios.post('/timeSlot/create-time-slot', { startTime, endTime });
-      onTimeSlotCreate(response.data.newTimeSlot);
-      // Optionally, clear the form fields
-      setStartTime('');
-      setEndTime('');
-      toast.success('Time slot created successfully!');
-    } catch (error) {
-      console.error('Error creating time slot:', error);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="time-slot-form">
-      <FormControl fullWidth>
-        {/* <InputLabel htmlFor="start-time">Start Time:</InputLabel> */}
-        <input
-          className="time-slot-input"
-          type="time"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-          required
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        {/* <InputLabel htmlFor="end-time">End Time:</InputLabel> */}
-        <input
-          className="time-slot-input"
-          type="time"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-          required
-        />
-      </FormControl>
-      <Button variant="contained" color="primary" type="submit">
-        Add Time Slot
-      </Button>
-    </form>
-  );
-}
-
-function DynamicSchedule() {
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('timeSlotDefault');
 
@@ -79,60 +44,134 @@ function DynamicSchedule() {
       setTimeSlots(response.data.timeSlots);
     });
   }, []);
-
-  const handleTimeSlotCreate = (newTimeSlot) => {
-    // Update the list of time slots
-    setTimeSlots((prevTimeSlots) => [...prevTimeSlots, newTimeSlot]);
-  };
+ 
 
   const handleTimeSlotDelete = async () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(500);
+    }
     if (selectedTimeSlot === 'timeSlotDefault') {
-      alert('Please select a time slot to delete.');
+      toast.error('Please select a time slot to delete.');
       return;
     }
-
+    let confirmationCount = 0;
+while (confirmationCount < 4) {
+  const confirm = window.confirm('Are you sure you want to delete this time slot? This action cannot be undone and will permanently delete the selected time slot with all associated attendance data.');
+  if (confirm) {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(100);
+    }
+    confirmationCount++;
+  } else {
+    // break;
+    return;
+  }
+}
     // Make a DELETE request to delete the selected time slot
     try {
-      const confirm = window.confirm('Are you sure you want to delete this time slot?');
-      if (!confirm) return;
+
+      
       await axios.delete(`/timeSlot/deleteTimeSlot/${selectedTimeSlot}`);
       // Update the list of time slots by removing the deleted time slot
       setTimeSlots((prevTimeSlots) => prevTimeSlots.filter((slot) => slot._id !== selectedTimeSlot));
       // Clear the selected time slot
-      setSelectedTimeSlot('');
+      setSelectedTimeSlot('timeSlotDefault');
       toast.success('Time slot deleted successfully!');
     } catch (error) {
       console.error('Error deleting time slot:', error);
+      toast.error('An error occurred while deleting the time slot.');
     }
   };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    // Validate the time inputs
+    if (!startTime || !endTime) {
+      toast.error('Please select both start and end times.');
+      return;
+    }
+  
+    // Validate if the end time is after the start time
+    if (dayjs(endTime).isBefore(startTime)) {
+      toast.error('End time must be after start time.');
+      return;
+    }
+  
+    // Send a request to create a new time slot
+    try {
+      const response = await axios.post('/timeSlot/create-time-slot', {
+        startTime: dayjs(startTime).format('HH:mm'),
+        endTime: dayjs(endTime).format('HH:mm'),
+      });
+      onTimeSlotCreate(response.data.newTimeSlot);
+      // Optionally, clear the form fields
+      setStartTime(null);
+      setEndTime(null);
+      toast.success('Time slot created successfully!');
+    } catch (error) {
+      console.error('Error creating time slot:', error);
+      toast.error('An error occurred while creating the time slot.');
+    }
+  };
+  
 
   return (
-    <ThemeProvider theme={theme}>
-      <div className="schedule">
-        <Typography variant="h4" align="center" gutterBottom>
-          Schedule Management
+    <ThemeProvider theme={!isDarkMode ? darkTheme : theme } >
+       <Typography variant="h5" align="center" className='mt-5 w-75 mx-auto' style={{ backgroundColor: isDarkMode ? '#f8f9fa' : '#333', border: isDarkMode ? '1px solid #000' : '1px solid #fff' }} gutterBottom>
+        Schedule Management
+      </Typography>
+
+<div className='border border-primary border-3 d-flex flex-column justify-content-center align-items-center p-4  mainSchedule mx-3'>
+
+    <form onSubmit={handleSubmit} className="items-center ">
+      <FormControl fullWidth>
+
+        <Typography variant="h6" >    
+              Select Time To Create:  
         </Typography>
+  
+        <TimePicker
+        className='mb-3'
+        ampm={false}
+        value={startTime}
+        onChange={(value) => setStartTime(value)}
+        label="Start Time"
+        renderInput={(props) => <TextField {...props} fullWidth />}
+        required
+        style={{ marginBottom: '15px' }}
+      />
+      </FormControl>
+      <FormControl fullWidth>
+      
+         <TimePicker
+         className='mb-3'
+        ampm={false}
+        value={endTime}
+        onChange={(value) => setEndTime(value)}
+        label="End Time"
+        renderInput={(props) => <TextField {...props} fullWidth />}
+        required
+        style={{ marginBottom: '15px' }}
+      />
 
-        <Typography variant="h6" gutterBottom>
-          Select Time To Create
-        </Typography>
-
-        <TimeSlotForm onTimeSlotCreate={handleTimeSlotCreate} />
-
-        <Typography variant="h6" gutterBottom>
+      </FormControl>
+      <Button variant="contained" color="primary" type="submit" className='w-100'>
+        Add Time Slot
+      </Button>
+    </form>
+    <hr />
+    <Typography variant="h6" gutterBottom className='text-danger text-center'>
           Select Time-slot To Delete
         </Typography>
 
         <FormControl fullWidth>
-          <InputLabel htmlFor="time-slot-select" style={{ color: `${theme.palette.mode === 'light' ? 'black' : 'white'}`, background: `${theme.palette.mode === 'light' ? 'white' : 'black'}` }}>Select Time Slot</InputLabel>
+        
           <Select
-            id="time-slot-select"
+           
             value={selectedTimeSlot}
-            style={{ color: `${theme.palette.mode === 'light' ? 'black' : 'white'}`, background: `${theme.palette.mode === 'light' ? 'white' : 'black'}` }}
-
             onChange={(e) => setSelectedTimeSlot(e.target.value)}
           >
-            <MenuItem value="timeSlotDefault">Select Time Slot</MenuItem>
+            <MenuItem value="timeSlotDefault">Select Time Slot To Delete</MenuItem>
             {timeSlots.map((timeSlot) => (
               <MenuItem key={timeSlot._id} value={timeSlot._id}>
                 {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
@@ -146,12 +185,17 @@ function DynamicSchedule() {
           color="secondary"
           onClick={handleTimeSlotDelete}
           disabled={selectedTimeSlot === 'timeSlotDefault'}
+          className='mt-3'
         >
           Delete Selected Slot
         </Button>
-      </div>
+        </div>
     </ThemeProvider>
+
   );
 }
 
+
 export default DynamicSchedule;
+
+

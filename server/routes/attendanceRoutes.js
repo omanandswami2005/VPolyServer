@@ -11,8 +11,6 @@ router.get('/:studentEnrollmentNo', attendanceControllers.getAttendanceByStudent
 router.get('/', attendanceControllers.getAllAttendance);
 
  router.post('/manualattendance', attendanceControllers.getAllStudentForMalualAttendance);
-  
-  // router.post('/manualAttendanceForToday',authenticateJWT,attendanceControllers.getAllStudentForMalualAttendaceToday );
 
   router.put('/update/:id', authenticateJWT,attendanceControllers.updateAttendance );
   

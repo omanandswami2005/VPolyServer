@@ -1,93 +1,82 @@
-h1{
+h1 {
     font-style: italic;
     font-family: 'Times New Roman', Times, serif;
-    /* font-size: 10px; */
 }
 
-.hi{
-    font-family: 'Algerian', cursive, sans-serif;
-}
-
-/* .card{
-    min-width: 1vw;
-} */
-.dashcard{
-     margin: 1rem 0;
-     min-height: auto;
-     min-width:30vw;
-     /* height: 100vh; */
-     /* max-width: 90vw; */
-     width: 30vw;
-    box-shadow:2px 5px 10px rgb(0, 0, 0);
-}
-.cardgroup{
-    border:5px double rgb(0, 0, 0);
-   min-width: 50vw;
-        display: flex;
-        flex-direction:row;
-        justify-content: space-evenly; /* Center horizontally */
-        margin: 1rem;
-        flex-wrap: wrap;
-        align-items: center; 
-        margin-top: 20px;
+.hi {
+    font-family: 'Algerian', 'Times New Roman', Times, serif, sans-serif;
 }
 
 
-/* .div{
-    width: auto;
-    height: auto;
-    
-} */
+.dashcard {
+    margin: 1rem 0;
+    min-height: auto;
+    min-width: 30vw;
+    width: 30vw;
+    box-shadow: 2px 5px 10px rgb(179, 89, 89);
+}
 
-.logout{
+.cardgroup {
+    border: 5px double rgb(221, 62, 62);
+    min-width: 50vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    /* Center horizontally */
+    margin: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 20px;
+}
+
+
+
+.logout {
     text-align: center;
 }
 
 
 @media screen and (max-width: 900px) {
-    
-    .dashcard{
-         
-         min-width:40vw;
-         width: 50vw;
-              /* height: 105vh; */
 
-        
-  
+    .dashcard {
+
+        min-width: 40vw;
+        width: 50vw;
     }
-     
- }
-    
+
+}
+
 
 
 @media screen and (max-width: 600px) {
-   
-    .dashcard{
-         
-         min-width:40vw;
-         width: 70vw;
-  
+
+    .dashcard {
+
+        min-width: 40vw;
+        width: 70vw;
+
     }
-    .div{
+
+    .div {
         width: auto;
     }
-     
- }
+
+}
+
 @media screen and (max-width: 400px) {
-    .cardgroup{
+    .cardgroup {
         justify-content: center;
         margin: 0 .5rem;
     }
-    .dashcard{
-        
-        min-width:50vw;
+
+    .dashcard {
+
+        min-width: 50vw;
         width: 85vw;
- 
-   }
-   .div{
-    width:85vw;
-}
-}
 
+    }
 
-    
+    .div {
+        width: 85vw;
+    }
+}

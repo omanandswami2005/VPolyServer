@@ -5,19 +5,11 @@ import Image from "react-bootstrap/Image";
 import 'bootstrap/dist/css/bootstrap.css';
 import i from '../images/Vpolyserver.png';
 import '../styles/imageStyle.css';
-import '../styles/Home.css';
 import { useDarkMode } from '../DarkModeContext';
 
 const Home = () => {
   const theme = useTheme();
   const { isDarkMode } = useDarkMode();
-
-  
-  const containerStyle = {
-    display: 'block',
-    // height: '100vh',
-    // width: '100%',
-  };
 
   const cardStyle = {
     padding: '20px',
@@ -29,9 +21,9 @@ const Home = () => {
 
 
   return (
-    <div style={containerStyle} className='w-100 h-100'>
+    <div  className=' h-50 m-4' style={{ width:'90%' }}>
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "10vh" }}>
-        <Image src={i} className="logo" />
+        <Image src={i} className="logo my-3" />
       </div>
       <Container>
         <Grid container spacing={3}>

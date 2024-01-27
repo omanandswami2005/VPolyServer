@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-// import { Form,  Row, Col,  } from 'react-bootstrap'; // Import Spinner
+import React, { useState, } from 'react';
+
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
@@ -19,7 +19,6 @@ import {
   Box,
   Card,
 } from '@mui/material';
-// import Select from 'react-select';
 
 function AddStudentForm() {
   const [studentData, setStudentData] = useState([
@@ -28,14 +27,12 @@ function AddStudentForm() {
       enrollmentNo: '',
     },
   ]);
-  // const [classOptions, setClassOptions] = useState([]);
+ 
   const [selectedClass, setSelectedClass] = useState('');
   const [classId, setClassId] = useState('');
-  const [loading, setLoading] = useState(false); // Add loading state
-  // const formRef = useRef(null);
+  const [loading, setLoading] = useState(false); // 
   const { isDarkMode } = useDarkMode();
 
-  // const lastFormFieldRef = useRef(null);
   const { classOptions, fetchStudentData } = useData();
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

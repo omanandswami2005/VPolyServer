@@ -6,7 +6,8 @@ import './styles/index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { DataProvider } from './DataContext';
 import { DarkModeProvider } from './DarkModeContext';
-
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -20,11 +21,14 @@ const RootComponent = () => {
     localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
   };
 
+
   return (
     <Router>
       <DarkModeProvider>
         <DataProvider>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
           <App isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+          </LocalizationProvider>
         </DataProvider>
       </DarkModeProvider>
     </Router>

@@ -1,9 +1,8 @@
 --------------------
 attendance dependancy removal
 ---------------------------------
-add faculty lectures 
+add faculty lectures
 --------------------------
-promise.all (gruop deletion of faculty memmber route implementation)
 
 ----------------------------
 Update Class For All Selected Students (button)
@@ -66,3 +65,23 @@ email attendance to HOD and Principal feature + their logins
 
 
 send request only if on changes 
+
+
+
+
+
+
+
+
+
+
+
+Finishing :
+unauthorizedAccess for faulty, class and student and schedule mgmt
+hyptic feedback for all where required (for delete edit seelct )
+useMemo, useCallback for all components 
+bycrypt and regEx
+*Total Absent/present and total studnets  in manual attendance
+*Upload file material IU in studnet management
+*management of Students poster and artical at dashboard
+*Spinners Where Needed

@@ -1,10 +1,12 @@
 import React from 'react';
 import FacultyCRUD from '../components/FacultyCRUD';
 
-function Faculty1() {
+function FacultyManagement() {
   return (
+    <div className='mt-5'>
    <FacultyCRUD />
+   </div>
   );
 }
 
-export default Faculty1;
+export default FacultyManagement;

@@ -1,16 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table, Accordion, Button } from 'react-bootstrap';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+// import DatePicker from 'react-datepicker';
+// import 'react-datepicker/dist/react-datepicker.css';
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useDarkMode } from '../DarkModeContext';
+import {
+  
+  createTheme,
+  Typography
+} from  '@mui/material';
+
 import '../styles/ViewAttendance.css';
 
 
 function ViewAttendance(props) {
+
+  const {isDarkMode} = useDarkMode();
+const darkTheme = createTheme({
+  palette: {
+    mode: isDarkMode ? 'dark' : 'light',
+  },
+})
   // console.log(props.props.name);
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
@@ -263,6 +277,10 @@ return sampleData;
   return (
     <>
      <div className="attendance-controls">
+     <Typography variant="h5" align="center" className='mt-4 w-75 mx-auto' style={{ backgroundColor: isDarkMode ? '#f8f9fa' : '#333', color: isDarkMode ? '#000' : '#fff',border: isDarkMode ? '1px solid #000' : '1px solid #fff' }} gutterBottom>
+        Attendance Management
+      </Typography>
+
       <div className="attendance-controls">
         <h3>Select Class </h3>
         <hr />
@@ -287,30 +305,8 @@ return sampleData;
           ))}
         </select><br /><br />
       </div>
-      {/* <h6>Filter By:</h6>
-<div>
-  <label>
-    <input
-      type="radio"
-      value="whole-month"
-      checked={selectedFilterOption === "whole-month"}
-      onChange={() => setSelectedFilterOption("whole-month")}
-    />
-    Whole Month
-  </label>
-</div>
+      
 
-<div>
-  <label>
-    <input
-      type="radio"
-      value="date-range"
-      checked={selectedFilterOption === "date-range"}
-      onChange={() => setSelectedFilterOption("date-range")}
-    />
-    Date Range
-  </label>
-</div> */}
 
 </div>
 
@@ -324,14 +320,7 @@ return sampleData;
 
 
               <h6>Filter By Month:</h6>
-              <DatePicker
-                selected={selectedDate}
-                onChange={(date) => handleChange(date, student, index)}
-                // onClick={(date) => handleChange(date, student, index)}    
-                dateFormat="MMMM yyyy"
-                showMonthYearPicker
-                placeholderText="Select Month Here"
-              />
+              
 
               <h6>Filter By Date Range:</h6>
               <select

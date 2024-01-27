@@ -11,11 +11,7 @@ const studentController = {
     const { studentData, classId } = req.body;
 
     try {
-    //    // Check for duplicate enrollment numbers before inserting
-    // const duplicateEnrollments = await Student.find({ enrollmentNo: { $in: studentData.map(student => student.enrollmentNo) } });
-    // if (duplicateEnrollments.length > 0) {
-    //   return res.status(400).json({ message: 'Duplicate enrollment numbers detected' });
-    // }
+  
 
       // Calculate rollNo for new students based on enrollmentNo
       const newStudents = studentData.map((student, index) => ({
@@ -198,10 +194,11 @@ const studentController = {
 
 
   deleteAllStudent: async (req, res) => {
-    const { selectedStudents } = req.body;
+    const { selectedStudents1 } = req.body;
     try {
       // Fetch the first selected student to get the associated class ID before deletion
-      const firstStudent = await Student.findById(selectedStudents[selectedStudents.length - 1]).populate('class');
+      // console.log(selectedStudents1);
+      const firstStudent = await Student.findById(selectedStudents1[selectedStudents1.length - 1]).populate('class');
 
       if (!firstStudent) {
         return res.status(404).json({ message: 'Student not found' });
@@ -210,17 +207,17 @@ const studentController = {
       const classId = firstStudent.class ? firstStudent.class._id : null;
 
       // Fetch and delete attendance records associated with the students
-      const attendanceRecords = await Attendance.find({ studentId: { $in: selectedStudents } });
-      await Attendance.deleteMany({ studentId: { $in: selectedStudents } });
+      const attendanceRecords = await Attendance.find({ studentId: { $in: selectedStudents1 } });
+      await Attendance.deleteMany({ studentId: { $in: selectedStudents1 } });
       console.log(attendanceRecords);
 
       if (classId) {
         // Update the Class model to remove the students reference
-        await Class.findByIdAndUpdate(classId, { $pullAll: { students: selectedStudents } });
+        await Class.findByIdAndUpdate(classId, { $pullAll: { students: selectedStudents1 } });
       }
 
       // Delete the selected students
-      await Student.deleteMany({ _id: { $in: selectedStudents } });
+      await Student.deleteMany({ _id: { $in: selectedStudents1 } });
 
       await updateRollNumbers(classId);
 

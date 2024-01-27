@@ -1,37 +1,31 @@
-import { Link } from 'react-router-dom';
-import { Button } from 'reactstrap';
+import { Button } from '@mui/material';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 
-const Logoutpage = () => {
-    return (
-        <div>
-            <h1>You have been logged out, please login again</h1>
-            <Link className='my-2 w-20 mx-auto' to="/login" style={{ textDecoration: 'none', color: 'inherit' }}><Button color="primary">
-                 Login Again  Here !!!</Button>
-            </Link>
-        </div>
-    );
 
 
-}
 
 const Logoutbutton = () => {
+    const hapticFeedback = React.useCallback(() => {
+        if ('vibrate' in navigator) {
+          navigator.vibrate(75);
+        }
+      }, []);
     const navigate = useNavigate();
 const logout = async () => {
+    hapticFeedback();
+if (window.confirm('Are you sure you want to log out?')) {
     // Make a POST request to the `/logout` endpoint
     await axios.get('/auth/logout');
-
-    // Redirect the user to the login page
-    // window.location.href = '/logout';
-    navigate('/logout');
-
+    navigate('/login');
+}
   };
     return (
-        < Button onClick={logout}  color="primary">
-        Logout</Button>
+        < Button onClick={logout} variant='contained'  color="error">
+        Logout </Button>
     );
 }
 
-export {  Logoutpage  ,  Logoutbutton};
+export { Logoutbutton};
