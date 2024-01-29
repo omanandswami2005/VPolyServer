@@ -16,12 +16,18 @@ import FacultyManagement from './views/FacultyView';
 // import ViewAttendanceView from './views/ViewAttendanceView';
 import ScheduleManagementView from './views/ScheduleManagementView';
 import { useDarkMode } from './DarkModeContext';
+import { ThemeProvider, createTheme } from '@mui/material';
 
 import DarkModeToggler from './components/DarkModeButton/DarkModeToggler';
 
 const App = () => {
   const { isDarkMode } = useDarkMode();
   const location = useLocation();
+  const theme = createTheme({
+    palette: {
+      mode: isDarkMode ? 'dark' : 'light',
+    },
+  })
 
   // Function to update styles of body and html
   const updateBodyStyles = useCallback(() => {
@@ -44,6 +50,7 @@ const App = () => {
 
   return (
     <div  className="App">
+      <ThemeProvider>
             {!notShowNavBarPaths.includes(location.pathname) ? <ResponsiveDrawer /> : <DarkModeToggler /> }
 
  
@@ -83,7 +90,7 @@ const App = () => {
             fontFamily: 'times new roman',
   
           }}}/>
-
+</ThemeProvider>
     </div>
   );
 }

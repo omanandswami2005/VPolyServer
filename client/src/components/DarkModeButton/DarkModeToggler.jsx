@@ -64,7 +64,7 @@ const DarkModeToggler = () => {
     //   />
     // </div>
     <FormControlLabel
-        control={<MaterialUISwitch sx={{ m: 1 }}   checked={isDarkMode} onChange={toggleDarkMode} />}
+        control={<MaterialUISwitch sx={{ m: 1 }}   checked={!isDarkMode} onChange={toggleDarkMode} />}
         // label="Dark Mode"
       />
   );
