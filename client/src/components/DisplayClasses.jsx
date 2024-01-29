@@ -3,7 +3,7 @@ import axios from 'axios';
 import AddClassForm from '../components/AddClassForm';
 
 import toast from 'react-hot-toast';
-import { Box, Typography, Table, ThemeProvider, createTheme,Tooltip,
+import { Box, Typography, Table,  Tooltip,
    } from '@mui/material';
 import { useDarkMode } from '../DarkModeContext';
 import { AwesomeButton } from 'react-awesome-button';
@@ -213,8 +213,7 @@ const DisplayClasses = () => {
   ), [updateClassData, isDarkMode, closeUpdateForm, handleUpdateClass, faculties]);
 
   return (
-    <ThemeProvider theme={createTheme({ palette: { mode: isDarkMode ? 'light' : 'dark' } })}>
-      
+      <>
      <Typography variant="h5" align="center" className='mt-4 w-75 mx-auto' style={{ backgroundColor: isDarkMode ? '#f8f9fa' : '#333', color: isDarkMode ? '#000' : '#fff',border: isDarkMode ? '1px solid #000' : '1px solid #fff' }} gutterBottom>
         Class Management
       </Typography>
@@ -229,9 +228,8 @@ const DisplayClasses = () => {
         </Modal>
 
         <AddClassForm isModalOpen={isAddClassModalOpen} toggleAddClassModal={toggleAddClassModal} />
-
+        </>
       
-    </ThemeProvider>
   );
 };
 

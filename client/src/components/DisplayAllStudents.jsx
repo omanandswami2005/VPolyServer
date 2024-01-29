@@ -26,8 +26,7 @@ import {
   Select,
   MenuItem,
   Box,
-  ThemeProvider,
-  createTheme,
+
   Typography,
   
 } from '@mui/material';
@@ -55,20 +54,9 @@ function DisplayAllStudents() {
     selectedClassId: '',
   });
   const [modal, setModal] = useState(false);
-  // Define a dark theme
-  const darkTheme = createTheme({
-    palette: {
-      mode: 'dark',
+  
 
-    },
-  });
-
-  // Define a light theme
-  const lightTheme = createTheme({
-    palette: {
-      mode: 'light',
-    },
-  });
+ 
 
   const toggleAddStudentModal = () => {
     setShowAddStudentModal(!showAddStudentModal);
@@ -392,7 +380,7 @@ function DisplayAllStudents() {
 
 
   return (
-    <ThemeProvider theme={isDarkMode ? lightTheme : darkTheme}>
+    
       <div className="">
       <Typography variant="h5" align="center" className='mt-4 w-75 mx-auto' style={{ backgroundColor: isDarkMode ? '#f8f9fa' : '#333', color: isDarkMode ? '#000' : '#fff',border: isDarkMode ? '1px solid #000' : '1px solid #fff' }} gutterBottom>
         Student Management
@@ -421,7 +409,6 @@ function DisplayAllStudents() {
         {loading && <MutatingDotsSpinner />}
 
       </div>
-    </ThemeProvider>
 
   );
 }

@@ -16,7 +16,6 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-
 } from 'reactstrap';
 import { useData } from '../DataContext';
 import {

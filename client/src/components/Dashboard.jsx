@@ -13,7 +13,6 @@ import manualattendance from '../images/manualattendance.jpg';
 import StdFacCls from '../components/StudentFacultyClassCard';
 
 import '../styles/imageStyle.css';
-import vapm from '../images/vapmlogo.png';
 import { useDarkMode } from '../DarkModeContext';
 
 
@@ -41,9 +40,9 @@ const cardSub=(
     <div >
 
 <div className="img">
-      <Image src={img} className="logo" /> &nbsp;&nbsp;
-     <h1 className='fw-bold fs-10'> &#43;</h1>&nbsp;
-      <Image src={vapm} className="vapm" />
+      <Image src={img} className="logo" />
+    
+     
       </div>
 <h2 align="center" className='bg-dark text-white w-75 mx-auto mt-2 border hi'>Hello {name ? name: ''}  !!!</h2>
 

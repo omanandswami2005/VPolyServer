@@ -2,8 +2,8 @@ import { Button } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
-
+import AndroidButton from './AndroisButton';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 
 
@@ -23,8 +23,9 @@ if (window.confirm('Are you sure you want to log out?')) {
 }
   };
     return (
-        < Button onClick={logout} variant='contained'  color="error">
-        Logout </Button>
+        // < Button onClick={logout} variant='contained'  color="error">
+        // Logout </Button>
+        <AndroidButton color='red' text='Logout' icon={<LogoutIcon size={24} />} fun={logout} />
     );
 }
 

@@ -8,30 +8,16 @@ import {
   MenuItem,
   Select,
   Typography,
-  createTheme,
-  ThemeProvider,
+ 
   TextField,
 } from '@mui/material';
-import { useDarkMode } from '../DarkModeContext';
 
 import { TimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 
 
-const theme = createTheme({
-  palette: {
-    mode: 'light', // Initial mode, can be 'light' or 'dark'
-  },
-});
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-
-  },
-});
 
 function DynamicSchedule({ onTimeSlotCreate }) {
-  const { isDarkMode } = useDarkMode();
 
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
@@ -116,8 +102,8 @@ while (confirmationCount < 4) {
   
 
   return (
-    <ThemeProvider theme={!isDarkMode ? darkTheme : theme } >
-       <Typography variant="h5" align="center" className='mt-5 w-75 mx-auto' style={{ backgroundColor: isDarkMode ? '#f8f9fa' : '#333', border: isDarkMode ? '1px solid #000' : '1px solid #fff' }} gutterBottom>
+    <>
+       <Typography variant="h5" align="center" className='mt-5 w-75 mx-auto' gutterBottom>
         Schedule Management
       </Typography>
 
@@ -190,8 +176,7 @@ while (confirmationCount < 4) {
           Delete Selected Slot
         </Button>
         </div>
-    </ThemeProvider>
-
+</>
   );
 }
 

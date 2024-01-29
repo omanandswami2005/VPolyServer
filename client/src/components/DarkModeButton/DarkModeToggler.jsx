@@ -54,15 +54,6 @@ const DarkModeToggler = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   return (
-    // <div>
-    //   {/* <p>Dark Mode: {isDarkMode ? 'On' : 'Off'}</p> */}
-    //   <Switch
-    //     checked={isDarkMode}
-    //     onChange={toggleDarkMode}
-    //     icon={<Brightness4Icon />} // Dark mode icon
-    //     checkedIcon={<WbSunnyIcon />} // Light mode icon
-    //   />
-    // </div>
     <FormControlLabel
         control={<MaterialUISwitch sx={{ m: 1 }}   checked={!isDarkMode} onChange={toggleDarkMode} />}
         // label="Dark Mode"

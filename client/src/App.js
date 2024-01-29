@@ -25,7 +25,7 @@ const App = () => {
   const location = useLocation();
   const theme = createTheme({
     palette: {
-      mode: isDarkMode ? 'dark' : 'light',
+      mode: !isDarkMode ? 'dark' : 'light',
     },
   })
 
@@ -50,7 +50,7 @@ const App = () => {
 
   return (
     <div  className="App">
-      <ThemeProvider>
+      <ThemeProvider theme={theme}>
             {!notShowNavBarPaths.includes(location.pathname) ? <ResponsiveDrawer /> : <DarkModeToggler /> }
 
  

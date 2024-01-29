@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import {  Form, FormGroup, Label, Input, Button } from 'reactstrap';
+import {  Form, FormGroup, Label, Input, } from 'reactstrap';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import '../styles/Login.css';
-import {useDarkMode} from '../DarkModeContext';
-
+import { Card } from '@mui/material';
+import AndroidButton from './AndroisButton';
+import LoginIcon from '@mui/icons-material/Login';
 
 function Login() {
     const navigate= useNavigate();
@@ -12,11 +13,23 @@ function Login() {
   // Define state variables to hold form data
   const [facultyId, setFacultyId] = useState('');
   const [password, setPassword] = useState('');
-  const {isDarkMode} = useDarkMode();
 
   // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent the default form submission behavior
+    if(!facultyId || !password) {
+     
+      if (!facultyId) {
+      document.getElementById('facultyId').focus();
+      toast.error('Please Enter FacultyId');
+    }
+    else if (!password) {
+      document.getElementById('password').focus();
+      toast.error('Please Enter Password');
+    }
+
+      return;
+    }
     console.log(facultyId, password);
 
     // Create a data object to send to the server
@@ -66,10 +79,10 @@ function Login() {
   };
 
   return (
-    
+    <Card className='loginCard mt-5'>
     <div className='log' >
       <h2>Faculty Login</h2>
-      <Form onSubmit={handleSubmit} className={isDarkMode ? 'boder-dark login' : 'border-light login'} >
+      <Form  className='login'>
         <FormGroup>
           <Label for="facultyId">Faculty ID :</Label>
           <Input
@@ -92,11 +105,13 @@ function Login() {
             required
           />
         </FormGroup>
-        <Button color="primary" block type="submit">
-          Login
-        </Button>
+        {/* <a onClick={handleSubmit} href="/" className='animated-button bg-danger'>
+          Login <ArrowRightIcon />
+        </a> */}
+        <AndroidButton color="green" text="Login" fun={handleSubmit} icon={<LoginIcon size={24} />} />
       </Form>
     </div>
+    </Card>
   );
 }
 

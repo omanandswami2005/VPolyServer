@@ -1,22 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, Container, Grid, Typography, useTheme } from '@mui/material';
+import { Card, Container, Grid, Typography } from '@mui/material';
 import Image from "react-bootstrap/Image";
 import 'bootstrap/dist/css/bootstrap.css';
 import i from '../images/Vpolyserver.png';
 import '../styles/imageStyle.css';
-import { useDarkMode } from '../DarkModeContext';
+import { ArrowRightIcon } from '@primer/octicons-react';
+import AndroidButton from './AndroisButton';
 
 const Home = () => {
-  const theme = useTheme();
-  const { isDarkMode } = useDarkMode();
-
   const cardStyle = {
     padding: '20px',
     marginBottom: '20px',
-    backgroundColor: isDarkMode ? theme.palette.background.paper : '#000',
-    color: isDarkMode ? theme.palette.text.primary : '#fff',
-    border: isDarkMode ? '1px solid #000' : '1px solid #fff',
+   
   };
 
 
@@ -35,14 +31,12 @@ const Home = () => {
               <Typography variant="body1">
                 VPolyServer is an advanced AI attendance system that simplifies attendance tracking for institutions and students using face recognition.
               </Typography>
-              <Link to="/login" style={{ textDecoration: 'none', color: 'inherit' }}>
-                <Button variant="contained" color="primary" style={{ marginTop: '20px', display: 'block', marginLeft: 'auto', marginRight: 'auto' }}>
-                  Go to Faculty Login
-                </Button>
+              <Link to="/login" style={{ textDecoration: 'none',  }}>
+             
+        <AndroidButton color='#1e1e1e' text='Go to Login' icon={<ArrowRightIcon size={24} />} />
               </Link>
             </Card>
           </Grid>
-          {/* Add more Grid items for additional cards if needed */}
         </Grid>
       </Container>
     </div>

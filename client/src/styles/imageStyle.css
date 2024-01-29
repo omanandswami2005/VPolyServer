@@ -15,25 +15,14 @@
 .logo{
     border-radius: 5%;
 }
-.vapm:hover{
-    background-color: aliceblue;
-    border-radius: 10%;
-    box-shadow: 0 8px 8px 0 rgb(255, 10, 10), 0 -3px 20px 0 rgba(0, 0, 0, 1);
-    transform: scale3d(1.05, 1.05, 1.05);
-    transition: all 0.5s ease-in-out;
 
-}
 
 
 @media screen and (min-width: 600px) {
     .logo{
         width: 15vw;
     }
-    .vapm{
-        width: 11vw;
-        margin-block: 20px ;
-
-    }
+   
 
 }
 @media screen and (max-width: 400px) {
@@ -41,12 +30,6 @@
         box-shadow: 0 8px 8px 0 rgb(255, 10, 10), 0 -3px 20px 0 rgba(0, 0, 0, 1);
         width: 45vw;
     }
-    .vapm{
-        width: 38vw;
-        margin-block: 20px ;
-        border-radius: 10%;
-        box-shadow: 0 8px 8px 0 rgb(255, 10, 10), 0 -3px 20px 0 rgba(0, 0, 0, 1);
-
-    }
+    
     
 }
