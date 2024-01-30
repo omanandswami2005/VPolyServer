@@ -1,15 +1,11 @@
 import * as React from 'react';
 import img from '../images/Vpolyserver.png';
 import Image from "react-bootstrap/Image";
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useDarkMode } from '../DarkModeContext';
 import '../styles/ResponsiveDrawer.css'
 import { Logoutbutton } from './Logout';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import Cookies from 'js-cookie';
-
-
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -24,21 +20,10 @@ import { Link } from 'react-router-dom';
 import { Button, Typography } from '@mui/material';
 import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone';import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
-const theme = createTheme({
-  palette: {
-    mode: 'light', // Initial mode, can be 'light' or 'dark'
-  },
-});
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
 
-  },
-});
 const drawerWidth = 250;
 
 function ResponsiveDrawer(props) {
-  const { isDarkMode } = useDarkMode();
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isClosing, setIsClosing] = React.useState(false);
@@ -186,7 +171,6 @@ Omanand Swami      <br /> <Logoutbutton />
   const container = window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <ThemeProvider theme={!isDarkMode ? darkTheme : theme} >
       <Box sx={{ display: 'flex', }}>
         <CssBaseline />
         <AppBar
@@ -305,7 +289,6 @@ Omanand Swami      <br /> <Logoutbutton />
 
         </Box>
       </Box>
-    </ThemeProvider>
   );
 }
 

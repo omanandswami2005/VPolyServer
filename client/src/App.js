@@ -17,7 +17,6 @@ import FacultyManagement from './views/FacultyView';
 import ScheduleManagementView from './views/ScheduleManagementView';
 import { useDarkMode } from './DarkModeContext';
 import { ThemeProvider, createTheme } from '@mui/material';
-
 import DarkModeToggler from './components/DarkModeButton/DarkModeToggler';
 
 const App = () => {
