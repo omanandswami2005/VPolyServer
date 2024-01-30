@@ -2,7 +2,7 @@ import { Button } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import AndroidButton from './AndroisButton';
+import AndroidButton from './AndroidButton';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 

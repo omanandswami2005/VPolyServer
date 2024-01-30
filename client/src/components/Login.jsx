@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import '../styles/Login.css';
 import { Card } from '@mui/material';
-import AndroidButton from './AndroisButton';
+import AndroidButton from './AndroidButton';
 import LoginIcon from '@mui/icons-material/Login';
 
 function Login() {
@@ -82,7 +82,7 @@ function Login() {
     <Card className='loginCard mt-5'>
     <div className='log' >
       <h2>Faculty Login</h2>
-      <Form  className='login'>
+      <Form  className='login' onSubmit={handleSubmit}>
         <FormGroup>
           <Label for="facultyId">Faculty ID :</Label>
           <Input

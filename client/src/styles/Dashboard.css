@@ -6,6 +6,9 @@ h1 {
 .hi {
     font-family: 'Algerian', 'Times New Roman', Times, serif, sans-serif;
 }
+.card{
+    border-radius: 300px;
+}
 
 
 .dashcard {
@@ -13,11 +16,12 @@ h1 {
     min-height: auto;
     min-width: 30vw;
     width: 30vw;
+    height: 40vh;
     box-shadow: 2px 5px 10px rgb(179, 89, 89);
 }
 
 .cardgroup {
-    border: 5px double rgb(221, 62, 62);
+    /* border: 5px double rgb(221, 62, 62); */
     min-width: 50vw;
     display: flex;
     flex-direction: row;

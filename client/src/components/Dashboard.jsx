@@ -51,12 +51,13 @@ const cardSub=(
 
         <div className ='div ' >
 
-          <Card className='dashcard'>
+          <Card className='dashcard '>
             <CardImg
               alt="AI_Attemdance_System"
               src={studentmgmt}
               top
               width="100%"
+              
             />
             <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black'}}>
               <CardTitle tag="h5" className='hi'>

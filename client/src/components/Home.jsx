@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import i from '../images/Vpolyserver.png';
 import '../styles/imageStyle.css';
 import { ArrowRightIcon } from '@primer/octicons-react';
-import AndroidButton from './AndroisButton';
+import AndroidButton from './AndroidButton';
 
 const Home = () => {
   const cardStyle = {
