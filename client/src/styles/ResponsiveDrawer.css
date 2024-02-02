@@ -22,14 +22,14 @@ display: none;
 @media (min-width: 846px) { 
 
     .navButtons{
-display: block;
+display: none;
 /* font-size: 10px; */
     }
     .logoutBtn{
-        display: block;
+        display: none;
     }
     .menuIcon{
-       display: none;
+       display: block;
     }
     .logo1{
         width: 115px;

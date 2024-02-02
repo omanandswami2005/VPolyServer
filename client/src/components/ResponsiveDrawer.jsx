@@ -17,13 +17,16 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import { Link } from 'react-router-dom';
-import { Button, Typography } from '@mui/material';
+import { Button, Typography, } from '@mui/material';
 import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone';import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const drawerWidth = 250;
 
 function ResponsiveDrawer(props) {
+
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isClosing, setIsClosing] = React.useState(false);
@@ -54,14 +57,17 @@ function ResponsiveDrawer(props) {
   const drawer = (
     // <ThemeProvider theme={!isDarkMode ? darkTheme : theme } >
     <div>
-     <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
+     {/* <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
 <Typography variant="h6" noWrap component="div" align='center'>
 Omanand Swami      <br /> <Logoutbutton />
 
 </Typography>
      </Toolbar>
-     <hr /> <Divider />
+     <hr /> <Divider /> */}
       <List>
+          <IconButton onClick={handleDrawerClose} >
+             <ChevronLeftIcon  /> 
+          </IconButton>
        
           <ListItem >
             <ListItemButton>
@@ -161,12 +167,6 @@ Omanand Swami      <br /> <Logoutbutton />
   }, []);
 
 
-
-
-
-
-
-
   // Remove this const when copying and pasting into your project.
   const container = window !== undefined ? () => window().document.body : undefined;
 
@@ -187,14 +187,14 @@ Omanand Swami      <br /> <Logoutbutton />
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ display: { sm: 'none' } }}
+              // sx={{ display: { sm: 'none' } }}
             >
               <MenuIcon />
             </IconButton>
 
 
 
-            <Image src={img} className="logo1 " />
+            {/* <Image src={img} className="logo1 " /> */}
 
             <Link to='/dashboard' className='mx-2 NavBtn'>
                 <Button size="large" variant="contained" color='primary'>
@@ -205,7 +205,7 @@ Omanand Swami      <br /> <Logoutbutton />
               </Link>
 
 
-            <div className="navButtons border rounded p-1 mx-2 my-1  border-light" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} >
+            {/* <div className="navButtons border rounded p-1 mx-2 my-1  border-light" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} >
 
               <Link to='/dashboard/viewattendance' className='mx-2 NavBtn'>
                 <Button size="small" variant="contained" style={{ backgroundColor: 'white', color: 'black' }} >Manage <br /> Attendance !</Button>
@@ -251,7 +251,7 @@ Omanand Swami      <br /> <Logoutbutton />
                 </Button>
               </Link>
 
-            </div>
+            </div> */}
            
             <DarkModeToggler />
             <div className="logoutBtn">
@@ -272,8 +272,9 @@ Omanand Swami      <br /> <Logoutbutton />
          
           <Drawer
             container={container}
-            variant="temporary"
+            variant="persistent"
             open={mobileOpen}
+            anchor="left"
             onTransitionEnd={handleDrawerTransitionEnd}
             onClose={handleDrawerClose}
             ModalProps={{
