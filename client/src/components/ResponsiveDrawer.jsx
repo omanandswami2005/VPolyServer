@@ -65,10 +65,11 @@ Omanand Swami      <br /> <Logoutbutton />
      </Toolbar>
      <hr /> <Divider /> */}
       <List>
+        <ListItem sx={{ display: 'flex', justifyContent: 'end' }} >
           <IconButton onClick={handleDrawerClose} >
              <ChevronLeftIcon  /> 
           </IconButton>
-       
+          </ListItem>
           <ListItem >
             <ListItemButton>
             <Link to='/dashboard/studentManagement' className='mx-2 NavBtn'>
@@ -180,7 +181,7 @@ Omanand Swami      <br /> <Logoutbutton />
             zIndex: 100,
           }}
         >
-          <Toolbar className='d-flex justify-content-between align-items-center'
+          <Toolbar className='d-flex justify-content-evenly align-items-center'
           >
             <IconButton
               color="inherit"
@@ -197,11 +198,11 @@ Omanand Swami      <br /> <Logoutbutton />
             {/* <Image src={img} className="logo1 " /> */}
 
             <Link to='/dashboard' className='mx-2 NavBtn'>
-                <Button size="large" variant="contained" color='primary'>
+               
 
-                 <HomeTwoToneIcon />
+                 <HomeTwoToneIcon fontSize='large' sx={{ color: 'white' }} />
 
-                </Button>
+            
               </Link>
 
 
@@ -272,7 +273,7 @@ Omanand Swami      <br /> <Logoutbutton />
          
           <Drawer
             container={container}
-            variant="persistent"
+            variant="responsive"
             open={mobileOpen}
             anchor="left"
             onTransitionEnd={handleDrawerTransitionEnd}
