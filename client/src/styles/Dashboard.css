@@ -1,0 +1,86 @@
+h1 {
+    font-style: italic;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.hi {
+    font-family: 'Algerian', 'Times New Roman', Times, serif, sans-serif;
+}
+.card{
+    border-radius: 300px;
+}
+
+
+.dashcard {
+    margin: 1rem 0;
+    min-height: auto;
+    min-width: 30vw;
+    width: 30vw;
+    height: 40vh;
+    box-shadow: 2px 5px 10px rgb(179, 89, 89);
+}
+
+.cardgroup {
+    /* border: 5px double rgb(221, 62, 62); */
+    min-width: 50vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    /* Center horizontally */
+    margin: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 20px;
+}
+
+
+
+.logout {
+    text-align: center;
+}
+
+
+@media screen and (max-width: 900px) {
+
+    .dashcard {
+
+        min-width: 40vw;
+        width: 50vw;
+    }
+
+}
+
+
+
+@media screen and (max-width: 600px) {
+
+    .dashcard {
+
+        min-width: 40vw;
+        width: 70vw;
+
+    }
+
+    .div {
+        width: auto;
+    }
+
+}
+
+@media screen and (max-width: 400px) {
+    .cardgroup {
+        justify-content: center;
+        margin: 0 .5rem;
+    }
+
+    .dashcard {
+
+        min-width: 50vw;
+        width: 85vw;
+
+    }
+
+    .div {
+        width: 85vw;
+    }
+}

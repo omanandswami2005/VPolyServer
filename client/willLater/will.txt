@@ -1,0 +1,87 @@
+--------------------
+attendance dependancy removal
+---------------------------------
+add faculty lectures
+--------------------------
+
+----------------------------
+Update Class For All Selected Students (button)
+-----------------------
+
+remove roll number dependancy 
+add parent email
+
+
+---------------------------
+
+-------------------------
+reduce button click rate in manual attendance (4 clicks) increase visible number of iteams but select one only. add on hover show list feature for all
+
+onhover all 
+
+
+undo(delete all attendance for selcted date and time) button 
+
+in manual attendance fill same as previous slot feature 
+
+{
+    generate attendance button with confirmation only if sunday selected 
+    generate attendance button for all and instead of fill todays attendance give lable showing date(todays date by default)  
+    
+}
+
+auto selct time slot based on current time
+
+practical schedule & Lecture schedule (in seelction list too)
+
+prevent selection for future dated in manual attendance section 
+
+
+
+-----------------------------------------
+
+calculate total day wise attendance ()
+---------------------------------------
+calculate attendance defaulter list
+------------------------------------------------------
+view attendance views pie charts and print , excel views.
+
+view attendance by month wise , all time , date to date 
+
+
+then class wise and per student wise , practical batch wise view wise 
+
+---------------------------------------------------------
+
+student/parent login to view attendance 
+ email to parents  
+
+---------------------------
+
+email attendance to HOD and Principal feature + their logins 
+
+
+----------------------------------
+
+
+send request only if on changes 
+
+
+
+
+
+
+
+
+
+
+
+Finishing :
+unauthorizedAccess for faulty, class and student and schedule mgmt
+hyptic feedback for all where required (for delete edit seelct )
+useMemo, useCallback for all components 
+bycrypt and regEx
+*Total Absent/present and total studnets  in manual attendance
+*Upload file material IU in studnet management
+*management of Students poster and artical at dashboard
+*Spinners Where Needed

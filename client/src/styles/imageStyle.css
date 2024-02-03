@@ -1,0 +1,42 @@
+
+.img{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 98vw;
+}
+
+.logo:hover{
+   
+    box-shadow: 0 8px 8px 0 rgb(255, 10, 10), 0 -3px 20px 0 rgba(0, 0, 0, 1);
+    transform: scale3d(1.05, 1.05, 1.05);
+    transition: all 0.5s ease-in-out;
+}
+.logo{
+    border-radius: 5%;
+}
+
+
+
+@media screen and (min-width: 600px) {
+    .logo{
+        width: 20vw;
+    }
+   
+
+}
+
+@media screen and (max-width: 600px) {
+    .logo{
+        width: 40vw;
+    }
+    
+}
+@media screen and (max-width: 400px) {
+    .logo{
+        box-shadow: 0 8px 8px 0 rgb(255, 10, 10), 0 -3px 20px 0 rgba(0, 0, 0, 1);
+        width: 45vw;
+    }
+    
+    
+}
