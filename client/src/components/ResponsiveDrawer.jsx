@@ -1,5 +1,4 @@
 import * as React from 'react';
-
 import '../styles/ResponsiveDrawer.css'
 import { Logoutbutton } from './Logout';
 import LockIcon from '@mui/icons-material/Lock';
@@ -8,7 +7,6 @@ import Cookies from 'js-cookie';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
-
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
@@ -67,7 +65,7 @@ Omanand Swami      <br /> <Logoutbutton />
         <ListItem sx={{ display: 'flex', justifyContent: 'end' }} >
           <IconButton onClick={handleDrawerClose} >
            <ChevronLeftIcon  /> 
-          </IconButton>
+         </IconButton>
           </ListItem>
           <ListItem >
             <ListItemButton>
@@ -154,7 +152,7 @@ Omanand Swami      <br /> <Logoutbutton />
 
      <Divider/>
      <Logoutbutton />
-    </div>
+   </div>
 
   );
 
