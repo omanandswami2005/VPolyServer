@@ -26,7 +26,6 @@ function Login() {
         const res = await API.post('/auth/loggedIn');
         if (res.data.data) {
           navigate('/dashboard');
-          
         }
       } catch (err) {
         navigate('/login');
