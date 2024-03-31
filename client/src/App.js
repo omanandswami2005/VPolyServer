@@ -9,7 +9,7 @@ import ResponsiveDrawer from './components/ResponsiveDrawer';
 import  { Toaster } from 'react-hot-toast';
 import ProtectedRoute from './components/ProtectedRoute';
 // import { Logoutpage} from './components/Logout';
-import ManualAttendance from './components/ManualAttendance';
+import ManualAttendance from './components/ManualAttendaceShallowCopy';
 import ClassManagement from './views/ClassManagement';
 import StudentManagement from './views/StudentManagement';
 import FacultyManagement from './views/FacultyView';

@@ -33,7 +33,7 @@ const Home = () => {
               </Typography>
               <Link to="/login" style={{ textDecoration: 'none',  }}>
              
-        <AndroidButton color='#1e1e1e' text='Go to Login' icon={<ArrowRightIcon size={24} />} />
+        <AndroidButton color='#555' text='Go to Login' icon={<ArrowRightIcon size={24} />} />
               </Link>
             </Card>
           </Grid>

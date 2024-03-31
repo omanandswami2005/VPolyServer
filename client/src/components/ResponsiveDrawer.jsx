@@ -176,6 +176,8 @@ Omanand Swami      <br /> <Logoutbutton />
           sx={{
             backgroundColor: 'rgba(0, 0, 0, .6)',
             zIndex: 100,
+            
+
           }}
         >
           <Toolbar className='d-flex justify-content-evenly align-items-center'

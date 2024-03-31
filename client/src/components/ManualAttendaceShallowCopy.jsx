@@ -1,55 +1,94 @@
+import React, { useEffect, useState, useCallback } from "react";
+import Switch from 'react-switch';
 
-
-import React, {  useState } from "react";
-import { Button } from "reactstrap";
 import { useNavigate } from "react-router-dom";
-import "../styles/ManualAttendance.css";
+// import "../styles/ManualAttendance.css";
 import toast from "react-hot-toast";
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import axios from "axios";
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { useDarkMode } from '../DarkModeContext';
+import AttendanceTable from './AttendanceTable'; // Path to your AttendanceTable component
 
+import {
+  ThemeProvider,
+  createTheme,
+  Select, MenuItem, 
+  Card, CardContent, Typography,  Grid, Dialog, DialogTitle, DialogContent, DialogActions,
+
+} from '@mui/material';
+import 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import dayjs from 'dayjs';
-import { DesktopDatePicker } from "@mui/x-date-pickers";
-
+import { DatePicker } from "@mui/x-date-pickers";
 import {
   MaterialReactTable,
   useMaterialReactTable,
 } from 'material-react-table';
+import { AwesomeButton } from "react-awesome-button";
+
+
+dayjs.extend(utc);
+dayjs.extend(require('dayjs/plugin/timezone'));
 
 
 
 function ManualAttendance(props) {
-  
+  const { isDarkMode } = useDarkMode();
+  // dayjs.tz.setDefault('Asia/Kolkata');
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState('timeSlotDefault');
-  const [showEnrollmentNo, setShowEnrollmentNo] = useState(false); // New state for showing/hiding Enrollment No.
-  const [selectedClass, setSelectedClass] = useState('classDefault');
+  const [selectedDate, setSelectedDate] = useState(dayjs().tz('Asia/Kolkata'));
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('To Be Selected');
+  // const [showEnrollmentNo, setShowEnrollmentNo] = useState(false); // New state for showing/hiding Enrollment No.
+  const [selectedClass, setSelectedClass] = useState('To Be Selected');
   const [classList, setClassList] = useState([]);
-  const [allPresent, setAllPresent] = useState(false);
+  const [allPresent, setAllPresent] = useState("false");
+  const [isFiltersModalOpen, setFiltersModalOpen] = useState(false);
+  const [timeSlots, setTimeSlots,] = useState([]);
+  // const [searchTerm, setSearchTerm] = useState(""); // State to store search term
 
-  const [timeSlots, setTimeSlots,] = useState([]); 
-  const [searchTerm, setSearchTerm] = useState(""); // State to store search term
-  
 
   const [timeSlotDropdownOpen, setTimeSlotDropdownOpen] = useState(false);
   const [classDropdownOpen, setClassDropdownOpen] = useState(false);
+  const darkTheme = createTheme({
+    palette: {
+      mode: 'dark',
 
-  const toggleTimeSlot = () => {
+    },
+  });
+
+
+  // Define a light theme
+  const lightTheme = createTheme({
+    palette: {
+      mode: 'light',
+    },
+  });
+ 
+
+  const hapticFeedback = useCallback(() => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(75);
+    }
+  }, []);
+
+  const toggleTimeSlot = useCallback(() => {
     setClassDropdownOpen(false); // Close the class dropdown
     setTimeSlotDropdownOpen((prevState) => !prevState);
-  };
-  
-  const toggleClass = () => {
+    hapticFeedback(); // Call haptic feedback when toggling time slot
+  }, [setClassDropdownOpen, setTimeSlotDropdownOpen, hapticFeedback]);
+
+  const toggleClass = useCallback(() => {
     setTimeSlotDropdownOpen(false); // Close the time slot dropdown
     setClassDropdownOpen((prevState) => !prevState);
-  };
+    hapticFeedback(); // Call haptic feedback when toggling class
+  }, [setTimeSlotDropdownOpen, setClassDropdownOpen, hapticFeedback]);
 
-const to =()=>{}
 
-  React.useMemo(() => {
+
+
+
+
+  useEffect(() => {
     console.log(selectedClass);
     if (props.userData.name) {
       axios
@@ -66,46 +105,49 @@ const to =()=>{}
         });
     }
 
-    const attendace = [
-      {
-        name: "Present",
-        accessorKey: "present",
-        enableColumnFilter: false,
-
-      }
-    ]
-
     // Fetch student data from the backend when selectedDate or selectedTimeSlot change
-    if (selectedDate && (selectedTimeSlot !== 'timeSlotDefault') && (selectedClass !== 'classDefault')) {
+
+  }, [navigate, props.userData.name, selectedClass]);
+
+
+  const getAttendance = useCallback(async () => {
+    if (selectedDate && (selectedTimeSlot !== 'To Be Selected') && (selectedClass !== 'To Be Selected')) {
       try {
+        hapticFeedback();
+        console.log(selectedDate);
+        // const selectedDate1 = dayjs(selectedDate) + 1;
+        // console.log(selectedDate1.toISOString());
         axios
-          .post(`/attendance/manualattendance`, { selectedDate, selectedTimeSlot ,className: selectedClass,})
+          .post(`/attendance/manualattendance`, { selectedDate, selectedTimeSlot, className: selectedClass, })
           .then((response) => {
-            // console.log("hi",response.data.studentAttendance);
-            // setStudents([]);
-            if(response.data.studentAttendance.length <1)
-            {
+            if (response.data.studentAttendance.length < 1) {
               toast.error("No Students Found, Please Add Students in Selected Class");
               setStudents([]);
+            } else {
+              setStudents(response.data.studentAttendance);
+              console.log(response.data.studentAttendance.length);
             }
-            else{
-            setStudents(
-              response.data.studentAttendance);}
-
-          }).catch((error) => {
+          })
+          .catch((error) => {
             console.error("Error fetching or creatingAttendance data:", error);
-            // navigate("/login");
             toast.error("Session Expired :/ Please Login Again");
           });
       } catch (error) {
         console.error("Error fetching student data:", error);
       }
     }
-  }, [selectedDate, selectedTimeSlot, props.userData.name,selectedClass]);
-  
-  
+  }, [selectedDate, selectedTimeSlot, selectedClass,hapticFeedback]); // Dependencies added here
 
-  React.useEffect(() => {
+  // const toggleFiltersModal = useCallback(() => {
+  //   setFiltersModalOpen(prev => !prev);
+
+  // }, []);
+
+  const toggleFiltersModal = useCallback(() => {
+    setFiltersModalOpen((prev) => !prev);
+  },[setFiltersModalOpen]);
+
+  useEffect(() => {
     // Fetch time slots from the server
     axios.get('/timeSlot/time-slots').then((response) => {
       setTimeSlots(response.data.timeSlots);
@@ -113,93 +155,76 @@ const to =()=>{}
       console.error('Error fetching time slots:', error);
     });
 
-        // Check if all students are present
-        const allStudentsPresent = students.length > 0 && students.every(student => student.present);
-        setAllPresent(allStudentsPresent);
-    
-  }, []);
+    // Check if all students are present
+    const allStudentsPresent = students.length > 0 && students.every(student => student.present === "true");
+    setAllPresent(allStudentsPresent === true ? "true" : "false");
 
-  // Handle the class selection change
-  // const handleClassChange = (e) => {
-  //   setSelectedClass(e.target.value);
-  // };
-  const setTodaysDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    setSelectedDate(`${year}-${month}-${day}`);
-  }
+  }, [students]);
 
-  const toggleAllStudents = async () => {
+
+  const toggleAllStudents = useCallback( async () => {
+    hapticFeedback();
     const updatedStudents = students.map((student) => ({
       ...student,
-      present: !allPresent,
+      present: allPresent === "true" ? "false" : "true",
     }));
     setStudents(updatedStudents);
-    setAllPresent(!allPresent);
+    setAllPresent(allPresent === "true" ? "false" : "true");
 
     // Update the database for all students
     try {
       await axios.put(`/attendance/updateAll/${selectedDate}/${selectedTimeSlot}`, {
-        present: !allPresent,
-        className: selectedClass});
+        present: allPresent === "true" ? false : true,
+        className: selectedClass
+      });
     } catch (error) {
       console.error("Error updating all students:", error);
       toast.error("Failed to update all students");
     }
-  };
+  }, [students, allPresent, selectedDate, selectedTimeSlot, selectedClass, setStudents, hapticFeedback, ]);
 
-
-  const toggleAttendance = async (studentEnrollmentNo) => {
+  const toggleAttendance = useCallback(async (studentEnrollmentNo) => {
     try {
-       await axios
-        .put(`/attendance/update/${studentEnrollmentNo}`, { selectedDate, selectedTimeSlot })
-      .then((response) => {
-        
-        const updatedTempRecord = response.data.mainRecord;
+      hapticFeedback();
+      
+      // Find the student in the students array
+      const studentIndex = students.findIndex(
+        (student) => student.enrollmentNo === studentEnrollmentNo
+      );
 
-        // console.log(updatedTempRecord.present);
-
+      // If the student is found, update the attendance status
+      if (studentIndex !== -1) {
         const updatedStudents = [...students];
-        
-        const studentIndex = updatedStudents.findIndex(
-          (student) => student.studentId._id === updatedTempRecord.studentId
-        );
+        const updatedStudent = { ...updatedStudents[studentIndex] };
 
-        if (studentIndex !== -1) {
-          updatedStudents[studentIndex].present = updatedTempRecord.present;
-          setStudents(updatedStudents);
-        } else {
-          console.error("Student not found in the students array.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching or creatingAttendance data:", error);
-        // navigate("/login");
-        toast.error("Session Expired :/ Please Login Again");
-      });
-  } catch (error) {
-    console.error("Error toggling attendance:", error);
-  }
-};
+        // Update the database for the specific student
+        await axios.put(`/attendance/update/${studentEnrollmentNo}`, {
+          selectedDate,
+          selectedTimeSlot,
+          present: updatedStudent.present === "true" ? true : false,
+          className: selectedClass,
+        });
+
+        updatedStudent.present === "true" ? updatedStudent.present = "false" : updatedStudent.present = "true";
+        // Update the state with the modified student
+        updatedStudents[studentIndex] = updatedStudent;
+        setStudents(updatedStudents);
+      } else {
+        console.error("Student not found in the students array.");
+      }
+    } catch (error) {
+      console.error("Error toggling attendance:", error);
+    }
+  }, [students, selectedDate, selectedTimeSlot, selectedClass, setStudents, hapticFeedback]);
 
 
   // Calculate the total, present, and absent students
   const totalStudents = students.length;
-  const presentStudents = students.filter((student) => student.present).length;
+  const presentStudents = students.filter((student) => student.present==="true").length;
   const absentStudents = totalStudents - presentStudents;
 
-  // Function to toggle the Enrollment No. column
-  const toggleEnrollmentNo = () => {
-    setShowEnrollmentNo(!showEnrollmentNo);
-  };
-  // console.log(classList);
 
-
-
-
-  const columns1 = React.useMemo(
+  const columns = React.useMemo(
     () => [
       {
         id: 'rollNo',
@@ -207,186 +232,260 @@ const to =()=>{}
         header: 'Roll No.',
       },
       {
-        accessorKey: 'enrollmentNo',
-        header: 'Enrollment No.',
+        accessorKey: 'present',
+        header: `Attendance`,
+        Cell: ({ cell }) => {
+          return (
+            <div>
+              <Switch
+                checked={cell.getValue() === 'true' ? true : false}
+                onChange={() => toggleAttendance(cell.row.original.enrollmentNo)}
+                offColor="#f44336"
+                onColor="#4caf50"
+                uncheckedHandleIcon={
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                      color: "red",
+                      fontStyle: "italic",
+                      fontSize: 20,
+                      fontWeight: "bolder",
+
+                    }}
+                  >
+                    A
+                  </div>
+                }
+                checkedHandleIcon={
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                      color: "green",
+                      fontSize: 20,
+                      fontStyle: "cursive",
+                      fontWeight: "bolder",
+                    }}
+                  >
+                    P
+                  </div>
+                }
+              /> <br />
+              {cell.getValue() === 'true' ? 'Present' : 'Absent'}
+            </div>
+          );
+        }
       },
       {
         accessorKey: 'name',
         header: 'Name',
       },
       {
-        accessorKey: 'present',
-        header: 'Present',
+        accessorKey: 'enrollmentNo',
+        header: 'Enrollment No.',
       },
     ],
-    []
+    [toggleAttendance]
   );
 
-  const dataFinal = students.map((student) => ({
-    rollNo: student.studentId.rollNo,
-    enrollmentNo: student.studentId.enrollmentNo,
-    name: student.studentId.name,
-    present: student.present.toString(),
-  }));
+
 
   const table = useMaterialReactTable({
-    columns: columns1,
-    data: dataFinal,
+    columns,
+    data: students,
     initialState: {
       density: 'compact',
       sorting: [{ id: 'rollNo', desc: false }],
     },
+    enableDensityToggle: false,
+    muiTableContainerProps: { sx: { maxHeight: '80vh', maxWidth: '99vw' } },
+    muiTableProps: {
+      style: {
+        textAlign: 'center',
+        textWrap: 'wrap',
+        border: '1px solid yellow',
+      }
+    },
+    muiTableBodyCellProps: {
+      style: {
+        textAlign: 'center',
+        textWrap: 'wrap',
+        maxWidth: '10vw',
+      }
+    },
+    renderBottomToolbarCustomActions: ({ table }) => (
+    <div className="text-center mx-auto my-2">
+     &bull; Tatal Students: {totalStudents} |  &nbsp; 
+     &bull;Present Students: {presentStudents} | &nbsp;
+     &bull;Absent Students: {absentStudents}
+    </div>
+    ),
+
+    enablePagination: false,
+    enableRowVirtualization: true,
+    rowVirtualizerOptions: { overscan: 5 },
+
+    enableStickyHeader: true,
+    enableColumnResizing: false,
+    memoMode: 'cells',
+    renderTopToolbarCustomActions: useCallback(() => (
+      <div className="d-flex align-items-center justify-content-center flex-wrap flex-direction-column">
+        <AwesomeButton type="danger" onReleased={toggleFiltersModal}>
+          Modify Filters
+        </AwesomeButton>
+        <AwesomeButton type="primary" onReleased={toggleAllStudents} className="mx-2"
+          disabled={!students.length}
+        >
+          {allPresent === "true" ? "Mark All Absent" : "Mark All Present"}
+        </AwesomeButton>
+      </div>
+
+    ), [toggleFiltersModal, students, toggleAllStudents, allPresent]),
   });
 
+  // const preventDefault = useCallback((e) => e.preventDefault(), []);
+  // const setDat = () => {
+  //   setSelectedDate(dayjs());
+  //   return dayjs();
+  // }
+
+  const filterModal = React.useMemo(() => (
+    <Dialog open={isFiltersModalOpen} onClose={toggleFiltersModal} style={{ width: '100', margin: '0' }} className="p-0">
+      <DialogTitle>
+        <Typography variant="h5" component="div" className={`text-center mb-4`}>
+          Select Date, Time-Slot And Class to Fill Attendance
+        </Typography>
+      </DialogTitle>
+      <DialogContent>
+        <Card className={`border-0 shadow add-class-card`} style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+          <CardContent>
+            <Grid container spacing={2} className="justify-content-center align-items-center">
+              <Grid item md={12} className="d-flex justify-content-center align-items-center" >
+
+                <DatePicker
+                  label="Select Date"
+                  value={selectedDate}
+                  onChange={(date) => {
+                    setSelectedDate(date);
+                    hapticFeedback();
+                  }}
+                  format="DD-MM-YYYY"
+                  disableFuture={props.userData.role === "teacher" ? true : false}
+                />
+
+                {/* <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="border-dark rounded-2 my-2" placeholder="Select Date" /> */}
+              </Grid>
+
+              <Grid item md={5}>
+
+                <Select
+                  open={timeSlotDropdownOpen}
+                  onClose={toggleTimeSlot}
+                  onOpen={toggleTimeSlot}
+                  value={selectedTimeSlot}
+                  displayEmpty
+
+
+                >
+                  <MenuItem value="To Be Selected" disabled>
+                    Select Time Slot
+                  </MenuItem>
+
+                  {timeSlots.map((timeSlot) => (
+                    <MenuItem key={timeSlot._id} value={`${timeSlot.startTime} -> ${timeSlot.endTime}`} onClick={() => {hapticFeedback();
+                      setSelectedTimeSlot(`${timeSlot.startTime} -> ${timeSlot.endTime}`);
+                    }}>
+                      {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Grid>
+              <Grid item md={5}>
+                <Select
+                  open={classDropdownOpen}
+                  onClose={toggleClass}
+                  onOpen={toggleClass}
+                  value={selectedClass}
+                  displayEmpty
+
+                >
+                  <MenuItem value="To Be Selected" disabled>
+                    Select Class
+                  </MenuItem>
+                  {classList.map((assignedClass) => (
+                    <MenuItem key={assignedClass} value={assignedClass} onClick={() => {hapticFeedback();
+                      setSelectedClass(assignedClass);
+                    }}>
+                      {assignedClass}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Grid>
+
+            </Grid>
+
+          </CardContent>
+        </Card>
+      </DialogContent>
+      <DialogActions>
+        <AwesomeButton type="primary" onReleased={() => { toggleFiltersModal(); getAttendance() }} disabled={selectedTimeSlot === 'To Be Selected' || selectedClass === 'To Be Selected'}>
+          Get/Generate Attendance
+        </AwesomeButton>
+        <AwesomeButton type="secondary" onReleased={toggleFiltersModal}>
+          Cancle
+        </AwesomeButton>
+      </DialogActions>
+    </Dialog>
+  ), [toggleFiltersModal, selectedDate, selectedTimeSlot, selectedClass, getAttendance, timeSlotDropdownOpen, classDropdownOpen, toggleTimeSlot, toggleClass, timeSlots, classList, hapticFeedback, isFiltersModalOpen,props.userData.role]);
 
 
   return (
-    <>
-
-      <h1 className="fw-bold fs-10 text-center h1manualattendance">
+    < div className='mt-4' >
+      <ThemeProvider theme={isDarkMode ? lightTheme : darkTheme}>
+         <Typography variant="h5" align="center" className='mt-5 w-75 mx-auto' style={{ backgroundColor: isDarkMode ? '#f8f9fa' : '#333', color: isDarkMode ? '#000' : '#fff',border: isDarkMode ? '1px solid #000' : '1px solid #fff' }} gutterBottom>
         Manual Attendance
-      </h1>
-      <div className="attendance-controls">
-        <h3>Select Date, Time-Slot And Class to Fill Attendance</h3>
-        <hr />
+      </Typography>
+
+        {filterModal}
         
-          <Button color="primary" onClick={setTodaysDate}>Fill Today's Attendance</Button>
-       <h5>OR</h5>
+        <div className="w-100  border-primary d-flex align-items-center border" style={{ justifyContent: 'space-evenly' }}> <span  className="text-center" > &bull;Date:<br /> {selectedDate.toString().slice(0, 16) ? selectedDate.toString().slice(0, 16) : "To Be Selected"} </span>
 
-      
-        {/* <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="border-dark rounded-2 my-2"
-          placeholder="Select Date"
-        /> */}
-              {/* <DatePicker value={selectedDate} onChange={(date) => setSelectedDate(date)} /> */}
-              <div className="date border-dark rounded-2 my-2 w-50 h-0">
-              <DesktopDatePicker defaultValue={dayjs('2022-04-17')} value={selectedDate} onChange={(date) => setSelectedDate(date)} label="Select Date"  />
+          <span className="border border-primary rounded-2 p-2 text-center">  &bull;Time:<br /> {selectedTimeSlot} </span> <span className="text-center p-1"> &bull;Class: <br /> {selectedClass}</span></div>
 
-              </div>
-<hr />
-<hr />
-<div className="d-flex justify-content-center align-items-center  p-2">
-<Dropdown  isOpen={timeSlotDropdownOpen} toggle={toggleTimeSlot} className="me-3" onMouseLeave={toggleTimeSlot}>
-        <DropdownToggle onMouseOver={timeSlotDropdownOpen?to:toggleTimeSlot }    caret  color="light" className="border-dark rounded-2 my-2" data-attr="dropdown-toggle" onClick={toggleTimeSlot}>
-          {selectedTimeSlot === 'timeSlotDefault' ? 'Select Time Slot' : selectedTimeSlot}
-        </DropdownToggle>
-        <DropdownMenu   >
-          <DropdownItem header>Select Below &#8609;</DropdownItem>
-          {timeSlots.map((timeSlot) => (
-            <DropdownItem
-              key={timeSlot._id}
-              onClick={() => {
-                setSelectedTimeSlot(`${timeSlot.startTime} -> ${timeSlot.endTime}`);
-              }}
-            >
-              {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
-            </DropdownItem>
-          ))}
-        </DropdownMenu>
-      </Dropdown>
 
-      <Dropdown isOpen={classDropdownOpen} onMouseLeave={toggleClass}  toggle={toggleClass}>
-        <DropdownToggle onMouseOver={ classDropdownOpen?to:toggleClass}  caret color="light" className="border-dark rounded-2 my-2" onClick={toggleClass}>
-          {selectedClass === 'classDefault' ? 'Select Class' : selectedClass}
-        </DropdownToggle>
-        <DropdownMenu >
-          <DropdownItem header>Select Below &#8609;	</DropdownItem>
-          {classList.map((assignedClass) => (
-            <DropdownItem
-            
-              key={assignedClass}
-              onClick={() => {
-                setSelectedClass(assignedClass);
-              }}
-            >
-              {assignedClass}
-            </DropdownItem>
-          ))}
-        </DropdownMenu>
-      </Dropdown>
+        {/* <MaterialReactTable table={table} /> */}
+
+      </ThemeProvider>
+
+
+
+
+
+<div className="d-flex align-items-center justify-content-center my-2 flex-wrap flex-direction-column">
+        <AwesomeButton type="danger" onReleased={toggleFiltersModal}>
+          Modify Filters
+        </AwesomeButton>
+        <AwesomeButton type="primary" onReleased={toggleAllStudents} className="mx-2"
+          disabled={!students.length}
+        >
+          {allPresent === "true" ? "Mark All Absent" : "Mark All Present"}
+        </AwesomeButton>
       </div>
-      <hr />
-        
-        <Button color="success" onClick={toggleAllStudents} className="mx-2"
-        disabled={!students.length} // Disable if students are not fetched
-                  >
-          {allPresent ? "Mark All Absent" : "Mark All Present"}
-        </Button>
-        
-      </div>
-      <hr />
-      {/* <div className="search-bar-container my-3  mx-auto text-center" >
-  <input
-    type="text"
-    placeholder="Search by Name or enrollment No."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    className="search-bar w-75 "
-    
-    
-  />
-</div> */}
-          <MaterialReactTable table={table} />
+      <div className="text-center mx-auto my-2  w-100">
+     &bull; Tatal Students: {totalStudents} |  &nbsp; 
+     &bull;Present Students: {presentStudents} | &nbsp;
+     &bull;Absent Students: {absentStudents}
+    </div>
+    <AttendanceTable columns={columns} data={students} toggleAttendance={toggleAttendance} />
 
+   
 
-{/* <div className="manualAttendance w-100" style={{ overflowX: "auto", overflowY: "auto", maxWidth: "100%", maxHeight: "80vh", margin: "auto" }}>
-
-       <div className="table-responsive">
-          <table className="tb">
-          <thead>
-              <tr className="tr">
-                <th className="th" style={{ minWidth: "20vw", maxWidth: "50px", margin: "auto" }} onClick={toggleEnrollmentNo}>
-                  Roll No.
-                  <br />
-                  <button className="btn btn-primary btn-sm " onClick={toggleEnrollmentNo}>
-                    {showEnrollmentNo ? "Hide" : "Show"} Enrollment
-                  </button>
-                </th>
-                {showEnrollmentNo && <th className="th" style={{ maxWidth: "100px" }}>Enrollment No.</th>}
-                <th className="th" style={{ maxWidth: "150px" }}>Name</th>
-                <th className="th" style={{ maxWidth: "120px" }}>Present</th>
-              </tr>
-            </thead>
-        <tbody>
-            {students
-              .slice()
-              .sort((a, b) => parseInt(a.studentId?.enrollmentNo, 10) - parseInt(b.studentId?.enrollmentNo, 10))
-              .map((student) => {
-      
-
-                return (
-                  <tr key={student.studentId?.enrollmentNo}>
-
-                  <td className="td" onClick={toggleEnrollmentNo}>{student.studentId?.rollNo}</td>
-
-                  {showEnrollmentNo && <td className="td">{student.studentId?.enrollmentNo}</td>}
-                  
-                  <td className="td">{student.studentId?.name}</td>
-                 
-                  
-                  <td className="td" onClick={() =>toggleAttendance(student.studentId.enrollmentNo)}>
-                    <Switch
-                      onChange={() => ""}
-                      checked={student.present}
-                    />
-                    <p>{student.present ? "Present" : "Absent"}</p>
-                  </td>
-                </tr>
-                );
-              })}
-          </tbody>
-      </table>
-      </div>
-    </div> */}
-      <div className="summary">
-        <p>Total Students: {totalStudents}</p>
-        <p>Present Students: {presentStudents}</p>
-        <p>Absent Students: {absentStudents}</p>
-      </div>
-    </>
+    </ div>
   );
 }
 
