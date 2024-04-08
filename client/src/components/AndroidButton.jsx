@@ -5,7 +5,8 @@ import '../styles/AndroidButton.css';
 const AndroidButton = (props) => {
     
   return (
-    <a onClick={props.fun} href="/" className={`animated-button `} style={{ backgroundColor: props.color ? props.color : '#1e1e1e' }} >
+    // eslint-disable-next-line
+    <a onClick={props.fun}  className={`animated-button `} style={{ backgroundColor: props.color ? props.color : '#1e1e1e',cursor:"pointer",userSelect:"auto" }} >
       {props.text} {props.icon ? props.icon : ''}
     </a>
   );

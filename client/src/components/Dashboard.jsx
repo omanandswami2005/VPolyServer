@@ -44,12 +44,12 @@ const cardSub=(
     
      
       </div>
-<h2 align="center" className='bg-dark text-white w-75 mx-auto mt-2 border hi'>Hello {name ? name: ''}  !!!</h2>
+  <h2 align="center" className='bg-dark text-white w-75 mx-auto mt-2 border hi'>Hello {name ? name: ''}  !!!</h2>
 
 
       <CardGroup className='cardgroup' >
 
-        <div className ='div ' >
+        <div className ='div' >
 
           <Card className='dashcard '>
             <CardImg
@@ -59,7 +59,7 @@ const cardSub=(
               width="100%"
               
             />
-            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black'}}>
+            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
               <CardTitle tag="h5" className='hi'>
                 #Student_Management
               </CardTitle>
@@ -71,7 +71,7 @@ const cardSub=(
                Yup ! Our Motto is "Let's Automate The Things !".
               </CardText>
              <Link to='/dashboard/studentManagement'>
-              <Button className='bg-dark'>
+              <Button className='bg-dark m-auto w-75 d-block'>
               <h4 >
               Manage Students !
               </h4>
@@ -92,7 +92,7 @@ const cardSub=(
               top
               width="100%"
             />
-            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black'}}>
+            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
               <CardTitle tag="h5" className='hi'>
                 #Manual :: Attendace :: System
               </CardTitle>
@@ -120,7 +120,7 @@ const cardSub=(
               top
               width="100%"
             />
-            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black'}}>
+            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
               <CardTitle tag="h5" className='hi'>
                 #View...The...Attendace
               </CardTitle>
@@ -142,7 +142,7 @@ const cardSub=(
         </div>
        
 
-{ role==='HOD' || role==='Admin' ? <StdFacCls role={role} /> : null}
+ <StdFacCls role={role} /> 
  
       
       </CardGroup>

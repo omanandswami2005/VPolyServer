@@ -1,31 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table, Accordion, Button } from 'react-bootstrap';
-// import DatePicker from 'react-datepicker';
-// import 'react-datepicker/dist/react-datepicker.css';
+
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useDarkMode } from '../DarkModeContext';
 import {
-  
+
   createTheme,
   Typography
-} from  '@mui/material';
+} from '@mui/material';
 
 import '../styles/ViewAttendance.css';
 
 
 function ViewAttendance(props) {
 
-  const {isDarkMode} = useDarkMode();
-const darkTheme = createTheme({
-  palette: {
-    mode: isDarkMode ? 'dark' : 'light',
-  },
-})
-  // console.log(props.props.name);
+  const { isDarkMode } = useDarkMode();
+  const darkTheme = createTheme({
+    palette: {
+      mode: isDarkMode ? 'dark' : 'light',
+    },
+  })
+  // console.log(props.userData.name);
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [selectedDateRange, setSelectedDateRange] = useState("");
@@ -35,7 +34,7 @@ const darkTheme = createTheme({
   const [allStudentAttendanceData, setAllStudentAttendanceData] = useState([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [timeSlots, setTimeSlots] = useState([]);
-const [enrollArray1, setEnrollArray] = useState([]);
+  const [enrollArray1, setEnrollArray] = useState([]);
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -49,7 +48,7 @@ const [enrollArray1, setEnrollArray] = useState([]);
   // eslint-disable-next-line
   const [selectedMonth, setSelectedMonth] = useState(null);
 
-  const handleChange =  (date, student, studentIndex) => {
+  const handleChange = (date, student, studentIndex) => {
     setSelectedDate(date);
 
     const month = date.getMonth();
@@ -57,7 +56,7 @@ const [enrollArray1, setEnrollArray] = useState([]);
 
     // Call the fetchAttendanceData function here
     // console.log( month, selectedTimeSlot, enrollArray1);
-   fetchAttendanceDataByClass(enrollArray1, month, selectedTimeSlot);
+    fetchAttendanceDataByClass(enrollArray1, month, selectedTimeSlot);
     fetchAttendanceData(student.enrollmentNo, month, studentIndex);
   };
 
@@ -66,9 +65,9 @@ const [enrollArray1, setEnrollArray] = useState([]);
 
   useEffect(() => {
     // console.log(selectedClass);
-    if (props.props.name) {
+    if (props.userData.name) {
       axios
-        .get(`/faculty/classes/${props.props.name}`)
+        .get(`/faculty/classes/${props.userData.name}`)
         .then((response) => {
           const assignedClasses = response.data;
           // Store the assigned classes in the classList state
@@ -95,9 +94,9 @@ const [enrollArray1, setEnrollArray] = useState([]);
             return parseInt(a.rollNo, 10) - parseInt(b.rollNo, 10);
           });
 
-const enrollArray = sortedStudents.map((student) => student.enrollmentNo);
-setEnrollArray(enrollArray);
-// console.log(enrollArray);
+          const enrollArray = sortedStudents.map((student) => student.enrollmentNo);
+          setEnrollArray(enrollArray);
+          // console.log(enrollArray);
           setStudents(sortedStudents);
         })
         .catch((error) => {
@@ -107,7 +106,7 @@ setEnrollArray(enrollArray);
         });
     }
     // Fetch student data from the backend when selectedDate or selectedTimeSlot change
-  }, [navigate, props.props.name, selectedClass]);
+  }, [navigate, props.userData.name, selectedClass]);
 
 
   useEffect(() => {
@@ -194,10 +193,10 @@ setEnrollArray(enrollArray);
       });
   };
 
-  const fetchAttendanceDataByClass = async(enrollArray, selectedMonth, selectedTimeSlot) => {
+  const fetchAttendanceDataByClass = async (enrollArray, selectedMonth, selectedTimeSlot) => {
     console.log("in fetching");
     console.log(enrollArray, selectedMonth, selectedTimeSlot);
-  
+
     // Returning the Axios promise for further handling in the calling code
     await axios.get(`/attendance`, {
       params: {
@@ -206,65 +205,65 @@ setEnrollArray(enrollArray);
         selectedTimeSlot: selectedTimeSlot,
       },
     })
-    .then((response) => {
-      console.log(response.data);
-      // You might want to do something with the response here
-      const rawData= response.data; // Return the data if needed
-      // Convert the raw data into the desired format
-// Keep track of unique student IDs
-const uniqueStudentIds = new Set();
+      .then((response) => {
+        console.log(response.data);
+        // You might want to do something with the response here
+        const rawData = response.data; // Return the data if needed
+        // Convert the raw data into the desired format
+        // Keep track of unique student IDs
+        const uniqueStudentIds = new Set();
 
-// Convert the raw data into the desired format
-const sampleData = rawData.reduce((acc, dataItem) => {
-  const studentId = dataItem.studentId;
+        // Convert the raw data into the desired format
+        const sampleData = rawData.reduce((acc, dataItem) => {
+          const studentId = dataItem.studentId;
 
-  // Check if the student ID is already processed
-  if (!uniqueStudentIds.has(studentId)) {
-    uniqueStudentIds.add(studentId);
+          // Check if the student ID is already processed
+          if (!uniqueStudentIds.has(studentId)) {
+            uniqueStudentIds.add(studentId);
 
-    const rollNo = dataItem.studentRollNo; // Use the actual roll number from backend
-    const name = dataItem.studentName;
-    const attendance = rawData
-  .filter((item) => item.studentId === studentId)
-  .reduce((attendanceAcc, item) => {
-    const dateObject = new Date(item.date);
-    const dateString = dateObject.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-    });
+            const rollNo = dataItem.studentRollNo; // Use the actual roll number from backend
+            const name = dataItem.studentName;
+            const attendance = rawData
+              .filter((item) => item.studentId === studentId)
+              .reduce((attendanceAcc, item) => {
+                const dateObject = new Date(item.date);
+                const dateString = dateObject.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'numeric',
+                  day: 'numeric',
+                });
 
-    // Sort the dates in ascending order before adding to attendanceAcc
-    attendanceAcc[dateString] = item.present ? 'P' : 'A';
-    attendanceAcc = Object.fromEntries(
-      Object.entries(attendanceAcc).sort((a, b) => new Date(a[0]) - new Date(b[0]))
-    );
+                // Sort the dates in ascending order before adding to attendanceAcc
+                attendanceAcc[dateString] = item.present ? 'P' : 'A';
+                attendanceAcc = Object.fromEntries(
+                  Object.entries(attendanceAcc).sort((a, b) => new Date(a[0]) - new Date(b[0]))
+                );
 
-    return attendanceAcc;
-  }, {});
+                return attendanceAcc;
+              }, {});
 
 
-    acc.push({ rollNo, name, attendance });
-  }
+            acc.push({ rollNo, name, attendance });
+          }
 
-  return acc;
-}, []);
+          return acc;
+        }, []);
 
-console.log(sampleData);
-setAllStudentAttendanceData(sampleData);
-return sampleData;
-    })
-    .catch((error) => {
-      console.error('Error fetching attendance data:', error);
-      toast.error('Error fetching attendance data');
-      throw error; // Rethrow the error to be caught by the caller
-    })
-    .finally(() => {
-      console.log("Always executed, regardless of success or failure");
-    });
+        console.log(sampleData);
+        setAllStudentAttendanceData(sampleData);
+        return sampleData;
+      })
+      .catch((error) => {
+        console.error('Error fetching attendance data:', error);
+        toast.error('Error fetching attendance data');
+        throw error; // Rethrow the error to be caught by the caller
+      })
+      .finally(() => {
+        console.log("Always executed, regardless of success or failure");
+      });
   };
-  
-  
+
+
   const handleAccordionOpen = (student, studentIndex) => {
     // Check if the accordion is opened (isOpen === true)
     if (selectedDate) {
@@ -276,39 +275,39 @@ return sampleData;
 
   return (
     <>
-     <div className="attendance-controls">
-     <Typography variant="h5" align="center" className='mt-4 w-75 mx-auto' style={{ backgroundColor: isDarkMode ? '#f8f9fa' : '#333', color: isDarkMode ? '#000' : '#fff',border: isDarkMode ? '1px solid #000' : '1px solid #fff' }} gutterBottom>
-        Attendance Management
-      </Typography>
-
       <div className="attendance-controls">
-        <h3>Select Class </h3>
-        <hr />
+        <Typography variant="h5" align="center" className='mt-4 w-75 mx-auto' style={{ backgroundColor: isDarkMode ? '#f8f9fa' : '#333', color: isDarkMode ? '#000' : '#fff', border: isDarkMode ? '1px solid #000' : '1px solid #fff' }} gutterBottom>
+          Attendance Management
+        </Typography>
 
-        <select value={selectedClass} onChange={handleClassChange}>
-          <option value="classDefault">Select Class</option>
-          {classList.map((assignedClass) => (
-            <option key={assignedClass} value={assignedClass}>
-              {assignedClass}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedTimeSlot}
-          onChange={(e) => setSelectedTimeSlot(e.target.value)}
-        >
-          <option value="timeSlotDefault">Select Time Slot</option>
-          {timeSlots.map((timeSlot) => (
-            <option key={timeSlot._id} value={`${timeSlot.startTime} -> ${timeSlot.endTime}`}>
-              {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
-            </option>
-          ))}
-        </select><br /><br />
+        <div className="attendance-controls">
+          <h3>Select Class </h3>
+          <hr />
+
+          <select value={selectedClass} onChange={handleClassChange}>
+            <option value="classDefault">Select Class</option>
+            {classList.map((assignedClass) => (
+              <option key={assignedClass} value={assignedClass}>
+                {assignedClass}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedTimeSlot}
+            onChange={(e) => setSelectedTimeSlot(e.target.value)}
+          >
+            <option value="timeSlotDefault">Select Time Slot</option>
+            {timeSlots.map((timeSlot) => (
+              <option key={timeSlot._id} value={`${timeSlot.startTime} -> ${timeSlot.endTime}`}>
+                {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
+              </option>
+            ))}
+          </select><br /><br />
+        </div>
+
+
+
       </div>
-      
-
-
-</div>
 
 
 
@@ -320,7 +319,7 @@ return sampleData;
 
 
               <h6>Filter By Month:</h6>
-              
+
 
               <h6>Filter By Date Range:</h6>
               <select
@@ -355,35 +354,35 @@ return sampleData;
 
 
 
-      <div style={{ overflowX: 'auto', width: '95vw', margin: 'auto',textAlign:'center' ,height:'50vh'}}>
-      <Table responsive='sm' striped bordered hover>
-        <thead>
-          <tr>
-            <th>Roll No</th>
-            <th>Name</th>
-            {dates.map(date => (
-              <th key={date}>{date}</th>
+      <div style={{ overflowX: 'auto', width: '95vw', margin: 'auto', textAlign: 'center', height: '50vh' }}>
+        <Table responsive='sm' striped bordered hover>
+          <thead>
+            <tr>
+              <th>Roll No</th>
+              <th>Name</th>
+              {dates.map(date => (
+                <th key={date}>{date}</th>
+              ))}
+              <th>Total Present</th>
+              <th>Total Absent</th>
+            </tr>
+          </thead>
+          <tbody>
+            {allStudentAttendanceData.map((student, index) => (
+              <tr key={index}>
+                <td>{student.rollNo}</td>
+                <td>{student.name}</td>
+                {dates.map(date => (
+                  <td key={date}>{student.attendance[date] || '-'}</td>
+                ))}
+                <td>{Object.values(student.attendance).filter(status => status === 'P').length}</td>
+                <td>{Object.values(student.attendance).filter(status => status === 'A').length}</td>
+              </tr>
             ))}
-            <th>Total Present</th>
-            <th>Total Absent</th>
-          </tr>
-        </thead>
-        <tbody>
-  {allStudentAttendanceData.map((student, index) => (
-    <tr key={index}>
-      <td>{student.rollNo}</td>
-      <td>{student.name}</td>
-      {dates.map(date => (
-        <td key={date}>{student.attendance[date] || '-'}</td>
-      ))}
-      <td>{Object.values(student.attendance).filter(status => status === 'P').length}</td>
-      <td>{Object.values(student.attendance).filter(status => status === 'A').length}</td>
-    </tr>
-  ))}
-</tbody>
+          </tbody>
 
-      </Table>
-    </div>
+        </Table>
+      </div>
     </>
   );
 }

@@ -4,6 +4,7 @@ import { Routes, Route,useLocation } from "react-router-dom";
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 
+
 // import Dashboard1 from './components/Dashboard1';
 import ResponsiveDrawer from './components/ResponsiveDrawer';
 import  { Toaster } from 'react-hot-toast';
@@ -12,12 +13,17 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ManualAttendance from './components/ManualAttendaceShallowCopy';
 import ClassManagement from './views/ClassManagement';
 import StudentManagement from './views/StudentManagement';
+import ViewAttendanceDashboard from './components/ViewAttendenceTemp'
 import FacultyManagement from './views/FacultyView';
-// import ViewAttendanceView from './views/ViewAttendanceView';
 import ScheduleManagementView from './views/ScheduleManagementView';
+import ViewAttendance from './components/ViewAttendance';
 import { useDarkMode } from './DarkModeContext';
 import { ThemeProvider, createTheme } from '@mui/material';
 import DarkModeToggler from './components/DarkModeButton/DarkModeToggler';
+
+
+
+
 
 const App = () => {
   const { isDarkMode } = useDarkMode();
@@ -66,7 +72,7 @@ const App = () => {
 
         
 
-        {/* <Route path="/dashboard/viewattendance" element={<ProtectedRoute component={ViewAttendanceView}   />} /> */}
+        <Route path="/dashboard/viewattendance" element={<ProtectedRoute component={ViewAttendanceDashboard}   />} />
 
 
         <Route path="/dashboard/classManagement" element={<ProtectedRoute component={ClassManagement}  />} />
@@ -90,6 +96,7 @@ const App = () => {
   
           }}}/>
 </ThemeProvider>
+
     </div>
   );
 }

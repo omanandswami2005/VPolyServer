@@ -19,7 +19,7 @@ export default function StdFacCls( {role}) {
   </CardSubtitle>
   )
 
-    return ( role === 'HOD' ?
+    return ( role === 'HOD' || role === 'Admin' ?
     <>
  
      <div className ='div'>
@@ -30,7 +30,7 @@ export default function StdFacCls( {role}) {
               top
               width="100%"
             />
-            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black'}}>
+            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
               <CardTitle tag="h4" className='hi'>
                 #Faculty^Management
               </CardTitle>
@@ -61,7 +61,7 @@ export default function StdFacCls( {role}) {
               top
               width="100%"
             />
-            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black'}}>
+            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
               <CardTitle tag="h4" className='hi'>
                 #Classes-Management
               </CardTitle>
@@ -97,7 +97,7 @@ export default function StdFacCls( {role}) {
               top
               width="100%"
             />
-            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black'}}>
+            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
               <CardTitle tag="h4" className='hi'>
                 #SchEdulE ;- Management
               </CardTitle>

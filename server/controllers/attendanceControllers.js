@@ -39,11 +39,17 @@ const attendanceControllers = {
       }
     }
   ,
+
+
+
+
   getAllAttendance: async (req, res) => {
     const enrollArray = req.query.enrollArray;
+    const selectedClass = req.query.selectedClass;
     const selectedMonth = req.query.selectedMonth;
     const selectedTimeSlot = req.query.selectedTimeSlot;
     const { startDate, endDate } = req.query;
+
     console.log(selectedMonth ? "yes" : "", selectedTimeSlot ? "yes" : "");
 
     try {
@@ -148,6 +154,10 @@ const attendanceControllers = {
     }
   }
   ,
+
+
+
+
   
   updateAttendance: async (req, res) => {
 
@@ -192,8 +202,6 @@ const attendanceControllers = {
 
 
 
-
-
   updateAllAttendance: async (req, res) => {
     const { date, timeSlot } = req.params;
     const { present, className } = req.body;
@@ -233,6 +241,9 @@ const attendanceControllers = {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   },
+
+
+  
 
 }
 

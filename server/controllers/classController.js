@@ -9,8 +9,9 @@ const classController = {
     getAllClasses: async (req, res) => {
         try {
           const classes = await Class.find({}, 'name');
+          console.log(classes);
           res.status(200).json(classes);
-          // console.log(classes);
+
         } catch (error) {
           console.error('Error fetching classes', error);
           res.status(500).json({ error: 'Error fetching classes' });

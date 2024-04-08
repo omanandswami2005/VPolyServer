@@ -7,22 +7,20 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useDarkMode } from '../DarkModeContext';
 import AttendanceTable from './AttendanceTable'; // Path to your AttendanceTable component
+import DNASpinner from "./Spinners/DNASpinner";
 
 import {
   ThemeProvider,
   createTheme,
-  Select, MenuItem, 
-  Card, CardContent, Typography,  Grid, Dialog, DialogTitle, DialogContent, DialogActions,
+  Select, MenuItem,
+  Card, CardContent, Typography, Grid, Dialog, DialogTitle, DialogContent, DialogActions,
 
 } from '@mui/material';
 import 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import dayjs from 'dayjs';
 import { DatePicker } from "@mui/x-date-pickers";
-import {
-  MaterialReactTable,
-  useMaterialReactTable,
-} from 'material-react-table';
+
 import { AwesomeButton } from "react-awesome-button";
 
 
@@ -36,7 +34,7 @@ function ManualAttendance(props) {
   // dayjs.tz.setDefault('Asia/Kolkata');
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(dayjs().tz('Asia/Kolkata'));
+  const [selectedDate, setSelectedDate] = useState(dayjs());
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('To Be Selected');
   // const [showEnrollmentNo, setShowEnrollmentNo] = useState(false); // New state for showing/hiding Enrollment No.
   const [selectedClass, setSelectedClass] = useState('To Be Selected');
@@ -44,6 +42,7 @@ function ManualAttendance(props) {
   const [allPresent, setAllPresent] = useState("false");
   const [isFiltersModalOpen, setFiltersModalOpen] = useState(false);
   const [timeSlots, setTimeSlots,] = useState([]);
+  const [spinner,setSpinner]=useState(false)
   // const [searchTerm, setSearchTerm] = useState(""); // State to store search term
 
 
@@ -63,7 +62,7 @@ function ManualAttendance(props) {
       mode: 'light',
     },
   });
- 
+
 
   const hapticFeedback = useCallback(() => {
     if ('vibrate' in navigator) {
@@ -91,12 +90,15 @@ function ManualAttendance(props) {
   useEffect(() => {
     console.log(selectedClass);
     if (props.userData.name) {
+      setSpinner(true)
       axios
         .get(`/faculty/classes/${props.userData.name}`)
         .then((response) => {
           const assignedClasses = response.data;
           // Store the assigned classes in the classList state
           setClassList(assignedClasses);
+          setSpinner(false)
+
         })
         .catch((error) => {
           console.error("Error fetching assigned classes:", error);
@@ -115,8 +117,8 @@ function ManualAttendance(props) {
       try {
         hapticFeedback();
         console.log(selectedDate);
-        // const selectedDate1 = dayjs(selectedDate) + 1;
-        // console.log(selectedDate1.toISOString());
+        setSpinner(true)
+       
         axios
           .post(`/attendance/manualattendance`, { selectedDate, selectedTimeSlot, className: selectedClass, })
           .then((response) => {
@@ -134,23 +136,27 @@ function ManualAttendance(props) {
           });
       } catch (error) {
         console.error("Error fetching student data:", error);
+      }finally{
+        setSpinner(false)
       }
     }
-  }, [selectedDate, selectedTimeSlot, selectedClass,hapticFeedback]); // Dependencies added here
+  }, [selectedDate, selectedTimeSlot, selectedClass, hapticFeedback]); // Dependencies added here
 
-  // const toggleFiltersModal = useCallback(() => {
-  //   setFiltersModalOpen(prev => !prev);
 
-  // }, []);
 
   const toggleFiltersModal = useCallback(() => {
     setFiltersModalOpen((prev) => !prev);
-  },[setFiltersModalOpen]);
+  }, [setFiltersModalOpen]);
 
   useEffect(() => {
     // Fetch time slots from the server
-    axios.get('/timeSlot/time-slots').then((response) => {
+    setSpinner(true)
+
+    axios.get('/timeSlot/time-slots')
+    .then((response) => {
       setTimeSlots(response.data.timeSlots);
+      setSpinner(false)
+
     }).catch((error) => {
       console.error('Error fetching time slots:', error);
     });
@@ -162,7 +168,7 @@ function ManualAttendance(props) {
   }, [students]);
 
 
-  const toggleAllStudents = useCallback( async () => {
+  const toggleAllStudents = useCallback(async () => {
     hapticFeedback();
     const updatedStudents = students.map((student) => ({
       ...student,
@@ -173,20 +179,25 @@ function ManualAttendance(props) {
 
     // Update the database for all students
     try {
+      setSpinner(true)
+
       await axios.put(`/attendance/updateAll/${selectedDate}/${selectedTimeSlot}`, {
         present: allPresent === "true" ? false : true,
         className: selectedClass
       });
+      setSpinner(false)
+
     } catch (error) {
+
       console.error("Error updating all students:", error);
       toast.error("Failed to update all students");
     }
-  }, [students, allPresent, selectedDate, selectedTimeSlot, selectedClass, setStudents, hapticFeedback, ]);
+  }, [students, allPresent, selectedDate, selectedTimeSlot, selectedClass, setStudents, hapticFeedback,]);
 
   const toggleAttendance = useCallback(async (studentEnrollmentNo) => {
     try {
       hapticFeedback();
-      
+
       // Find the student in the students array
       const studentIndex = students.findIndex(
         (student) => student.enrollmentNo === studentEnrollmentNo
@@ -197,7 +208,15 @@ function ManualAttendance(props) {
         const updatedStudents = [...students];
         const updatedStudent = { ...updatedStudents[studentIndex] };
 
+
+        updatedStudent.present === "true" ? updatedStudent.present = "false" : updatedStudent.present = "true";
+        // Update the state with the modified student
+        updatedStudents[studentIndex] = updatedStudent;
+        setStudents(updatedStudents);
+
         // Update the database for the specific student
+        setSpinner(true)
+
         await axios.put(`/attendance/update/${studentEnrollmentNo}`, {
           selectedDate,
           selectedTimeSlot,
@@ -205,22 +224,22 @@ function ManualAttendance(props) {
           className: selectedClass,
         });
 
-        updatedStudent.present === "true" ? updatedStudent.present = "false" : updatedStudent.present = "true";
-        // Update the state with the modified student
-        updatedStudents[studentIndex] = updatedStudent;
-        setStudents(updatedStudents);
+
       } else {
         console.error("Student not found in the students array.");
       }
     } catch (error) {
       console.error("Error toggling attendance:", error);
+    }finally{
+      setSpinner(false)
+
     }
   }, [students, selectedDate, selectedTimeSlot, selectedClass, setStudents, hapticFeedback]);
 
 
   // Calculate the total, present, and absent students
   const totalStudents = students.length;
-  const presentStudents = students.filter((student) => student.present==="true").length;
+  const presentStudents = students.filter((student) => student.present === "true").length;
   const absentStudents = totalStudents - presentStudents;
 
 
@@ -234,7 +253,7 @@ function ManualAttendance(props) {
       {
         accessorKey: 'present',
         header: `Attendance`,
-        Cell: ({ cell }) => {
+        Cell: ({ cell, toggleAttendance }) => {
           return (
             <div>
               <Switch
@@ -290,69 +309,9 @@ function ManualAttendance(props) {
         header: 'Enrollment No.',
       },
     ],
-    [toggleAttendance]
+    []
   );
 
-
-
-  const table = useMaterialReactTable({
-    columns,
-    data: students,
-    initialState: {
-      density: 'compact',
-      sorting: [{ id: 'rollNo', desc: false }],
-    },
-    enableDensityToggle: false,
-    muiTableContainerProps: { sx: { maxHeight: '80vh', maxWidth: '99vw' } },
-    muiTableProps: {
-      style: {
-        textAlign: 'center',
-        textWrap: 'wrap',
-        border: '1px solid yellow',
-      }
-    },
-    muiTableBodyCellProps: {
-      style: {
-        textAlign: 'center',
-        textWrap: 'wrap',
-        maxWidth: '10vw',
-      }
-    },
-    renderBottomToolbarCustomActions: ({ table }) => (
-    <div className="text-center mx-auto my-2">
-     &bull; Tatal Students: {totalStudents} |  &nbsp; 
-     &bull;Present Students: {presentStudents} | &nbsp;
-     &bull;Absent Students: {absentStudents}
-    </div>
-    ),
-
-    enablePagination: false,
-    enableRowVirtualization: true,
-    rowVirtualizerOptions: { overscan: 5 },
-
-    enableStickyHeader: true,
-    enableColumnResizing: false,
-    memoMode: 'cells',
-    renderTopToolbarCustomActions: useCallback(() => (
-      <div className="d-flex align-items-center justify-content-center flex-wrap flex-direction-column">
-        <AwesomeButton type="danger" onReleased={toggleFiltersModal}>
-          Modify Filters
-        </AwesomeButton>
-        <AwesomeButton type="primary" onReleased={toggleAllStudents} className="mx-2"
-          disabled={!students.length}
-        >
-          {allPresent === "true" ? "Mark All Absent" : "Mark All Present"}
-        </AwesomeButton>
-      </div>
-
-    ), [toggleFiltersModal, students, toggleAllStudents, allPresent]),
-  });
-
-  // const preventDefault = useCallback((e) => e.preventDefault(), []);
-  // const setDat = () => {
-  //   setSelectedDate(dayjs());
-  //   return dayjs();
-  // }
 
   const filterModal = React.useMemo(() => (
     <Dialog open={isFiltersModalOpen} onClose={toggleFiltersModal} style={{ width: '100', margin: '0' }} className="p-0">
@@ -375,10 +334,11 @@ function ManualAttendance(props) {
                     hapticFeedback();
                   }}
                   format="DD-MM-YYYY"
+                  timezone="system"
                   disableFuture={props.userData.role === "teacher" ? true : false}
                 />
 
-                {/* <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="border-dark rounded-2 my-2" placeholder="Select Date" /> */}
+
               </Grid>
 
               <Grid item md={5}>
@@ -397,7 +357,8 @@ function ManualAttendance(props) {
                   </MenuItem>
 
                   {timeSlots.map((timeSlot) => (
-                    <MenuItem key={timeSlot._id} value={`${timeSlot.startTime} -> ${timeSlot.endTime}`} onClick={() => {hapticFeedback();
+                    <MenuItem key={timeSlot._id} value={`${timeSlot.startTime} -> ${timeSlot.endTime}`} onClick={() => {
+                      hapticFeedback();
                       setSelectedTimeSlot(`${timeSlot.startTime} -> ${timeSlot.endTime}`);
                     }}>
                       {`${timeSlot.startTime} -> ${timeSlot.endTime}`}
@@ -418,7 +379,8 @@ function ManualAttendance(props) {
                     Select Class
                   </MenuItem>
                   {classList.map((assignedClass) => (
-                    <MenuItem key={assignedClass} value={assignedClass} onClick={() => {hapticFeedback();
+                    <MenuItem key={assignedClass} value={assignedClass} onClick={() => {
+                      hapticFeedback();
                       setSelectedClass(assignedClass);
                     }}>
                       {assignedClass}
@@ -441,24 +403,21 @@ function ManualAttendance(props) {
         </AwesomeButton>
       </DialogActions>
     </Dialog>
-  ), [toggleFiltersModal, selectedDate, selectedTimeSlot, selectedClass, getAttendance, timeSlotDropdownOpen, classDropdownOpen, toggleTimeSlot, toggleClass, timeSlots, classList, hapticFeedback, isFiltersModalOpen,props.userData.role]);
+  ), [toggleFiltersModal, selectedDate, selectedTimeSlot, selectedClass, getAttendance, timeSlotDropdownOpen, classDropdownOpen, toggleTimeSlot, toggleClass, timeSlots, classList, hapticFeedback, isFiltersModalOpen, props.userData.role]);
 
 
   return (
     < div className='mt-4' >
       <ThemeProvider theme={isDarkMode ? lightTheme : darkTheme}>
-         <Typography variant="h5" align="center" className='mt-5 w-75 mx-auto' style={{ backgroundColor: isDarkMode ? '#f8f9fa' : '#333', color: isDarkMode ? '#000' : '#fff',border: isDarkMode ? '1px solid #000' : '1px solid #fff' }} gutterBottom>
-        Manual Attendance
-      </Typography>
+        <Typography variant="h5" align="center" className='mt-5 w-75 mx-auto' style={{ backgroundColor: isDarkMode ? '#f8f9fa' : '#333', color: isDarkMode ? '#000' : '#fff', border: isDarkMode ? '1px solid #000' : '1px solid #fff' }} gutterBottom>
+          Manual Attendance
+        </Typography>
 
         {filterModal}
-        
-        <div className="w-100  border-primary d-flex align-items-center border" style={{ justifyContent: 'space-evenly' }}> <span  className="text-center" > &bull;Date:<br /> {selectedDate.toString().slice(0, 16) ? selectedDate.toString().slice(0, 16) : "To Be Selected"} </span>
+
+        <div className="w-100  border-primary d-flex align-items-center border" style={{ justifyContent: 'space-evenly' }}> <span className="text-center" > &bull;Date:<br /> {selectedDate.toString().slice(0, 16) ? selectedDate.toString().slice(0, 16) : "To Be Selected"} </span>
 
           <span className="border border-primary rounded-2 p-2 text-center">  &bull;Time:<br /> {selectedTimeSlot} </span> <span className="text-center p-1"> &bull;Class: <br /> {selectedClass}</span></div>
-
-
-        {/* <MaterialReactTable table={table} /> */}
 
       </ThemeProvider>
 
@@ -466,25 +425,25 @@ function ManualAttendance(props) {
 
 
 
-<div className="d-flex align-items-center justify-content-center my-2 flex-wrap flex-direction-column">
+      <div className="d-flex align-items-center justify-content-center my-2 flex-wrap flex-direction-column">
         <AwesomeButton type="danger" onReleased={toggleFiltersModal}>
           Modify Filters
         </AwesomeButton>
         <AwesomeButton type="primary" onReleased={toggleAllStudents} className="mx-2"
-          disabled={!students.length}
-        >
+          disabled={!students.length}>
           {allPresent === "true" ? "Mark All Absent" : "Mark All Present"}
         </AwesomeButton>
       </div>
       <div className="text-center mx-auto my-2  w-100">
-     &bull; Tatal Students: {totalStudents} |  &nbsp; 
-     &bull;Present Students: {presentStudents} | &nbsp;
-     &bull;Absent Students: {absentStudents}
-    </div>
-    <AttendanceTable columns={columns} data={students} toggleAttendance={toggleAttendance} />
 
-   
+        &bull; Tatal Students: {totalStudents} |  &nbsp;
+        &bull;Present Students: {presentStudents} | &nbsp;
+        &bull;Absent Students: {absentStudents}
 
+      </div>
+
+      <AttendanceTable columns={columns} data={students} toggleAttendance={toggleAttendance} />
+{spinner && <DNASpinner />}
     </ div>
   );
 }

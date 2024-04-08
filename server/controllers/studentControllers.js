@@ -146,12 +146,6 @@ const studentController = {
 
 
 
-
-
-
-
-
-
   deleteStudent: async (req, res) => {
     try {
       const studentId = req.params.studentId;

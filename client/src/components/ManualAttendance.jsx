@@ -192,6 +192,11 @@ function ManualAttendance(props) {
         const updatedStudents = [...students];
         const updatedStudent = { ...updatedStudents[studentIndex] };
 
+        updatedStudent.present === "true" ? updatedStudent.present = "false" : updatedStudent.present = "true";
+        // Update the state with the modified student
+        updatedStudents[studentIndex] = updatedStudent;
+        setStudents(updatedStudents);
+
         // Update the database for the specific student
         await axios.put(`/attendance/update/${studentEnrollmentNo}`, {
           selectedDate,
@@ -200,10 +205,7 @@ function ManualAttendance(props) {
           className: selectedClass,
         });
 
-        updatedStudent.present === "true" ? updatedStudent.present = "false" : updatedStudent.present = "true";
-        // Update the state with the modified student
-        updatedStudents[studentIndex] = updatedStudent;
-        setStudents(updatedStudents);
+        
       } else {
         console.error("Student not found in the students array.");
       }

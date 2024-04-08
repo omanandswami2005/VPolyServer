@@ -17,7 +17,7 @@ import dayjs from 'dayjs';
 
 
 
-function DynamicSchedule({ onTimeSlotCreate }) {
+function DynamicSchedule() {
 
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
@@ -85,11 +85,14 @@ while (confirmationCount < 4) {
   
     // Send a request to create a new time slot
     try {
-      const response = await axios.post('/timeSlot/create-time-slot', {
+       await axios.post('/timeSlot/create-time-slot', {
         startTime: dayjs(startTime).format('HH:mm'),
         endTime: dayjs(endTime).format('HH:mm'),
-      });
-      onTimeSlotCreate(response.data.newTimeSlot);
+      }).then((response) => {
+        axios.get('/timeSlot/time-slots').then((response) => {
+          setTimeSlots(response.data.timeSlots);
+        });
+      })
       // Optionally, clear the form fields
       setStartTime(null);
       setEndTime(null);
