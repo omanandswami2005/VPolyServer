@@ -1,107 +1,12 @@
-// import React,{ useState } from 'react';
-// import Table from '@mui/material/Table';
-// import TableBody from '@mui/material/TableBody';
-// import TableCell from '@mui/material/TableCell';
-// import { styled } from '@mui/material/styles';
-
-// import TableContainer from '@mui/material/TableContainer';
-// import TableHead from '@mui/material/TableHead';
-// import TableRow from '@mui/material/TableRow';
-// import Button from '@mui/material/Button';
-
-// import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-// import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-// import Typography from '@mui/material/Typography';
-// import Paper from '@mui/material/Paper';
-// import IconButton from '@mui/material/IconButton';
-// import Box from '@mui/material/Box';
-// import Collapse from '@mui/material/Collapse';
-
-// import { useDarkMode } from '../DarkModeContext';
-
-// import exportToWord from './exportToWord';
-// function AttendanceTable10({ attendanceData }) {
-
-
-//   const StyledTableRow = styled(TableRow)(({ theme }) => ({
-//     '&:nth-of-type(odd)': {
-//       backgroundColor: theme.palette.action.hover,
-//     },
-//     // hide last border
-//     '&:last-child td, &:last-child th': {
-//       border: 0,
-//     },
-//   }));
-
-  
-  
-// const {isDarkMode} = useDarkMode();
-
-//   // Extract unique dates from the attendance data
-//   const dates = [...new Set(attendanceData.reduce((acc, curr) => acc.concat(curr.attendance.map(a => a.date)), []))];
-
-
-
-
-  
-
-//   return (
-//     <>
-//     <TableContainer sx={{ maxHeight: 400,maxWidth:1000 }}>
-//       <Table sx={{ minWidth: 700 ,border: 1,backgroundColor: isDarkMode?"#fff":"#000",borderCollapse: 'collapse'} } size="medium" aria-label="customized table" stickyHeader>
-//         <TableHead>
-//           <TableRow>
-//             <TableCell sx={{position: 'sticky', left: 0, zIndex: 100}} >Roll No</TableCell>
-//             <TableCell sx={{position: 'sticky', left: 50, zIndex: 100}} >Name</TableCell>
-//             {dates.map(date => (
-//               <TableCell key={date}>{date.slice(0, 10)}</TableCell>
-//             ))}
-//         <TableCell sx={{position:"sticky",zIndex:10,right:80}}>Total Attendance</TableCell> {/* Total Attendance Column */}
-//           <TableCell sx={{position:"sticky",zIndex:10,right:0}}>Defaulter</TableCell> {/* Defaulter Column */}
-//           </TableRow>
-//         </TableHead>
-//         <TableBody >
-//         {attendanceData.map(student => {
-//           const totalAttendance = student.attendance.filter(a => a.present).length; // Calculate total attendance
-//           const totalDays = dates.length; // Total number of days
-//           const attendancePercentage = (totalAttendance / totalDays) * 100; // Calculate attendance percentage
-//           const isDefaulter = attendancePercentage < 75; // Check if the student is a defaulter
-//           return (
-//             <StyledTableRow hover={true} key={student.studentName}>
-//               <TableCell sx={{ position: 'sticky', left: 0, zIndex: 1, backgroundColor: isDarkMode?"#aaa":"#000",border: '1px solid #ddd' }} >{student.rollNo}</TableCell>
-
-
-//               <TableCell sx={{ position: 'sticky', left: 50, zIndex: 1, backgroundColor: isDarkMode?"#aaa":"#000",border: '1px solid #ddd' }}>{student.studentName}</TableCell>
-
-
-//               {dates.map(date => {
-//                 const attendance = student.attendance.find(a => a.date === date);
-//                 const status = attendance ? (attendance.present ? 'P' : 'A') : ''; // Assuming 'P' for present and 'A' for absent
-//                 return <TableCell key={`${student.studentName}-${date}`} sx={{border: '1px solid #ddd'}}>{status}</TableCell>;
-//               })}
-//               <TableCell sx={{ position: 'sticky', right: 80, zIndex: 1, backgroundColor: isDarkMode?"#aaa":"#000",border: '1px solid #ddd' }} >{totalAttendance}/{totalDays}</TableCell> {/* Total Attendance */}
-//               <TableCell sx={{ position: 'sticky', right: 0, zIndex: 1, backgroundColor: isDarkMode?"#aaa":"#000",border: '1px solid #ddd' }}>{isDefaulter ? 'Yes' : 'No'}</TableCell> {/* Defaulter */}
-//             </StyledTableRow >
-//           );
-//         })}
-//       </TableBody>
-//       </Table>
-//     </TableContainer>
-//           <Button onClick={() => exportToWord(attendanceData, dates)}>Export to Word</Button>
-
-//     </>
-//   );
-// }
-
-// export default AttendanceTable10;
-
-
 import React,{ useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import { styled } from '@mui/material/styles';
+import { Chart as ChartJS, ArcElement, Tooltip, } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
+
+
 import Toolbar from '@mui/material/Toolbar';
 
 
@@ -113,15 +18,17 @@ import Button from '@mui/material/Button';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 
 import { useDarkMode } from '../DarkModeContext';
 
-import exportToWord from './exportToWord';
-function AttendanceTable10({ attendanceData }) {
+import ExportToWord from './ExportToWord';
+
+ChartJS.register(ArcElement, Tooltip,);
+
+function AttendanceTable10({ attendanceData,Class,timeSlot }) {
   const [openRowIndex, setOpenRowIndex] = useState(null); // State to keep track of the open row index
 
   //Function to toggle collapse for a row
@@ -159,6 +66,8 @@ console.log(dates);
     const absentCount = attendance.length - presentCount;
     return {
       labels: ['Present', 'Absent'],
+      legend: { display: true },
+
       datasets: [
         {
           label: 'Attendance',
@@ -172,8 +81,10 @@ console.log(dates);
 
   return (
     <>
-    <Toolbar>
-    <Button onClick={() => exportToWord(attendanceData, dates)} variant='contained'>Export to Word</Button>
+    <Toolbar sx={{display:"flex",justifyContent:"space-evenly"}}>
+    <Button onClick={() => ExportToWord(attendanceData, dates,Class,timeSlot)} variant='contained'>Export to Word</Button>
+    <Typography > Selected Class : {Class}</Typography>
+    <Typography > Selected Time Slot : { timeSlot}</Typography>
     </Toolbar>
       <TableContainer sx={{ maxHeight: 400, maxWidth: 1000 }}>
         <Table sx={{ minWidth: 700, border: 1, backgroundColor: isDarkMode ? "#fff" : "#000", borderCollapse: 'collapse' }} size="medium" aria-label="customized table" stickyHeader>
@@ -183,7 +94,7 @@ console.log(dates);
               <TableCell >Pie Info</TableCell>
               <TableCell sx={{ position: 'sticky', left: 0, zIndex: 1000 }}>Roll No</TableCell>
               <TableCell sx={{ position: 'sticky', left: 50, zIndex: 1000 }}>Name</TableCell>
-              {dates.map(date => (
+              {dates.sort().map(date => (
                 <TableCell key={date} sx={{transform:"rotate(-35deg)",height:"25px",width:"30px",borderRadius:"100%"}}>{date}</TableCell>
               ))}
               <TableCell sx={{ position: "sticky", zIndex: 10, right: 80 }}>Total Attendance</TableCell> {/* Total Attendance Column */}
@@ -240,7 +151,8 @@ console.log(dates);
 
                             </Typography>
                           
-                          <Pie data={generatePieChartData(student.attendance)} />
+                          <Pie data={generatePieChartData(student.attendance)}
+                           />
                         </Box>
                       </Collapse>
                     </TableCell>

@@ -165,6 +165,7 @@ const attendanceControllers = {
     const { selectedDate, selectedTimeSlot } = req.body;
     console.log(studentEnrollmentNo, selectedDate, selectedTimeSlot);
     try {
+      
       const currentDate = new Date(selectedDate);
       currentDate.setUTCHours(0,0,0,0);
 

@@ -10,13 +10,12 @@ import ResponsiveDrawer from './components/ResponsiveDrawer';
 import  { Toaster } from 'react-hot-toast';
 import ProtectedRoute from './components/ProtectedRoute';
 // import { Logoutpage} from './components/Logout';
-import ManualAttendance from './components/ManualAttendaceShallowCopy';
+import ManualAttendance from './components/ManualAttendance';
 import ClassManagement from './views/ClassManagement';
 import StudentManagement from './views/StudentManagement';
-import ViewAttendanceDashboard from './components/ViewAttendenceTemp'
+import ViewAttendanceDashboard from './components/ViewAttendance'
 import FacultyManagement from './views/FacultyView';
 import ScheduleManagementView from './views/ScheduleManagementView';
-import ViewAttendance from './components/ViewAttendance';
 import { useDarkMode } from './DarkModeContext';
 import { ThemeProvider, createTheme } from '@mui/material';
 import DarkModeToggler from './components/DarkModeButton/DarkModeToggler';

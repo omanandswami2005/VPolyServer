@@ -52,15 +52,8 @@ function ResponsiveDrawer(props) {
 
 
   const drawer = (
-    // <ThemeProvider theme={!isDarkMode ? darkTheme : theme } >
     <div>
-     {/* <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
-<Typography variant="h6" noWrap component="div" align='center'>
-Omanand Swami      <br /> <Logoutbutton />
-
-</Typography>
-     </Toolbar>
-     <hr /> <Divider /> */}
+    
       <List>
         <ListItem sx={{ display: 'flex', justifyContent: 'end' }} >
           <IconButton onClick={handleDrawerClose} >
@@ -204,54 +197,6 @@ Omanand Swami      <br /> <Logoutbutton />
             
               </Link>
 
-
-            {/* <div className="navButtons border rounded p-1 mx-2 my-1  border-light" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} >
-
-              <Link to='/dashboard/viewattendance' className='mx-2 NavBtn'>
-                <Button size="small" variant="contained" style={{ backgroundColor: 'white', color: 'black' }} >Manage <br /> Attendance !</Button>
-              </Link>
-
-
-              <Link to='/dashboard/studentManagement' className='mx-2 NavBtn'>
-                <Button size="small" variant="contained" color='success'>
-
-                  Manage <br /> Students !
-
-                </Button>
-              </Link>
-              <Link to='/dashboard/startmanualattendance' className='mx-2 NavBtn'>
-                <Button size="small" variant="contained" color='error'>Manual <br /> Attendance !</Button>
-              </Link>
-
-
-
-              <Link to='/dashboard/classManagement' className='mx-2 NavBtn'>
-                <Button size="small" style={{ backgroundColor: 'black', color: 'white', border: '1px solid white' }} variant="contained"
-                >
-
-                  Manage <br /> Classes !
-
-                </Button>
-              </Link>
-              <Link to='/dashboard/scheduleSetup' className='mx-2 NavBtn'>
-                <Button size="small" color='primary' variant="contained"
-                >
-
-                  Manage<br />Schedule !
-
-                </Button>
-              </Link>
-
-
-              <Link to='/dashboard/faculty' className='mx-2 NavBtn'>
-                <Button size="small" variant="contained" color='secondary'>
-
-                  Manage <br /> Faculties !
-
-                </Button>
-              </Link>
-
-            </div> */}
            
             <DarkModeToggler />
             <div className="logoutBtn">
@@ -272,7 +217,7 @@ Omanand Swami      <br /> <Logoutbutton />
          
           <Drawer
             container={container}
-            variant="responsive"
+            // variant="responsive"
             open={mobileOpen}
             anchor="left"
             onTransitionEnd={handleDrawerTransitionEnd}

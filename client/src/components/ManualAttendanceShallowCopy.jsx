@@ -27,14 +27,14 @@ import { AwesomeButton } from "react-awesome-button";
 dayjs.extend(utc);
 dayjs.extend(require('dayjs/plugin/timezone'));
 
+dayjs.tz.setDefault();
 
 
 function ManualAttendance(props) {
   const { isDarkMode } = useDarkMode();
-  // dayjs.tz.setDefault('Asia/Kolkata');
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('To Be Selected');
   // const [showEnrollmentNo, setShowEnrollmentNo] = useState(false); // New state for showing/hiding Enrollment No.
   const [selectedClass, setSelectedClass] = useState('To Be Selected');
@@ -334,7 +334,7 @@ function ManualAttendance(props) {
                     hapticFeedback();
                   }}
                   format="DD-MM-YYYY"
-                  timezone="system"
+                  // timezone="system"
                   disableFuture={props.userData.role === "teacher" ? true : false}
                 />
 

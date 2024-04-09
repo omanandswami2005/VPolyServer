@@ -1,7 +1,7 @@
 import React from "react";
-import facultymgmt from '../images/facultymgmt.jpg';
-import classmgmt from '../images/classmgmt.jpg';
-import schedule from '../images/schedule.jpg';
+import facultymgmt from '../images/facultymgmt.webp';
+import classmgmt from '../images/classmgmt.webp';
+import schedule from '../images/schedule.webp';
 import { Button, Card, CardBody,  CardImg, CardSubtitle, CardText, CardTitle } from 'reactstrap';
 
 import { useDarkMode } from '../DarkModeContext';
@@ -25,12 +25,12 @@ export default function StdFacCls( {role}) {
      <div className ='div'>
           <Card className='dashcard'>
             <CardImg
-              alt="Faculty Management System"
+              alt="Faculty Management"
               src={facultymgmt}
               top
               width="100%"
             />
-            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
+            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : '#ccc', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
               <CardTitle tag="h4" className='hi'>
                 #Faculty^Management
               </CardTitle>
@@ -56,12 +56,12 @@ export default function StdFacCls( {role}) {
         <div className ='div'>
           <Card className='dashcard'>
             <CardImg
-              alt="Class Management System"
+              alt="Class Management"
               src={classmgmt}
               top
               width="100%"
             />
-            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
+            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : '#ccc', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
               <CardTitle tag="h4" className='hi'>
                 #Classes-Management
               </CardTitle>
@@ -92,12 +92,12 @@ export default function StdFacCls( {role}) {
         <div className ='div'>
           <Card className='dashcard'>
             <CardImg
-              alt="Card image cap"
+              alt="Schedule Management"
               src={schedule}
               top
               width="100%"
             />
-            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : 'white', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
+            <CardBody style={{backgroundColor: !isDarkMode ? 'black' : '#ccc', color: !isDarkMode ? 'white' : 'black',borderRadius:"10px"}}>
               <CardTitle tag="h4" className='hi'>
                 #SchEdulE ;- Management
               </CardTitle>

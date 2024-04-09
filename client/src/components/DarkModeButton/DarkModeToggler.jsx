@@ -1,7 +1,6 @@
 import React from 'react';
 import { useDarkMode } from '../../DarkModeContext';
 import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import { styled } from '@mui/material/styles';
 
 const DarkModeToggler = () => {
@@ -54,10 +53,7 @@ const DarkModeToggler = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   return (
-    <FormControlLabel
-        control={<MaterialUISwitch sx={{ m: 1 }}   checked={!isDarkMode} onChange={toggleDarkMode} />}
-        // label="Dark Mode"
-      />
+    <MaterialUISwitch sx={{ m: 1 }}   checked={!isDarkMode} onChange={toggleDarkMode} />
   );
 };
 

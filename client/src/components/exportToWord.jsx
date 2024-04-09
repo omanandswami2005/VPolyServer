@@ -1,27 +1,28 @@
-import { Document, HeadingLevel, Packer, Paragraph, Table, TableCell, TableRow ,AlignmentType,PageOrientation, TableColumnWidth, TableWidthType, TextRun, Header,VerticalAlign, HorizontalAlign, WidthType,Footer,NumberFormat,PageNumber,TableLayoutType} from 'docx';
+import { Document, HeadingLevel, Packer, Paragraph, Table, TableCell, TableRow, AlignmentType, PageOrientation, Header, VerticalAlign, TextRun, WidthType, Footer, NumberFormat, PageNumber, TableLayoutType } from 'docx';
 import { saveAs } from 'file-saver'; // For saving the file
 
-const exportToWord = async (attendanceData, dates) => {
+const ExportToWord = async (attendanceData, dates, Class, timeSlot) => {
     // console.log(attendanceData)
     // console.log(dates)
+    console.log(Class)
     const doc = new Document({
         sections: [],
 
     });
-    
+
     const rows = [];
 
     // Construct table rows
     rows.push(
         new TableRow({
             children: [
-                new TableCell({width: { size: 4, type: WidthType.PERCENTAGE }, children: [new Paragraph({ text: 'Roll No' ,heading:HeadingLevel.HEADING_5,alignment: AlignmentType.CENTER})] }),
-                new TableCell({width: { size: 12, type: WidthType.PERCENTAGE }, children: [new Paragraph({ text: 'Name',heading:HeadingLevel.HEADING_5,alignment: AlignmentType.CENTER })]}),
+                new TableCell({ width: { size: 4, type: WidthType.PERCENTAGE }, children: [new Paragraph({ text: 'Roll No', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.CENTER })] }),
+                new TableCell({ width: { size: 12, type: WidthType.PERCENTAGE }, children: [new Paragraph({ text: 'Name', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.CENTER })] }),
 
-                ...dates.map(date => new TableCell({ children: [new Paragraph({ text: date.slice(0, 10).toString().slice(0,5) })] })),
+                ...dates.map(date => new TableCell({ children: [new Paragraph({ text: date.slice(0, 10).toString().slice(0, 5) })] })),
 
-                new TableCell({ children: [new Paragraph({ text: 'Total Attendance',heading:HeadingLevel.HEADING_5,alignment: AlignmentType.CENTER })] }),
-                new TableCell({ children: [new Paragraph({ text: 'Defaulter',heading:HeadingLevel.HEADING_5 ,alignment: AlignmentType.CENTER})] })
+                new TableCell({ children: [new Paragraph({ text: 'Total Attendance', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.CENTER })] }),
+                new TableCell({ children: [new Paragraph({ text: 'Defaulter', heading: HeadingLevel.HEADING_5, alignment: AlignmentType.CENTER })] })
             ],
             verticalAlign: VerticalAlign.CENTER,
             tableHeader: true
@@ -39,9 +40,12 @@ const exportToWord = async (attendanceData, dates) => {
             new TableRow({
                 alignment: 'center',
                 children: [
-                    new TableCell({ children: [new Paragraph({ text: student.rollNo.toString(),alignment: AlignmentType.CENTER
-                         })] }),
-                    new TableCell({ children: [new Paragraph({ text: student.studentName,alignment: AlignmentType.CENTER })] }),
+                    new TableCell({
+                        children: [new Paragraph({
+                            text: student.rollNo.toString(), alignment: AlignmentType.CENTER
+                        })]
+                    }),
+                    new TableCell({ children: [new Paragraph({ text: student.studentName, alignment: AlignmentType.CENTER })] }),
 
                     ...dates.map(date => {
                         const attendance = student.attendance.find(a => {
@@ -51,11 +55,11 @@ const exportToWord = async (attendanceData, dates) => {
 
                         });
                         const status = attendance ? (attendance.present ? 'P' : 'A') : '';
-                        return new TableCell({ children: [new Paragraph({ text: status ,alignment: AlignmentType.CENTER})] });
+                        return new TableCell({ children: [new Paragraph({ text: status, alignment: AlignmentType.CENTER })] });
                     }),
-                    new TableCell({ children: [new Paragraph({ text: `P: ${totalAttendance} || A: ${totalDays-totalAttendance} (${attendancePercentage}%)`,alignment: AlignmentType.CENTER })] }),
+                    new TableCell({ children: [new Paragraph({ text: `P: ${totalAttendance} || A: ${totalDays - totalAttendance} (${attendancePercentage ? Math.round(attendancePercentage) : 0}%)`, alignment: AlignmentType.CENTER })] }),
 
-                    new TableCell({ children: [new Paragraph({ text: isDefaulter ? 'Yes' : 'No',alignment: AlignmentType.CENTER })] })
+                    new TableCell({ children: [new Paragraph({ text: isDefaulter ? 'Yes' : 'No', alignment: AlignmentType.CENTER })] })
                 ]
             })
         );
@@ -65,9 +69,9 @@ const exportToWord = async (attendanceData, dates) => {
         rows,
         columnWidths: [1000, 1000, ...Array(dates.length).fill(100)],
         width: { size: 100, type: WidthType.PERCENTAGE }, // Adjust width as needed
-        layout:TableLayoutType.FIXED,
-        
-       });
+        layout: TableLayoutType.FIXED,
+
+    });
 
     doc.addSection({
         properties: {
@@ -81,7 +85,7 @@ const exportToWord = async (attendanceData, dates) => {
                     formatType: NumberFormat.DECIMAL,
                 },
                 margin: {
-                    
+
                     right: 500,
                     left: 500,
                 },
@@ -90,7 +94,11 @@ const exportToWord = async (attendanceData, dates) => {
         children: [table],
         headers: {
             default: new Header({
-                children: [new Paragraph("VAPM College of Polytechnic, Latur."+" "+"Date: " + new Date().toLocaleDateString())],
+                children: [
+                    new Paragraph(`VAPM College of Polytechnic, Latur. Date: ${new Date().toLocaleDateString()}`),
+                    new Paragraph(`Class: ${Class}, Time Slot: ${timeSlot}`)
+                  ],
+                  
             }),
         },
         footers: {
@@ -116,8 +124,8 @@ const exportToWord = async (attendanceData, dates) => {
                     }),
 
                 ],
-                
-                
+
+
             }),
         },
     });
@@ -129,4 +137,4 @@ const exportToWord = async (attendanceData, dates) => {
 
 }
 
-export default exportToWord;
+export default ExportToWord;

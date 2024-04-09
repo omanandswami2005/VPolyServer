@@ -7,8 +7,8 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useDarkMode } from '../DarkModeContext';
 import {
-  ThemeProvider,
-  createTheme,
+  
+  
   Select, MenuItem, 
   Card, CardContent, Typography,  Grid, Dialog, DialogTitle, DialogContent, DialogActions,
 
@@ -27,40 +27,22 @@ import { AwesomeButton } from "react-awesome-button";
 dayjs.extend(utc);
 dayjs.extend(require('dayjs/plugin/timezone'));
 
-
-
 function ManualAttendance(props) {
+  
   const { isDarkMode } = useDarkMode();
-  // dayjs.tz.setDefault('Asia/Kolkata');
   const navigate = useNavigate();
   const [students, setStudents] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(dayjs().tz('Asia/Kolkata'));
+  const [selectedDate, setSelectedDate] = useState(dayjs.utc(new Date()));
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('To Be Selected');
-  // const [showEnrollmentNo, setShowEnrollmentNo] = useState(false); // New state for showing/hiding Enrollment No.
   const [selectedClass, setSelectedClass] = useState('To Be Selected');
   const [classList, setClassList] = useState([]);
   const [allPresent, setAllPresent] = useState("false");
   const [isFiltersModalOpen, setFiltersModalOpen] = useState(false);
   const [timeSlots, setTimeSlots,] = useState([]);
-  // const [searchTerm, setSearchTerm] = useState(""); // State to store search term
-
 
   const [timeSlotDropdownOpen, setTimeSlotDropdownOpen] = useState(false);
   const [classDropdownOpen, setClassDropdownOpen] = useState(false);
-  const darkTheme = createTheme({
-    palette: {
-      mode: 'dark',
-
-    },
-  });
-
-
-  // Define a light theme
-  const lightTheme = createTheme({
-    palette: {
-      mode: 'light',
-    },
-  });
+  
  
 
   const hapticFeedback = useCallback(() => {
@@ -115,7 +97,7 @@ function ManualAttendance(props) {
         // const selectedDate1 = dayjs(selectedDate) + 1;
         // console.log(selectedDate1.toISOString());
         axios
-          .post(`/attendance/manualattendance`, { selectedDate, selectedTimeSlot, className: selectedClass, })
+          .post(`/attendance/manualattendance`, { selectedDate: selectedDate.add(1, 'day'), selectedTimeSlot, className: selectedClass, })
           .then((response) => {
             if (response.data.studentAttendance.length < 1) {
               toast.error("No Students Found, Please Add Students in Selected Class");
@@ -134,11 +116,7 @@ function ManualAttendance(props) {
     }
   }, [selectedDate, selectedTimeSlot, selectedClass,hapticFeedback]); // Dependencies added here
 
-  // const toggleFiltersModal = useCallback(() => {
-  //   setFiltersModalOpen(prev => !prev);
 
-
-  // }, []);
   const toggleFiltersModal = useCallback(() => {
     setFiltersModalOpen((prev) => !prev);
   },[setFiltersModalOpen]);
@@ -169,7 +147,7 @@ function ManualAttendance(props) {
 
     // Update the database for all students
     try {
-      await axios.put(`/attendance/updateAll/${selectedDate}/${selectedTimeSlot}`, {
+      await axios.put(`/attendance/updateAll/${selectedDate.add(1, 'day')}/${selectedTimeSlot}`, {
         present: allPresent === "true" ? false : true,
         className: selectedClass
       });
@@ -193,13 +171,14 @@ function ManualAttendance(props) {
         const updatedStudent = { ...updatedStudents[studentIndex] };
 
         updatedStudent.present === "true" ? updatedStudent.present = "false" : updatedStudent.present = "true";
+        
         // Update the state with the modified student
         updatedStudents[studentIndex] = updatedStudent;
         setStudents(updatedStudents);
 
         // Update the database for the specific student
         await axios.put(`/attendance/update/${studentEnrollmentNo}`, {
-          selectedDate,
+          selectedDate: selectedDate.add(1, "day"),
           selectedTimeSlot,
           present: updatedStudent.present === "true" ? true : false,
           className: selectedClass,
@@ -315,13 +294,6 @@ function ManualAttendance(props) {
         maxWidth: '10vw',
       }
     },
-    renderBottomToolbarCustomActions: ({ table }) => (
-    <div className="text-center mx-auto my-2">
-     &bull; Tatal Students: {totalStudents} |  &nbsp; 
-     &bull;Present Students: {presentStudents} | &nbsp;
-     &bull;Absent Students: {absentStudents}
-    </div>
-    ),
 
     enablePagination: false,
     enableRowVirtualization: true,
@@ -345,11 +317,6 @@ function ManualAttendance(props) {
     ), [toggleFiltersModal, students, toggleAllStudents, allPresent]),
   });
 
-  // const preventDefault = useCallback((e) => e.preventDefault(), []);
-  // const setDat = () => {
-  //   setSelectedDate(dayjs());
-  //   return dayjs();
-  // }
 
   const filterModal = React.useMemo(() => (
     <Dialog open={isFiltersModalOpen} onClose={toggleFiltersModal} style={{ width: '100', margin: '0' }} className="p-0">
@@ -372,10 +339,10 @@ function ManualAttendance(props) {
                     hapticFeedback();
                   }}
                   format="DD-MM-YYYY"
+                  timezone="system"
                   disableFuture={props.userData.role === "teacher" ? true : false}
                 />
 
-                {/* <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="border-dark rounded-2 my-2" placeholder="Select Date" /> */}
               </Grid>
 
               <Grid item md={5}>
@@ -443,18 +410,26 @@ function ManualAttendance(props) {
 
   return (
     < div className='mt-4' >
-      <ThemeProvider theme={isDarkMode ? lightTheme : darkTheme}>
+      
          <Typography variant="h5" align="center" className='mt-5 w-75 mx-auto' style={{ backgroundColor: isDarkMode ? '#f8f9fa' : '#333', color: isDarkMode ? '#000' : '#fff',border: isDarkMode ? '1px solid #000' : '1px solid #fff' }} gutterBottom>
         Manual Attendance
       </Typography>
 
         {filterModal}
         
-        <div className="w-100  border-primary d-flex align-items-center border" style={{ justifyContent: 'space-evenly' }}> <span  className="text-center" > &bull;Seleted date:<br /> {selectedDate.toString().slice(0, 16) ? selectedDate.toString().slice(0, 16) : "To Be Selected"} </span>
-          <span className="border border-primary rounded-2 text-center">  &bull;Selected Time:<br /> {selectedTimeSlot} </span> <span className="text-center"> &bull;Selected Class: <br /> {selectedClass}</span></div>
+        <div className="w-100  border-primary d-flex align-items-center border" style={{ justifyContent: 'space-evenly' }}> <span className="text-center" > &bull;Date:<br /> {selectedDate ? new Date(selectedDate).toDateString() : "To Be Selected"} </span>
+
+<span className="border border-primary rounded-2 p-1 text-center">  &bull;Time:<br /> {selectedTimeSlot} </span> <span className="text-center p-1"> &bull;Class: <br /> {selectedClass}</span></div>
+          <div className="text-center mx-auto my-2  w-100">
+
+&bull; Tatal Students: {totalStudents} |  &nbsp;
+&bull;Present Students: {presentStudents} | &nbsp;
+&bull;Absent Students: {absentStudents}
+
+</div>
         <MaterialReactTable table={table} />
 
-      </ThemeProvider>
+     
     </ div>
   );
 }

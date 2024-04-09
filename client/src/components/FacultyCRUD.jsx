@@ -32,7 +32,7 @@ import {
 import { AwesomeButton } from 'react-awesome-button';
 import { PlusIcon } from '@primer/octicons-react';
 
-function FacultyManagement( props) {
+function FacultyManagement() {
   const { isDarkMode } = useDarkMode();
 
 
